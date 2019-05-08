@@ -95,7 +95,7 @@ void test_subset_gen()
     }
     for(uint32_t i=0; i<results.size(); ++i)
     {
-
+        output_set(results[i],3);
         test_vec.erase(std::remove(test_vec.begin(), test_vec.end(), results[i]), test_vec.end()) ;
     }
     if(test_vec.empty())
