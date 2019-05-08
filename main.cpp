@@ -1,22 +1,23 @@
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <algorithm>
 #include <chrono>
-#include <iostream>
 #include <fstream>
+
 
 
 #include "functions.h"
 #include "mobius.h"
+#include "steiner.h"
 
 using namespace std;
 using namespace std::chrono;
 
-void output_set(int setRep,int n)
+void output_set(uint32_t setRep,int n)
 {
     cout<<"< ";
-    for(int i=0; i<=n; i++)
+    for(uint32_t i=0; i<=n; i++)
     {
         if(setRep&(1<<(i-1)))
         {
@@ -97,7 +98,7 @@ void test_subset_gen()
 
         test_vec.erase(std::remove(test_vec.begin(), test_vec.end(), results[i]), test_vec.end()) ;
     }
-    if(test_vec.size()==0)
+    if(test_vec.empty())
     {
         cout<<"Subsets as expected"<<endl;
     }
@@ -197,9 +198,10 @@ int main()
     test_subset_gen();
     test_ranked_mobius_and_convolute();
 
+    test_dijkstra();
     ofstream myfile;
 
-    myfile.open ("results.txt");
+    /*myfile.open ("results.txt");
     myfile<<"n naive mobius\n";
     for(int i=6; i<21; ++i)
     {
@@ -221,6 +223,6 @@ int main()
         cout<<"mobius approach with n:"<<n<<" done in "<<duration<<"ms"<<endl;
     }
 
-    myfile.close();
+    myfile.close();*/
     return 0;
 }

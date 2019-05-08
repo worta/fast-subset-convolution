@@ -1,8 +1,9 @@
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include "functions.h"
 #include "utility.h"
+#include <cstdint>
 using namespace std;
 template <typename T>
 vector<T> fastMobius(Function<T> &f,int n)
@@ -12,9 +13,9 @@ vector<T> fastMobius(Function<T> &f,int n)
     {
         d[0][k]=f(k);
     }
-    for(int j=1; j<n+1; j++)
+    for(uint32_t j=1; j<n+1; j++)
     {
-        for(int k=0; k<(int)pow(2,n); k++)
+        for(uint32_t k=0; k<(int)pow(2,n); k++)
         {
             if(k&(1<<(j-1)))
             {
@@ -79,7 +80,7 @@ vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n)
         subsets.reserve((int)pow(2,n));
         getSubsets(k,subsets);
         conv[k]=0;
-        for(int i=0; i<pow(2,__builtin_popcount(k)); ++i)
+        for(uint32_t i=0; i<pow(2,__builtin_popcount(k)); ++i)
         {
             conv[k]=conv[k]+f(i)*g(k xor i);
         }
@@ -130,7 +131,7 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f,int n)
         //for(int i=0;i<pow(2,__builtin_popcount(s));++i){
         for(uint32_t i=0; i<subsets.size(); ++i)
         {
-            int s_without_x=s xor subsets[i];
+            uint32_t s_without_x=s xor subsets[i];
             //int factor=1-2*(__builtin_popcount(s_without_x)%2); //todo add minus
             if((__builtin_popcount(s_without_x)%2)==0){
                original_f[s]=original_f[s]+f(element_count,subsets[i]);

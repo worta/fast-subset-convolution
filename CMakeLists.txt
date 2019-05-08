@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
+find_package(Boost)
+IF (Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIR})
+endif()
+
 add_executable(fast_subset_convolution
         functions.cpp
         functions.h

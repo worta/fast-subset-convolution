@@ -1,0 +1,46 @@
+# depslib dependency file v1.0
+1556885466 source:/home/dominik/Studium/Master/fast-subset-convolution/functions.cpp
+	<vector>
+	"functions.h"
+
+1556885466 /home/dominik/Studium/Master/fast-subset-convolution/functions.h
+	<vector>
+
+1556885466 source:/home/dominik/Studium/Master/fast-subset-convolution/main.cpp
+	<iostream>
+	<math.h>
+	<vector>
+	<algorithm>
+	<chrono>
+	<iostream>
+	<fstream>
+	"functions.h"
+	"mobius.h"
+
+1556885466 /home/dominik/Studium/Master/fast-subset-convolution/mobius.h
+	"mobius.cpp"
+
+1556889119 /home/dominik/Studium/Master/fast-subset-convolution/mobius.cpp
+	<vector>
+	<math.h>
+	<algorithm>
+	"functions.h"
+	"utility.h"
+	<cstdint>
+
+1556885466 /home/dominik/Studium/Master/fast-subset-convolution/utility.h
+	<vector>
+
+1556885466 source:/home/dominik/Studium/Master/fast-subset-convolution/steiner.cpp
+
+1556885466 source:/home/dominik/Studium/Master/fast-subset-convolution/utility.cpp
+	"utility.h"
+
+1556889119 source:/home/dominik/Studium/Master/fast-subset-convolution/mobius.cpp
+	<vector>
+	<math.h>
+	<algorithm>
+	"functions.h"
+	"utility.h"
+	<cstdint>
+
