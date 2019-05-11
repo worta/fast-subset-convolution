@@ -5,8 +5,6 @@
 #include <chrono>
 #include <fstream>
 
-
-
 #include "functions.h"
 #include "mobius.h"
 #include "steiner.h"

@@ -101,10 +101,39 @@ bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcou
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
 void naive_dreyfuss_wagner(weight_matrix &graph_adj, int size, uint32_t K,int num_terminals) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int W[size*(int)std::pow(2,num_terminals)]; //need W[X,q] with X subset of K and q element of the nodes of the graph
+    vector< vector<int> > W((int)pow(2,num_terminals),vector<int>(size)); //need W[X][q] with X subset of K and q element of the nodes of the graph
+    vector<int> gp((int)pow(2,num_terminals));
     vector<int> subsets;
     getSubsets(K,subsets);
-    std::sort(subsets.begin(),subsets.end(),set_size_cmp);
-    
+    std::sort(subsets.begin(),subsets.end(),set_size_cmp); //sort subsets in order of size
+    //TODO: switch gp to g[][] and W to just []
+    //empty set in combination with any other node results in 0
+    for(uint32_t i=0;i<size;i++){
+        W[0][i]=0;
+    }
+    //set 2 element sets to shortest distance
+    int count=0;
+    for(int subset:subsets){
+        if(subset!=0){
+            if(__builtin_popcount(subset)>1){
+                break;
+            }
+            gp[subset]=0;
+            for(int i=0;i<size;++i){
+                int elem=__builtin_ffs(subset); //subset should only contain 1 element
+                W[subset][i]=pair_wise_dist[elem-1][i];
+            }
+        }
+        count++;
+    }
+
+    for(int subs=count;subs<subsets.size();++subs){
+        gp[subsets[subs]]=
+        for(int i=0;i<size;++i){
+
+            W[subsets[subs]]
+        }
+
+    }
 
 }
