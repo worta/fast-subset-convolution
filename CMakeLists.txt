@@ -20,4 +20,4 @@ add_executable(fast_subset_convolution
         steiner.cpp
         steiner.h
         utility.cpp
-        utility.h)
+        utility.h common.h)

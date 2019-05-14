@@ -8,14 +8,15 @@
 #include "functions.h"
 #include "mobius.h"
 #include "steiner.h"
+#include "common.h"
 
 using namespace std;
 using namespace std::chrono;
 
-void output_set(uint32_t setRep,int n)
+void output_set(set_t setRep,int n)
 {
     cout<<"< ";
-    for(uint32_t i=0; i<=n; i++)
+    for(set_t i=0; i<=n; i++)
     {
         if(setRep&(1<<(i-1)))
         {
@@ -79,12 +80,12 @@ public:
 void test_subset_gen()
 {
     cout <<"Test subset generation"<<endl;
-    uint32_t test_set=7; //<1,2>
+    set_t test_set=7; //<1,2>
     cout <<"Testing subset:";
     output_set(test_set,3);
     cout<<endl;
-    vector<uint32_t> test_vec {0,1,2,3,4,5,6,7};
-    vector<uint32_t > results;
+    vector<set_t> test_vec {0,1,2,3,4,5,6,7};
+    vector<set_t > results;
     //results.reserve(2);
     //getSubsets(test_set,results);
     results=getSubsetsIt(test_set);
@@ -95,7 +96,7 @@ void test_subset_gen()
     else{
         cout<<"Error: Wrong subset size"<<endl;
     }
-    for(uint32_t i=0; i<results.size(); ++i)
+    for(set_t i=0; i<results.size(); ++i)
     {
         output_set(results[i],3);
         test_vec.erase(std::remove(test_vec.begin(), test_vec.end(), results[i]), test_vec.end()) ;
@@ -141,7 +142,7 @@ void test_ranked_mobius_and_convolute()
     vector< vector<int> > conv=ranked_convolute(ranked_f,ranked_f,n);
     for(int rang=0; rang<=n; rang++)
     {
-        /*for(uint32_t i=0;i<conv[rang].size();++i){
+        /*for(set_t i=0;i<conv[rang].size();++i){
             cout<<conv[rang][i];
         }*/
         if( conv[rang]==results[rang])
@@ -187,7 +188,7 @@ void test_ranked_mobius_and_convolute()
     {
         cout<<"Error: Mobius inversion: Incorrect values"<<endl;
         cout<<"Should be: {1,2,2,4} but is {"<<inverse[0];
-        for(uint32_t i=1; i<inverse.size(); ++i)
+        for(set_t i=1; i<inverse.size(); ++i)
         {
             cout<<","<<inverse[i];
         }

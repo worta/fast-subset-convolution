@@ -2,8 +2,8 @@
 #include <cstdint>
 #include <cmath>
 #include <deque>
-
-void getSubsets(uint32_t superset, vector<uint32_t> &results) {
+#include "common.h"
+void getSubsets(set_t superset, vector<set_t> &results) {
     int index = __builtin_ffs(
             superset); //Returns one plus the index of the least significant 1-bit of x, or if x is zero, returns zero.
     if (index == 0) {
@@ -21,11 +21,11 @@ void getSubsets(uint32_t superset, vector<uint32_t> &results) {
 
 }
 
-vector<uint32_t> getSubsetsIt(uint32_t superset) {
+vector<set_t> getSubsetsIt(set_t superset) {
     int limit = (int) pow(2, __builtin_popcount(superset));
-    vector<uint32_t> r; //vector needs! to be empty at the beginning, i.e. size=0
+    vector<set_t> r; //vector needs! to be empty at the beginning, i.e. size=0
     r.reserve(limit);
-    std::deque<uint32_t> d;
+    std::deque<set_t> d;
     while (superset != 0) {
         int index = __builtin_ffs(superset);
         d.push_back(index);
@@ -36,7 +36,7 @@ vector<uint32_t> getSubsetsIt(uint32_t superset) {
         int index = d.front();
         d.pop_front();
         int currSize = r.size();
-        uint32_t element = (1 << (index - 1));
+        set_t element = (1 << (index - 1));
         for (int i = 0; i < currSize; ++i) {
             r.push_back(r[i] xor element);
         }

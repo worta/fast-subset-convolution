@@ -5,6 +5,7 @@
 #include <iostream>
 #include "steiner.h"
 #include "utility.h"
+#include "common.h"
 #include <cmath>
 #include <algorithm>
 typedef boost::multi_array<int, 2> weight_matrix;
@@ -99,16 +100,16 @@ void test_dijkstra() {
 bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
 //K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
-void naive_dreyfuss_wagner(weight_matrix &graph_adj, int size, uint32_t K,int num_terminals) {
+void naive_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K,int num_terminals) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
     vector< vector<int> > W((int)pow(2,num_terminals),vector<int>(size)); //need W[X][q] with X subset of K and q element of the nodes of the graph
     vector<int> g((int)pow(2,num_terminals));
-    vector<uint32_t > subsets;
+    vector<set_t > subsets;
     getSubsets(K,subsets);
     std::sort(subsets.begin(),subsets.end(),set_size_cmp); //sort subsets in order of size
     //TODO: switch gp to g[][] and W to just []
     //empty set in combination with any other node results in 0
-    for(uint32_t i=0;i<size;i++){
+    for(set_t i=0;i<size;i++){
         W[0][i]=0;
     }
     //set 2 element sets to shortest distance
