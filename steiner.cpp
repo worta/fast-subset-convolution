@@ -102,8 +102,8 @@ bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcou
 void naive_dreyfuss_wagner(weight_matrix &graph_adj, int size, uint32_t K,int num_terminals) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
     vector< vector<int> > W((int)pow(2,num_terminals),vector<int>(size)); //need W[X][q] with X subset of K and q element of the nodes of the graph
-    vector<int> gp((int)pow(2,num_terminals));
-    vector<int> subsets;
+    vector<int> g((int)pow(2,num_terminals));
+    vector<uint32_t > subsets;
     getSubsets(K,subsets);
     std::sort(subsets.begin(),subsets.end(),set_size_cmp); //sort subsets in order of size
     //TODO: switch gp to g[][] and W to just []
@@ -118,7 +118,7 @@ void naive_dreyfuss_wagner(weight_matrix &graph_adj, int size, uint32_t K,int nu
             if(__builtin_popcount(subset)>1){
                 break;
             }
-            gp[subset]=0;
+            g[subset]=0;
             for(int i=0;i<size;++i){
                 int elem=__builtin_ffs(subset); //subset should only contain 1 element
                 W[subset][i]=pair_wise_dist[elem-1][i];
@@ -128,11 +128,11 @@ void naive_dreyfuss_wagner(weight_matrix &graph_adj, int size, uint32_t K,int nu
     }
 
     for(int subs=count;subs<subsets.size();++subs){
-        gp[subsets[subs]]=
+       /* g[subsets[subs]]=
         for(int i=0;i<size;++i){
 
             W[subsets[subs]]
-        }
+        }*/
 
     }
 

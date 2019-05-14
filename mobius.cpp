@@ -59,7 +59,7 @@ template<typename T>
 vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n) {
     vector<T> conv((int) pow(2, n));
     for (int k = 0; k < pow(2, n); ++k) {
-        vector<int> subsets;
+        vector<uint32_t > subsets;
         subsets.reserve((int) pow(2, n));
         getSubsets(k, subsets);
         conv[k] = 0;
@@ -98,8 +98,8 @@ vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction<T> &g, 
 template<typename T>
 vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
     vector<T> original_f((int) pow(2, n));
-    for (int s = 0; s < pow(2, n); ++s) {
-        vector<int> subsets;
+    for (uint32_t s = 0; s < pow(2, n); ++s) {
+        vector<uint32_t > subsets;
         subsets.reserve((int) pow(2, n));
         getSubsets(s, subsets);
         original_f[s] = 0;

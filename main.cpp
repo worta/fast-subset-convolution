@@ -79,17 +79,21 @@ public:
 void test_subset_gen()
 {
     cout <<"Test subset generation"<<endl;
-    int test_set=7; //<1,2>
+    uint32_t test_set=7; //<1,2>
     cout <<"Testing subset:";
     output_set(test_set,3);
     cout<<endl;
-    vector<int> test_vec {0,1,2,3,4,5,6,7};
-    vector<int> results;
+    vector<uint32_t> test_vec {0,1,2,3,4,5,6,7};
+    vector<uint32_t > results;
     //results.reserve(2);
-    getSubsets(test_set,results);
+    //getSubsets(test_set,results);
+    results=getSubsetsIt(test_set);
     if(results.size()==test_vec.size())
     {
         cout<<"Size as expected"<<endl;
+    }
+    else{
+        cout<<"Error: Wrong subset size"<<endl;
     }
     for(uint32_t i=0; i<results.size(); ++i)
     {
@@ -99,6 +103,9 @@ void test_subset_gen()
     if(test_vec.empty())
     {
         cout<<"Subsets as expected"<<endl;
+    }
+    else{
+        cout<<"Error: Wrong elements in subset generation"<<endl;
     }
 }
 
