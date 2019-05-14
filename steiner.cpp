@@ -98,43 +98,30 @@ void test_dijkstra() {
 
 }
 bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
+
+
+
+//Both eval W and eval g should return the list of optimal choices
+void eval_W() {
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
+    vector<int> W((int)pow(2,num_terminals)); //need W[X] with X subset of K
+    vector<int> g((int)pow(2,num_terminals)); //need g[p][X], with p element of V and X subset of K
+    eval_W(X_without_q)
+
+
+}
+void eval_g(){
+
+
+}
+
 //K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
-void naive_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K,int num_terminals) {
+void classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K, int num_terminals) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    vector< vector<int> > W((int)pow(2,num_terminals),vector<int>(size)); //need W[X][q] with X subset of K and q element of the nodes of the graph
-    vector<int> g((int)pow(2,num_terminals));
-    vector<set_t > subsets;
-    getSubsets(K,subsets);
-    std::sort(subsets.begin(),subsets.end(),set_size_cmp); //sort subsets in order of size
-    //TODO: switch gp to g[][] and W to just []
-    //empty set in combination with any other node results in 0
-    for(set_t i=0;i<size;i++){
-        W[0][i]=0;
-    }
-    //set 2 element sets to shortest distance
-    int count=0;
-    for(int subset:subsets){
-        if(subset!=0){
-            if(__builtin_popcount(subset)>1){
-                break;
-            }
-            g[subset]=0;
-            for(int i=0;i<size;++i){
-                int elem=__builtin_ffs(subset); //subset should only contain 1 element
-                W[subset][i]=pair_wise_dist[elem-1][i];
-            }
-        }
-        count++;
-    }
+    vector<int> W((int)pow(2,num_terminals),-1); //need W[X] with X subset of K
+    vector<int> g((int)pow(2,num_terminals),-1); //need g[p][X], with p element of V and X subset of K
 
-    for(int subs=count;subs<subsets.size();++subs){
-       /* g[subsets[subs]]=
-        for(int i=0;i<size;++i){
-
-            W[subsets[subs]]
-        }*/
-
-    }
+    get_element_indices(K);
 
 }

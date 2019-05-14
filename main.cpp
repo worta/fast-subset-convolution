@@ -28,7 +28,7 @@ void output_set(set_t setRep,int n)
 
 
 
-class int_max
+class int_max //TODO rework as embedding into either int_sum_product or own vector representation
 {
 public:
     int value;
@@ -58,7 +58,7 @@ public:
     {
         return int_max(max(value,rhs.value));
     }
-    int_max operator-(const int_max& rhs)
+    int_max operator-(const int_max& rhs) //thats just wrong
     {
         return int_max(min(value,rhs.value));
     }
@@ -88,7 +88,7 @@ void test_subset_gen()
     vector<set_t > results;
     //results.reserve(2);
     //getSubsets(test_set,results);
-    results=getSubsetsIt(test_set);
+    results= get_subsets_it(test_set);
     if(results.size()==test_vec.size())
     {
         cout<<"Size as expected"<<endl;

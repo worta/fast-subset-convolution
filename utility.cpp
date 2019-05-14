@@ -21,7 +21,7 @@ void getSubsets(set_t superset, vector<set_t> &results) {
 
 }
 
-vector<set_t> getSubsetsIt(set_t superset) {
+vector<set_t> get_subsets_it(set_t superset) {
     int limit = (int) pow(2, __builtin_popcount(superset));
     vector<set_t> r; //vector needs! to be empty at the beginning, i.e. size=0
     r.reserve(limit);
@@ -44,3 +44,12 @@ vector<set_t> getSubsetsIt(set_t superset) {
     return r;
 }
 
+vector<int> get_element_indices(set_t set) {
+    vector<int> d;
+    while (set != 0) {
+        int index = __builtin_ffs(set);
+        d.push_back(index);
+        set = set xor (1 << (index - 1));
+    }
+    return d;
+}
