@@ -153,9 +153,11 @@ int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_rep
     int min=INT_MAX;
     int value;
     for(set_t set:sets){
-        value=eval_W(pair_wise_dist,set,W,nodes)+eval_W(pair_wise_dist,set_repr xor set,W,nodes);
-        if(value<min){
-            min=value;
+        if(set!=0 && set!=set_repr){ //not empty and not all of X
+            value=eval_W(pair_wise_dist,set,W,nodes)+eval_W(pair_wise_dist,set_repr xor set,W,nodes);
+            if(value<min){
+                min=value;
+            }
         }
     }
     return value;
@@ -174,13 +176,7 @@ void classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
 
 
 
-
-
-
-
 void mobius_dreyfuss(){
-
-
 
 
 
