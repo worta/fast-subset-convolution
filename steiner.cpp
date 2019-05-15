@@ -17,6 +17,8 @@ typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
 
+
+
 struct Node {
     int idx;
     int dist;
@@ -114,17 +116,22 @@ inline set_t to_byte_repr(vector<int> indices){
 }
 
 
+
+int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_repr);
 //Both eval W and eval g should keep track of a list of optimal choices
-int eval_W(weight_matrix &pair_wise_dist,vector<int> K,vector<int> &W,int &nodes) {
-    if(K.size()<2){
+int eval_W(weight_matrix &pair_wise_dist,set_t set_repr,vector<int> &W,int &nodes) {
+    int ele_count=__builtin_popcount(set_repr);
+    if(ele_count<2){
         return 0;
     }
-    if(K.size()==2){
-        return pair_wise_dist[K[0]-1][K[1]-1];
+    if(ele_count==2){
+        int ele1=__builtin_ffs(set_repr)-1;
+        set_repr=set_repr xor (1<<ele1);
+        int ele2=__builtin_ffs(set_repr)-1;
+        return pair_wise_dist[ele1][ele2];
     }
-    int q=K.back();
-    K.pop_back();
-    set_t set_repr=to_byte_repr(K);
+    int q=__builtin_ffs(set_repr);
+    set_repr=set_repr xor (1<<q);
     if(W[set_repr]>=0) {
         return W[set_repr];
     }
@@ -132,26 +139,26 @@ int eval_W(weight_matrix &pair_wise_dist,vector<int> K,vector<int> &W,int &nodes
         int min=INT_MAX;
         int value;
         for(int i=0;i<nodes;++i) {
-            value=pair_wise_dist[q][i]+eval_g();
+            value=pair_wise_dist[q-1][i]+eval_g(pair_wise_dist,W,nodes,set_repr);
             if(value<min){
                 min=value;
             }
         }
     }
-
 }
 
 
-int eval_g(set_t set_repr){
+int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_repr){
     vector<set_t> sets=get_subsets_it(set_repr);
     int min=INT_MAX;
     int value;
     for(set_t set:sets){
-        value=eval_W()+eval_W();
+        value=eval_W(pair_wise_dist,set,W,nodes)+eval_W(pair_wise_dist,set_repr xor set,W,nodes);
         if(value<min){
             min=value;
         }
     }
+    return value;
 }
 
 //K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
@@ -163,8 +170,6 @@ void classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     vector<int>  W ((int)pow(2,k_set.size()),-1);
     cout<< W[0]<<endl;
     intd2_arr  g(boost::extents[size][k_set.size()]);
-
-
 }
 
 
