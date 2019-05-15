@@ -8,7 +8,13 @@
 #include "common.h"
 #include <cmath>
 #include <algorithm>
+#include <unordered_map>
+#include <deque>
+#include <set>
+#include <array>
+
 typedef boost::multi_array<int, 2> weight_matrix;
+typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
 
 struct Node {
@@ -97,31 +103,92 @@ void test_dijkstra() {
     std::cout << "0 1 2 2\n1 0 2 1\n2 2 0 3\n2 1 3 0";
 
 }
-bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
+//bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
+
+inline set_t to_byte_repr(vector<int> indices){
+    set_t set_repr=0;
+    for(int elem:indices) {
+        set_repr+=1<<(elem-1);
+    }
+    return set_repr;
+}
 
 
-
-//Both eval W and eval g should return the list of optimal choices
-void eval_W() {
-    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    vector<int> W((int)pow(2,num_terminals)); //need W[X] with X subset of K
-    vector<int> g((int)pow(2,num_terminals)); //need g[p][X], with p element of V and X subset of K
-    eval_W(X_without_q)
-
+//Both eval W and eval g should keep track of a list of optimal choices
+int eval_W(weight_matrix &pair_wise_dist,vector<int> K,vector<int> &W,int &nodes) {
+    if(K.size()<2){
+        return 0;
+    }
+    if(K.size()==2){
+        return pair_wise_dist[K[0]-1][K[1]-1];
+    }
+    int q=K.back();
+    K.pop_back();
+    set_t set_repr=to_byte_repr(K);
+    if(W[set_repr]>=0) {
+        return W[set_repr];
+    }
+    else{
+        int min=INT_MAX;
+        int value;
+        for(int i=0;i<nodes;++i) {
+            value=pair_wise_dist[q][i]+eval_g();
+            if(value<min){
+                min=value;
+            }
+        }
+    }
 
 }
-void eval_g(){
 
 
+int eval_g(set_t set_repr){
+    vector<set_t> sets=get_subsets_it(set_repr);
+    int min=INT_MAX;
+    int value;
+    for(set_t set:sets){
+        value=eval_W()+eval_W();
+        if(value<min){
+            min=value;
+        }
+    }
 }
 
 //K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
-void classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K, int num_terminals) {
+void classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    vector<int> W((int)pow(2,num_terminals),-1); //need W[X] with X subset of K
-    vector<int> g((int)pow(2,num_terminals),-1); //need g[p][X], with p element of V and X subset of K
+    vector<int> temp=get_element_indices(K);
+    set<int> k_set=set<int>(temp.begin(),temp.end());
+    vector<int>  W ((int)pow(2,k_set.size()),-1);
+    cout<< W[0]<<endl;
+    intd2_arr  g(boost::extents[size][k_set.size()]);
 
-    get_element_indices(K);
 
 }
+
+
+
+
+
+
+
+void mobius_dreyfuss(){
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
