@@ -117,10 +117,11 @@ inline set_t to_byte_repr(vector<int> indices){
 
 
 
-int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_repr);
+int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_repr,int p,intd2_arr &g);
 //Both eval W and eval g should keep track of a list of optimal choices
-int eval_W(weight_matrix &pair_wise_dist,set_t set_repr,vector<int> &W,int &nodes) {
+int eval_W(weight_matrix &pair_wise_dist,set_t set_repr,vector<int> &W,intd2_arr &g,int &nodes) {
     int ele_count=__builtin_popcount(set_repr);
+    int value;
     if(ele_count<2){
         return 0;
     }
@@ -130,36 +131,41 @@ int eval_W(weight_matrix &pair_wise_dist,set_t set_repr,vector<int> &W,int &node
         int ele2=__builtin_ffs(set_repr)-1;
         return pair_wise_dist[ele1][ele2];
     }
-    int q=__builtin_ffs(set_repr);
-    set_repr=set_repr xor (1<<q);
+    int q=__builtin_ffs(set_repr)-1;
+    set_repr=set_repr xor (1<<q); //remove q
     if(W[set_repr]>=0) {
         return W[set_repr];
     }
     else{
         int min=INT_MAX;
-        int value;
         for(int i=0;i<nodes;++i) {
-            value=pair_wise_dist[q-1][i]+eval_g(pair_wise_dist,W,nodes,set_repr);
+            value=pair_wise_dist[q-1][i]+eval_g(pair_wise_dist,W,nodes,set_repr,i,g);
             if(value<min){
                 min=value;
             }
         }
     }
+    W[set_repr]=value;
+    return value;
 }
 
 
-int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_repr){
+int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_repr,int p,intd2_arr &g){ //TODO add g as buffer for results
+    if(g[p][set_repr]>=0){
+        return g[p][set_repr];
+    }
     vector<set_t> sets=get_subsets_it(set_repr);
     int min=INT_MAX;
     int value;
     for(set_t set:sets){
         if(set!=0 && set!=set_repr){ //not empty and not all of X
-            value=eval_W(pair_wise_dist,set,W,nodes)+eval_W(pair_wise_dist,set_repr xor set,W,nodes);
+            value=eval_W(pair_wise_dist,set or (1<<p),W,g,nodes)+eval_W(pair_wise_dist,set_repr xor set,W,g,nodes);
             if(value<min){
                 min=value;
             }
         }
     }
+    g[p][set_repr]=value;
     return value;
 }
 
@@ -167,16 +173,20 @@ int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_rep
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
 void classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    vector<int> temp=get_element_indices(K);
-    set<int> k_set=set<int>(temp.begin(),temp.end());
-    vector<int>  W ((int)pow(2,k_set.size()),-1);
+    int subset_count=(int)pow(2,__builtin_popcount(K));
+    vector<int>  W (subset_count,-1);
     cout<< W[0]<<endl;
-    intd2_arr  g(boost::extents[size][k_set.size()]);
+    intd2_arr  g(boost::extents[size][subset_count]);
+    for(int i=0;i<size;++i){
+        for(int j=0;j<subset_count;++j){
+            g[i][j]=-1;
+        }
+    }
 }
 
 
 
-void mobius_dreyfuss(){
+void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){
 
 
 
