@@ -102,7 +102,7 @@ void test_dijkstra() {
         std::cout << "\n";
     }
     std::cout << "should be\n";
-    std::cout << "0 1 2 2\n1 0 2 1\n2 2 0 3\n2 1 3 0";
+    std::cout << "0 1 2 2\n1 0 2 1\n2 2 0 3\n2 1 3 0\n";
 
 }
 //bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
@@ -171,19 +171,52 @@ int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_rep
 
 //K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
-void classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
+int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
     int subset_count=(int)pow(2,__builtin_popcount(K));
     vector<int>  W (subset_count,-1);
-    cout<< W[0]<<endl;
     intd2_arr  g(boost::extents[size][subset_count]);
     for(int i=0;i<size;++i){
         for(int j=0;j<subset_count;++j){
             g[i][j]=-1;
         }
     }
+    int weight=eval_W(pair_wise_dist,K,W,g,size);
+    return weight;
 }
 
+
+void test_steiner(){
+    /*  a --  1 --  b -- 1 --   d
+     *     --2      |2
+     *         --   c
+     */
+    std::cout << "Test Steiner: \n";
+    weight_matrix graph(boost::extents[4][4]);
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            graph[i][j] = -1;
+            if (i == j) {
+                graph[i][i] = 0;
+            }
+        }
+    }
+    graph[0][1] = 1;
+    graph[1][0] = 1;
+    graph[0][2] = 2;
+    graph[2][0] = 2;
+    graph[1][2] = 2;
+    graph[2][1] = 2;
+    graph[1][3] = 1;
+    graph[3][1] = 1;
+    int result=classic_dreyfuss_wagner(graph,4,0b1001);
+    if(result!=2){
+        cout<<"ERROR:Steiner: Should be 2 but is: "<<result<<endl;
+    } else{
+        cout<<"Steiner:OK"<<endl;
+    }
+
+}
 
 
 void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){

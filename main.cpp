@@ -205,6 +205,7 @@ int main()
     test_ranked_mobius_and_convolute();
 
     test_dijkstra();
+    test_steiner();
     ofstream myfile;
 
     /*myfile.open ("results.txt");
