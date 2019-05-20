@@ -15,11 +15,30 @@ vector<T> fastMobius(Function<T> &f, int n) {
     }
     for (set_t j = 1; j < n + 1; j++) {
         for (set_t k = 0; k < (int) pow(2, n); k++) {
-            if (k & (1 << (j - 1))) {
+            if (k & (1 << (j - 1))) { //if j is in K
                 //cout <<k << " " <<j <<endl;
                 d[j][k] = d[j - 1][k] + d[j - 1][k ^ (1 << (j - 1))];
             } else {
                 d[j][k] = d[j - 1][k];
+            }
+        }
+    }
+    return d[n];
+}
+
+
+template<typename T>
+vector<T> fastMobiusInversion(Function<T> &f_mobius, int n) {
+    vector<vector<int> > d(n + 1, vector<int>((int) pow(2, n)));
+    for (int k = 0; k < pow(2, n); k++) {
+        d[0][k] = f_mobius(k);
+    }
+    for (set_t j = 1; j < n + 1; j++) {
+        for (set_t k = 0; k < (int) pow(2, n); k++) {
+            if (k & (1 << (j - 1))) { //if j is in K
+                d[j][k] = d[j - 1][k] - d[j - 1][k ^ (1 << (j - 1))];
+            } else { //j is not in K
+                d[j][k] = d[j - 1][k] ;
             }
         }
     }
@@ -121,7 +140,7 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
 
 
 template<typename T>
-vector<T> advanced_convolute(Function<T> &f, int n) {
+vector<T> advanced_convolute(Function<T> &f, int n) { //TODO:generalize for two functions
     //other approach
     vector<vector<T> > fast_ranked_transform(n + 1);
     for (int i = 0; i <= n; i++) {
@@ -138,6 +157,17 @@ vector<T> advanced_convolute(Function<T> &f, int n) {
 
 
 template<typename T>
-vector<T> advanced_covering_product(Function<T> &f, int n) {
+vector<T> advanced_covering_product(Function<T> &f,Function<T> &g, int n) {
+    vector<T> mobius_f=fastMobius<T>(f,n);
+    vector<T> mobius_g=fastMobius<T>(g,n);
 
+    //element wise product
+    vector<T> hadamard;
+    hadamard.reserve(mobius_f.size());
+    for(int i=0;i<mobius_f.size();++i){
+        hadamard[i]=mobius_f[i]*mobius_g[i];
+    }
+    VectFunction<T> hadF=VectFunction<T>(hadamard);
+    vector<T> result=fastMobiusInversion(hadF,n);
+    return result;
 }

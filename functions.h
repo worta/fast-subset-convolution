@@ -38,7 +38,7 @@ class VectFunction : public Function<T>
 {
     vector<T> v;
 public:
-    VectFunction(vector<T> vect)
+    VectFunction(vector<T> &vect) //TODO: Reference?
     {
         v=vect;
     };
@@ -53,7 +53,7 @@ class RankedVectFunction : public RankedFunction<T>
 {
     vector<vector<T> > v;
 public:
-    RankedVectFunction(vector<vector<T> > vect)
+    RankedVectFunction(vector<vector<T> > &vect)
     {
         v=vect;
     };

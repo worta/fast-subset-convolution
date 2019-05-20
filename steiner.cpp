@@ -169,23 +169,6 @@ int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_rep
     return value;
 }
 
-//K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
-//represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
-int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
-    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int subset_count=(int)pow(2,__builtin_popcount(K));
-    vector<int>  W (subset_count,-1);
-    intd2_arr  g(boost::extents[size][subset_count]);
-    for(int i=0;i<size;++i){
-        for(int j=0;j<subset_count;++j){
-            g[i][j]=-1;
-        }
-    }
-    int weight=eval_W(pair_wise_dist,K,W,g,size);
-    return weight;
-}
-
-
 void test_steiner(){
     /*  a --  1 --  b -- 1 --   d
      *     --2      |2
@@ -219,8 +202,39 @@ void test_steiner(){
 }
 
 
-void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){
+//K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
+//represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
+int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
+    int subset_count=(int)pow(2,__builtin_popcount(K));
+    vector<int>  W (subset_count,-1);
+    intd2_arr  g(boost::extents[size][subset_count]);
+    for(int i=0;i<size;++i){
+        for(int j=0;j<subset_count;++j){
+            g[i][j]=-1;
+        }
+    }
+    int weight=eval_W(pair_wise_dist,K,W,g,size);
+    return weight;
+}
+//TODO: Es sollte noch die Indizes in einen Vector gepackt werden und das subset entsprechend auf minimale Darstellung
+//reduziert werden, i.e. die nötigen Knoten erden gerelabeld
 
+
+
+bool cmp_setsize (set_t i,set_t j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
+
+void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
+    int k=__builtin_popcount(K);
+    vector<set_t> subsets= get_subsets_it(K);
+    std::sort(subsets.begin(),subsets.end(),cmp_setsize);
+
+
+    for(int l=2;l<k;++l){
+
+
+    }
 
 
 }
