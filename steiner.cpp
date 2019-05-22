@@ -6,6 +6,7 @@
 #include "steiner.h"
 #include "utility.h"
 #include "common.h"
+#include "functions.h"
 #include <cmath>
 #include <algorithm>
 #include <unordered_map>
@@ -194,19 +195,52 @@ bool cmp_setsize (set_t i,set_t j) { return (__builtin_popcount(i)<__builtin_pop
 
 
 
+class Function_p : public Function<set_t>{
+    int level;
+    vector<int> W;
+    set_t p;
+    public:
+    Function_p(vector<int> &W,int level,int p)
+    {
+        this->W=W;
+        this->level=level;
+        this->p=1<<p;
+
+    };
+    set_t operator() (set_t s)
+    {
+        int x_size=__builtin_popcount(s);
+        if(x_size<level && x_size>1){
+            return W[s bitor p];
+        }
+        return INT_MAX; //TODO:max überprüfen insbesondere mit fast uint;
+    }
+
+
+
+
+};
+
 void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
     int k=__builtin_popcount(K);
     int subset_count=(int)pow(2,k);
     vector<set_t> subsets= get_subsets_it(K);
     std::sort(subsets.begin(),subsets.end(),cmp_setsize); //TODO: generate subsets in order->bankers code
+    // subsets of size 0=1, subsets of size 1=n, subsets of size 2=n*(n-1), size 3=n*(n-1)*(n-2) so (n over size)
     intd2_arr  g(boost::extents[size][subset_count]);
 
+    //relabeling
+    vector<int> indices=get_element_indices(K);
+
     for(int l=2;l<k;++l){
+        //compute W with set=|X|<l U {q} :\q in V
+        if(l==2){
+
+        }
         //compute gp for |X|<l
 
 
-        //compute the next W with set=|X|<l U {q} :\q in V
 
     }
 

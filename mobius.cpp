@@ -126,7 +126,7 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
         //for(int i=0;i<pow(2,__builtin_popcount(s));++i){
         for (set_t i = 0; i < subsets.size(); ++i) {
             set_t s_without_x = s xor subsets[i];
-            //int factor=1-2*(__builtin_popcount(s_without_x)%2); //todo add minus
+            //int factor=1-2*(__builtin_popcount(s_without_x)%2);
             if ((__builtin_popcount(s_without_x) % 2) == 0) {
                 original_f[s] = original_f[s] + f(element_count, subsets[i]);
             } else {
@@ -140,7 +140,7 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
 
 
 template<typename T>
-vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n) { 
+vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n) {
     //other approach
     vector<vector<T> > fast_ranked_transform_f(n + 1);
     vector<vector<T> > fast_ranked_transform_g(n + 1);

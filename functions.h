@@ -3,12 +3,13 @@
 // Abstract base class
 using namespace std;
 #include <vector>
+#include "utility.h"
 template <class T>
 class Function
 {
 public:
     Function() {};
-    virtual T operator() (int subset)=0;
+    virtual T operator() (set_t subset)=0;
 };
 
 template <class T>
@@ -16,7 +17,7 @@ class RankedFunction
 {
 public:
     RankedFunction() {};
-    virtual T operator() (int ran,int subset)=0;
+    virtual T operator() (int ran,set_t subset)=0;
 };
 template <typename T>
 class ConstFunction : public Function<T>
@@ -27,7 +28,7 @@ public:
     {
         value=v;
     }
-    T operator() (int s)
+    T operator() (set_t s)
     {
         return value;
     }
@@ -42,7 +43,7 @@ public:
     {
         v=vect;
     };
-    T operator() (int s)
+    T operator() (set_t s)
     {
         return v[s];
     }
@@ -57,7 +58,7 @@ public:
     {
         v=vect;
     };
-    T operator() (int ran,int subset)
+    T operator() (int ran,set_t subset)
     {
         return v[ran][subset];
     }
