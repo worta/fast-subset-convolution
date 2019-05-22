@@ -122,6 +122,7 @@ int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_rep
 int eval_W(weight_matrix &pair_wise_dist,set_t set_repr,vector<int> &W,intd2_arr &g,int &nodes) {
     int ele_count=__builtin_popcount(set_repr);
     int value;
+    int min=INT_MAX;
     if(ele_count<2){
         return 0;
     }
@@ -137,7 +138,6 @@ int eval_W(weight_matrix &pair_wise_dist,set_t set_repr,vector<int> &W,intd2_arr
         return W[set_repr];
     }
     else{
-        int min=INT_MAX;
         for(int i=0;i<nodes;++i) {
             value=pair_wise_dist[q-1][i]+eval_g(pair_wise_dist,W,nodes,set_repr,i,g);
             if(value<min){
@@ -145,8 +145,8 @@ int eval_W(weight_matrix &pair_wise_dist,set_t set_repr,vector<int> &W,intd2_arr
             }
         }
     }
-    W[set_repr]=value;
-    return value;
+    W[set_repr]=min;
+    return min;
 }
 
 
@@ -165,9 +165,55 @@ int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_rep
             }
         }
     }
-    g[p][set_repr]=value;
-    return value;
+    g[p][set_repr]=min;
+    return min;
 }
+
+
+
+
+//K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
+//represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
+int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
+    int subset_count=(int)pow(2,__builtin_popcount(K));
+    vector<int>  W (subset_count,-1);
+    intd2_arr  g(boost::extents[size][subset_count]);
+    for(int i=0;i<size;++i){
+        for(int j=0;j<subset_count;++j){
+            g[i][j]=-1;
+        }
+    }
+    int weight=eval_W(pair_wise_dist,K,W,g,size);
+    return weight;
+}
+//TODO: Es sollte noch die Indizes in einen Vector gepackt werden und das subset entsprechend auf minimale Darstellung
+//TODO: reduziert werden, i.e. die nötigen Knoten werden gerelabeld
+
+bool cmp_setsize (set_t i,set_t j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
+
+
+
+void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
+    int k=__builtin_popcount(K);
+    int subset_count=(int)pow(2,k);
+    vector<set_t> subsets= get_subsets_it(K);
+    std::sort(subsets.begin(),subsets.end(),cmp_setsize); //TODO: generate subsets in order->bankers code
+    intd2_arr  g(boost::extents[size][subset_count]);
+
+    for(int l=2;l<k;++l){
+        //compute gp for |X|<l
+
+
+        //compute the next W with set=|X|<l U {q} :\q in V
+
+    }
+
+
+}
+
+
 
 void test_steiner(){
     /*  a --  1 --  b -- 1 --   d
@@ -200,48 +246,6 @@ void test_steiner(){
     }
 
 }
-
-
-//K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
-//represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
-int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
-    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int subset_count=(int)pow(2,__builtin_popcount(K));
-    vector<int>  W (subset_count,-1);
-    intd2_arr  g(boost::extents[size][subset_count]);
-    for(int i=0;i<size;++i){
-        for(int j=0;j<subset_count;++j){
-            g[i][j]=-1;
-        }
-    }
-    int weight=eval_W(pair_wise_dist,K,W,g,size);
-    return weight;
-}
-//TODO: Es sollte noch die Indizes in einen Vector gepackt werden und das subset entsprechend auf minimale Darstellung
-//reduziert werden, i.e. die nötigen Knoten erden gerelabeld
-
-
-
-bool cmp_setsize (set_t i,set_t j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
-
-void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){
-    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int k=__builtin_popcount(K);
-    vector<set_t> subsets= get_subsets_it(K);
-    std::sort(subsets.begin(),subsets.end(),cmp_setsize);
-
-
-    for(int l=2;l<k;++l){
-
-
-    }
-
-
-}
-
-
-
-
 
 
 
