@@ -28,7 +28,7 @@ void output_set(set_t setRep,int n)
 
 
 
-class int_max //TODO rework as embedding into either int_sum_product or own vector representation
+/*class int_max //TODO rework as embedding into either int_sum_product or own vector representation
 {
 public:
     int value;
@@ -42,7 +42,7 @@ public:
     }
     int_max& operator= (const int& x)
     {
-        value=x;
+        value=pow(2,x)+1;
         return *this;
     }
     int_max& operator= (const int_max& x)
@@ -56,14 +56,14 @@ public:
     }
     int_max operator+(const int_max& rhs)
     {
-        return int_max(max(value,rhs.value));
+        return int_max();
     }
     int_max operator-(const int_max& rhs) //thats just wrong
     {
-        return int_max(min(value,rhs.value));
+        return int_max(value-rhs.value);
     }
 
-} ;
+} ;*/
 
 
 
@@ -199,8 +199,6 @@ void test_ranked_mobius_and_convolute()
 int main()
 {
     //ConstFunction<int> f=ConstFunction<int>(1);
-    int_max a=int_max(1);
-    ConstFunction<int_max> f=ConstFunction<int_max>(a);
     test_subset_gen();
     test_ranked_mobius_and_convolute();
 

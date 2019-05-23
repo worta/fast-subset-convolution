@@ -13,7 +13,7 @@ vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction <T> &g,
 template <typename T>
 vector<T> ranked_Mobius_inversion(RankedFunction<T> &f,int n);
 template<typename T>
-vector<T> advanced_convolute(Function<T> &f,int n);
+vector<T> advanced_convolute(Function<T> &f,Function<T> &g,int n);
 
 
 #include "mobius.cpp"

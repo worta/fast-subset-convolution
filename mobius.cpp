@@ -140,7 +140,7 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
 
 
 template<typename T>
-vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n) {
+vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n) { //TODO ADD SINGLE FUNCTION VERSION, saves 2^n
     //other approach
     vector<vector<T> > fast_ranked_transform_f(n + 1);
     vector<vector<T> > fast_ranked_transform_g(n + 1);
@@ -155,6 +155,9 @@ vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n) {
     vector<T> result_advanced = ranked_Mobius_inversion<T>(conv_f, n);
     return result_advanced;
 }
+
+
+
 
 
 template<typename T>

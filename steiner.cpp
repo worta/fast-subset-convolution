@@ -6,6 +6,7 @@
 #include "steiner.h"
 #include "utility.h"
 #include "common.h"
+#include "mobius.h"
 #include "functions.h"
 #include <cmath>
 #include <algorithm>
@@ -17,7 +18,6 @@
 typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
-
 
 
 struct Node {
@@ -108,137 +108,155 @@ void test_dijkstra() {
 }
 //bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
 
-inline set_t to_byte_repr(vector<int> indices){
-    set_t set_repr=0;
-    for(int elem:indices) {
-        set_repr+=1<<(elem-1);
+inline set_t to_byte_repr(vector<int> indices) {
+    set_t set_repr = 0;
+    for (int elem:indices) {
+        set_repr += 1 << (elem - 1);
     }
     return set_repr;
 }
 
 
+int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_repr, int p, intd2_arr &g);
 
-int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_repr,int p,intd2_arr &g);
 //Both eval W and eval g should keep track of a list of optimal choices
-int eval_W(weight_matrix &pair_wise_dist,set_t set_repr,vector<int> &W,intd2_arr &g,int &nodes) {
-    int ele_count=__builtin_popcount(set_repr);
+int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_arr &g, int &nodes) {
+    int ele_count = __builtin_popcount(set_repr);
     int value;
-    int min=INT_MAX;
-    if(ele_count<2){
+    int min = INT_MAX;
+    if (ele_count < 2) {
         return 0;
     }
-    if(ele_count==2){
-        int ele1=__builtin_ffs(set_repr)-1;
-        set_repr=set_repr xor (1<<ele1);
-        int ele2=__builtin_ffs(set_repr)-1;
+    if (ele_count == 2) {
+        int ele1 = __builtin_ffs(set_repr) - 1;
+        set_repr = set_repr xor (1 << ele1);
+        int ele2 = __builtin_ffs(set_repr) - 1;
         return pair_wise_dist[ele1][ele2];
     }
-    int q=__builtin_ffs(set_repr)-1;
-    set_repr=set_repr xor (1<<q); //remove q
-    if(W[set_repr]>=0) {
+    int q = __builtin_ffs(set_repr) - 1;
+    set_repr = set_repr xor (1 << q); //remove q
+    if (W[set_repr] >= 0) {
         return W[set_repr];
-    }
-    else{
-        for(int i=0;i<nodes;++i) {
-            value=pair_wise_dist[q-1][i]+eval_g(pair_wise_dist,W,nodes,set_repr,i,g);
-            if(value<min){
-                min=value;
+    } else {
+        for (int i = 0; i < nodes; ++i) {
+            value = pair_wise_dist[q - 1][i] + eval_g(pair_wise_dist, W, nodes, set_repr, i, g);
+            if (value < min) {
+                min = value;
             }
         }
     }
-    W[set_repr]=min;
+    W[set_repr] = min;
     return min;
 }
 
 
-int eval_g(weight_matrix &pair_wise_dist,vector<int> &W,int &nodes,set_t set_repr,int p,intd2_arr &g){ //TODO add g as buffer for results
-    if(g[p][set_repr]>=0){
+int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_repr, int p,
+           intd2_arr &g) { //TODO add g as buffer for results
+    if (g[p][set_repr] >= 0) {
         return g[p][set_repr];
     }
-    vector<set_t> sets=get_subsets_it(set_repr);
-    int min=INT_MAX;
+    vector<set_t> sets = get_subsets_it(set_repr);
+    int min = INT_MAX;
     int value;
-    for(set_t set:sets){
-        if(set!=0 && set!=set_repr){ //not empty and not all of X
-            value=eval_W(pair_wise_dist,set or (1<<p),W,g,nodes)+eval_W(pair_wise_dist,set_repr xor set,W,g,nodes);
-            if(value<min){
-                min=value;
+    for (set_t set:sets) {
+        if (set != 0 && set != set_repr) { //not empty and not all of X
+            value = eval_W(pair_wise_dist, set or (1 << p), W, g, nodes) +
+                    eval_W(pair_wise_dist, set_repr xor set, W, g, nodes);
+            if (value < min) {
+                min = value;
             }
         }
     }
-    g[p][set_repr]=min;
+    g[p][set_repr] = min;
     return min;
 }
-
-
 
 
 //K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
 int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int subset_count=(int)pow(2,__builtin_popcount(K));
-    vector<int>  W (subset_count,-1);
-    intd2_arr  g(boost::extents[size][subset_count]);
-    for(int i=0;i<size;++i){
-        for(int j=0;j<subset_count;++j){
-            g[i][j]=-1;
+    int subset_count = (int) pow(2, __builtin_popcount(K));
+    vector<int> W(subset_count, -1);
+    intd2_arr g(boost::extents[size][subset_count]);
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < subset_count; ++j) {
+            g[i][j] = -1;
         }
     }
-    int weight=eval_W(pair_wise_dist,K,W,g,size);
+    int weight = eval_W(pair_wise_dist, K, W, g, size);
     return weight;
 }
 //TODO: Es sollte noch die Indizes in einen Vector gepackt werden und das subset entsprechend auf minimale Darstellung
 //TODO: reduziert werden, i.e. die nötigen Knoten werden gerelabeld
 
-bool cmp_setsize (set_t i,set_t j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
+bool cmp_setsize(set_t i, set_t j) { return (__builtin_popcount(i) < __builtin_popcount(j)); }
 
 
-
-class Function_p : public Function<set_t>{
+class Function_p
+        : public Function<int> { //TODO ADD MAP SO THAT RELEVANT SUBSET ARE ALWAYS THE LOWEST BITS IN SET REPR
     int level;
     vector<int> W;
     set_t p;
-    public:
-    Function_p(vector<int> &W,int level,int p)
-    {
-        this->W=W;
-        this->level=level;
-        this->p=1<<p;
+public:
+    Function_p(vector<int> &W, int level, int p) {
+        this->W = W;
+        this->level = level;
+        this->p = 1 << p;
 
     };
-    set_t operator() (set_t s)
-    {
-        int x_size=__builtin_popcount(s);
-        if(x_size<level && x_size>1){
+
+    int operator()(set_t s) {
+        int x_size = __builtin_popcount(s);
+        if (x_size < level && x_size > 1) {
             return W[s bitor p];
         }
         return INT_MAX; //TODO:max überprüfen insbesondere mit fast uint;
     }
 
-
-
-
 };
 
-void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){
+void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int k=__builtin_popcount(K);
-    int subset_count=(int)pow(2,k);
-    vector<set_t> subsets= get_subsets_it(K);
-    std::sort(subsets.begin(),subsets.end(),cmp_setsize); //TODO: generate subsets in order->bankers code
-    // subsets of size 0=1, subsets of size 1=n, subsets of size 2=n*(n-1), size 3=n*(n-1)*(n-2) so (n over size)
-    intd2_arr  g(boost::extents[size][subset_count]);
-
+    int k = __builtin_popcount(K);
+    int subset_count = (int) pow(2, k);
+    vector<set_t> subsets = get_subsets_it(K);
+    std::sort(subsets.begin(), subsets.end(), cmp_setsize); //TODO: generate subsets in order->bankers code
+    // subsets of size 0=1, subsets of size 1=n, subsets of size 2=n*(n-1)/2, size 3=n*(n-1)*(n-2)/6 so (n over size)
+    //intd2_arr g(boost::extents[size][subset_count]);
+    vector<vector<int> >g;
     //relabeling
-    vector<int> indices=get_element_indices(K);
+    vector<int> indices = get_element_indices(K);
 
-    for(int l=2;l<k;++l){
+
+    //init W
+    vector<int> W;
+    for (set_t i = 0; i < size + 1; ++i) { //subsets of size 0 and 1
+        W[0] = 0;
+    }
+    for (int i = size + 1; i < (size * (size - 1) / 2); ++i) { //subsets of size 2
+        int set_repr = subsets[i];
+        int ele1 = __builtin_ffs(i) - 1;
+        set_repr = set_repr xor (1 << ele1);
+        int ele2 = __builtin_ffs(set_repr) - 1;
+        W[i] = pair_wise_dist[ele1][ele2]; //TODO: change when relabeling is done
+    }
+
+    for (int l = 2; l < k; ++l) {
         //compute W with set=|X|<l U {q} :\q in V
-        if(l==2){
-
+        if (l != 2) {
+            for(int i=)//
         }
+
         //compute gp for |X|<l
+        for(int p=0;p<size;++p){
+            Function_p f = Function_p(W, l,p);
+            //should add a version which expects size ob subset and a vector containing all previous results
+            g[p] = advanced_convolute<int>(f, f,size);
+            /*TODO: super inefficient, probably need a convolute which only calculates for subsets of size |x|
+              TODO: this also goes back to implementing bankers code*/
+        }
+
 
 
 
@@ -248,8 +266,7 @@ void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K){
 }
 
 
-
-void test_steiner(){
+void test_steiner() {
     /*  a --  1 --  b -- 1 --   d
      *     --2      |2
      *         --   c
@@ -272,11 +289,11 @@ void test_steiner(){
     graph[2][1] = 2;
     graph[1][3] = 1;
     graph[3][1] = 1;
-    int result=classic_dreyfuss_wagner(graph,4,0b1001);
-    if(result!=2){
-        cout<<"ERROR:Steiner: Should be 2 but is: "<<result<<endl;
-    } else{
-        cout<<"Steiner:OK"<<endl;
+    int result = classic_dreyfuss_wagner(graph, 4, 0b1001);
+    if (result != 2) {
+        cout << "ERROR:Steiner: Should be 2 but is: " << result << endl;
+    } else {
+        cout << "Steiner:OK" << endl;
     }
 
 }
