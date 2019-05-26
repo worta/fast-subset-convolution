@@ -1,0 +1,8 @@
+//
+// Created by dominik on 5/26/19.
+//
+
+#ifndef FAST_SUBSET_CONVOLUTION_TESTS_H
+#define FAST_SUBSET_CONVOLUTION_TESTS_H
+
+#endif //FAST_SUBSET_CONVOLUTION_TESTS_H

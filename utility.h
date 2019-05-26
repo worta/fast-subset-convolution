@@ -7,4 +7,5 @@ using namespace std;
 void getSubsets(set_t superset,vector<set_t > &results);
 vector<set_t> get_subsets_it(set_t superset);
 vector<int> get_element_indices(set_t set) ;
+unsigned nChoosek( unsigned n, unsigned k );
 #endif // UTILITY_H_INCLUDED

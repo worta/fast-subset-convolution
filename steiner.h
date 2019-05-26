@@ -5,7 +5,7 @@
 #include "boost/multi_array.hpp"
 #include <limits>
 #include <iostream>
-#include "common.h";
+#include "common.h"
 
 
 typedef boost::multi_array<int, 2> weight_matrix;

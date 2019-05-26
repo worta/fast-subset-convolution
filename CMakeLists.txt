@@ -10,6 +10,13 @@ IF (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIR})
 endif()
 
+
+#if(NOT CMAKE_BUILD_TYPE)
+#    set(CMAKE_BUILD_TYPE Release)
+#endif()
+#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+
 add_executable(fast_subset_convolution
         functions.cpp
         functions.h
@@ -20,4 +27,4 @@ add_executable(fast_subset_convolution
         steiner.cpp
         steiner.h
         utility.cpp
-        utility.h common.h)
+        utility.h common.h tests.cpp tests.h)

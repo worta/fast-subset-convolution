@@ -216,7 +216,7 @@ public:
 
 };
 
-void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K) {
+void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
     int k = __builtin_popcount(K);
     int subset_count = (int) pow(2, k);
@@ -224,7 +224,7 @@ void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K) {
     std::sort(subsets.begin(), subsets.end(), cmp_setsize); //TODO: generate subsets in order->bankers code
     // subsets of size 0=1, subsets of size 1=n, subsets of size 2=n*(n-1)/2, size 3=n*(n-1)*(n-2)/6 so (n over size)
     //intd2_arr g(boost::extents[size][subset_count]);
-    vector<vector<int> >g;
+    vector<vector<int> > g;
     //relabeling
     vector<int> indices = get_element_indices(K);
 
@@ -234,31 +234,60 @@ void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K) {
     for (set_t i = 0; i < size + 1; ++i) { //subsets of size 0 and 1
         W[0] = 0;
     }
-    for (int i = size + 1; i < (size * (size - 1) / 2); ++i) { //subsets of size 2
+    for (int i = size + 1; i < size + 1 + (size * (size - 1) / 2); ++i) { //subsets of size 2
         int set_repr = subsets[i];
         int ele1 = __builtin_ffs(i) - 1;
         set_repr = set_repr xor (1 << ele1);
         int ele2 = __builtin_ffs(set_repr) - 1;
-        W[i] = pair_wise_dist[ele1][ele2]; //TODO: change when relabeling is done
+        W[subsets[i]] = pair_wise_dist[ele1][ele2]; //TODO: change when relabeling is done
     }
 
+    int last_index = size + 1 + (size * (size - 1) /
+                                 2); //determines the end index of subsets of size x, here set to the last index of subsets of size 2
+    vector<vector<int> > g_transformed;
     for (int l = 2; l < k; ++l) {
-        //compute W with set=|X|<l U {q} :\q in V
-        if (l != 2) {
-            for(int i=)//
-        }
 
         //compute gp for |X|<l
-        for(int p=0;p<size;++p){
-            Function_p f = Function_p(W, l,p);
+        for (int p = 0; p < size; ++p) {
+            Function_p f = Function_p(W, l, p);
             //should add a version which expects size ob subset and a vector containing all previous results
-            g[p] = advanced_convolute<int>(f, f,size);
+            g[p] = advanced_convolute<int>(f, f, size);
             /*TODO: super inefficient, probably need a convolute which only calculates for subsets of size |x|
               TODO: this also goes back to implementing bankers code*/
+            //transform g[p] back
+            int base = pow(2, size) + 1;
+            for (int i = input_range * 2; i >= 0; --i) {
+                int coeff = pow(base, i); //careful that this term does not exceed int
+                for (int j = 0; j < g[p].size(); ++j) {
+                    if (g[p][j] > coeff) {
+                        g_transformed[p][j] = i;//at the end the minimal i will be in here
+                        g[p][j] = g[p][j] % coeff;
+                    }
+                }
+            }
         }
+        //compute W with set=|X|=l U {q} :\q in V
 
+        unsigned int new_index = last_index + nChoosek(size, l);
+        for (unsigned int set_ind = last_index; set_ind < new_index; ++set_ind) { //go trhough all subsets of size l
+            for (int q = 0; q < size; ++q)  //go troguh all v
+            {
+                if(q bitand subsets[set_ind]==0){ //consider only q not in X
+                    set_t new_set=subsets[set_ind] bitor q;
+                    int min=INT_MAX;
+                    int value;
+                    for(int p=0;p<size;++q) {
+                       value=pair_wise_dist[q][p]+g[p][subsets[set_ind]];
+                       if(min>value){
+                           value=min;
+                       }
+                    }
+                    W[new_set]=min;
+                }
+            }
 
-
+        }
+        last_index = new_index;
 
     }
 

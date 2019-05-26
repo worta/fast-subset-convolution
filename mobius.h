@@ -1,5 +1,6 @@
 #ifndef MOBIUS_H_INCLUDED
 #define MOBIUS_H_INCLUDED
+#include "functions.h"
 
 
 template <typename T>
