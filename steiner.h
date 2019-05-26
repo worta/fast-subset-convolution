@@ -13,6 +13,6 @@ typedef weight_matrix::index index;
 weight_matrix compute_ap_shortest_path(weight_matrix adjancy, int size);
 void test_dijkstra();
 int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K);
+int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range);
 void test_steiner();
-void naive_dreyfuss_wagner();
 #endif // STEINER_H_INCLUDED

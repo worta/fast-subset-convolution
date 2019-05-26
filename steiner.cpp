@@ -216,21 +216,29 @@ public:
 
 };
 
-void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range) {
+int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
     int k = __builtin_popcount(K);
     int subset_count = (int) pow(2, k);
+
+    //TODO SCHRITTWEISE AUFBAUEN:
+    //1. SUBNSETS IN REIHENFOGLE ERHALTEN ->index konstruktion prüfen
+    //2.INIT W
+    //3. FÜLL G für level
+    //4.- füll w für level
+
+    #if 0
     vector<set_t> subsets = get_subsets_it(K);
     std::sort(subsets.begin(), subsets.end(), cmp_setsize); //TODO: generate subsets in order->bankers code
     // subsets of size 0=1, subsets of size 1=n, subsets of size 2=n*(n-1)/2, size 3=n*(n-1)*(n-2)/6 so (n over size)
     //intd2_arr g(boost::extents[size][subset_count]);
-    vector<vector<int> > g;
+    vector<vector<int> > g(size,vector<int>(pow(2,size)));
     //relabeling
     vector<int> indices = get_element_indices(K);
 
 
     //init W
-    vector<int> W;
+    vector<int> W((int)pow(2,size));
     for (set_t i = 0; i < size + 1; ++i) { //subsets of size 0 and 1
         W[0] = 0;
     }
@@ -291,7 +299,9 @@ void mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_rang
 
     }
 
-
+    return W[K];
+#endif
+    return 0;
 }
 
 
@@ -324,7 +334,8 @@ void test_steiner() {
     } else {
         cout << "Steiner:OK" << endl;
     }
-
+    result = mobius_dreyfuss(graph, 4, 0b1001, 2);
+    cout << "ADVANCED RESuLT:" << result << endl;
 }
 
 
