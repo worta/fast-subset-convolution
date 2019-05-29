@@ -1,3 +1,11 @@
+#include "steiner.h"
+#include "mobius.h"
+#include "functions.h"
+#include <fstream>
+#include <chrono>
+#include <algorithm>
+#include <vector>
+#include <iostream>
 #include "utility.h"
 #include <cstdint>
 #include <cmath>
@@ -67,4 +75,52 @@ unsigned nChoosek( unsigned n, unsigned k )
         result /= i;
     }
     return result;
+}
+
+void output_set(set_t setRep, int n)
+{
+    cout<<"< ";
+    for(set_t i=0; i<=n; i++)
+    {
+        if(setRep&(1<<(i-1)))
+        {
+            cout<<i<<" ";
+        }
+    }
+    cout<<">";
+}
+
+
+//Todo generate subsets in order, see special sets
+
+
+//alternative: relavel such that K is always of the form 0....01...1, generate all subsets in order as below
+// and add for each subset p\in V\K
+vector<set_t> generate_special_sets(int n,int k,set_t K){
+    set_t next_perm;
+    vector<set_t> subsets;
+    int max_subsets=nChoosek(n,k);
+    subsets.reserve(max_subsets);
+    //start set
+    set_t current_perm=0;
+    for(int i=0;i<k;++i){
+        current_perm=current_perm|(1<<i);
+    }
+
+    for(int i=0;i<max_subsets;++i){
+        //prüfe ob momentanes set die form hat teilmenge von k und optinonal + anderer knoten
+        if(__builtin_popcount((current_perm xor (current_perm bitand K)))<=1){
+            //add to subsets
+            subsets.push_back(current_perm);
+        }
+        //http://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation
+        unsigned int t = current_perm | (current_perm - 1); // t gets v's least significant 0 bits set to 1
+        // Next set to 1 the most significant bit to change,
+        // set to 0 the least significant ones, and add the necessary 1 bits.
+        current_perm= (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(current_perm) + 1));
+    }
+
+
+    return subsets;
+
 }

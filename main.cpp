@@ -9,22 +9,10 @@
 #include "mobius.h"
 #include "steiner.h"
 #include "common.h"
+#include "utility.h"
 
 using namespace std;
 using namespace std::chrono;
-
-void output_set(set_t setRep,int n)
-{
-    cout<<"< ";
-    for(set_t i=0; i<=n; i++)
-    {
-        if(setRep&(1<<(i-1)))
-        {
-            cout<<i<<" ";
-        }
-    }
-    cout<<">";
-}
 
 
 
@@ -80,11 +68,11 @@ public:
 void test_subset_gen()
 {
     cout <<"Test subset generation"<<endl;
-    set_t test_set=7; //<1,2>
+    set_t test_set=26; //<1,2>
     cout <<"Testing subset:";
-    output_set(test_set,3);
+    output_set(test_set,5);
     cout<<endl;
-    vector<set_t> test_vec {0,1,2,3,4,5,6,7};
+    vector<set_t> test_vec {0,2,8,16,10,18,24,26};
     vector<set_t > results;
     //results.reserve(2);
     //getSubsets(test_set,results);
@@ -98,7 +86,7 @@ void test_subset_gen()
     }
     for(set_t i=0; i<results.size(); ++i)
     {
-        output_set(results[i],3);
+        output_set(results[i],5);
         test_vec.erase(std::remove(test_vec.begin(), test_vec.end(), results[i]), test_vec.end()) ;
     }
     if(test_vec.empty())

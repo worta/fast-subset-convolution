@@ -5,6 +5,8 @@
 #include "utility.h"
 #include <cstdint>
 #include "common.h"
+
+
 using namespace std;
 
 template<typename T>
@@ -74,6 +76,7 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
 }
 
 
+
 template<typename T>
 vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n) {
     vector<T> conv((int) pow(2, n));
@@ -139,9 +142,10 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
 }
 
 
+
+
 template<typename T>
-vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n) { //TODO ADD SINGLE FUNCTION VERSION, saves 2^n
-    //other approach
+vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n) { //TODO ADD SINGLE FUNCTION VERSION, saves 2^n by saving here
     vector<vector<T> > fast_ranked_transform_f(n + 1);
     vector<vector<T> > fast_ranked_transform_g(n + 1);
     for (int i = 0; i <= n; i++) {
@@ -156,8 +160,23 @@ vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n) { //TODO ADD 
     return result_advanced;
 }
 
-
-
+#if 0
+template<typename T>
+vector<T> advanced_convolute(Function<T> &f,Function<T> &g, int n, vector<set_t> subsets) { //TODO ADD SINGLE FUNCTION VERSION, saves 2^n by saving here
+    vector<vector<T> > fast_ranked_transform_f(n + 1);
+    vector<vector<T> > fast_ranked_transform_g(n + 1);
+    for (int i = 0; i <= n; i++) {
+        fast_ranked_transform_f[i] = rankedMobius(f, n, i);
+        fast_ranked_transform_g[i] = rankedMobius(g, n,i);
+    }
+    RankedVectFunction<T> f_r_func = RankedVectFunction<T>(fast_ranked_transform_f);
+    RankedVectFunction<T> g_r_func = RankedVectFunction<T>(fast_ranked_transform_g);
+    vector<vector<T> > convoluted = ranked_convolute<T>(f_r_func, g_r_func, n);
+    RankedVectFunction<T> conv_f = RankedVectFunction<T>(convoluted);
+    vector<T> result_advanced = ranked_Mobius_inversion<T>(conv_f, n);
+    return result_advanced;
+}
+#endif
 
 
 template<typename T>
