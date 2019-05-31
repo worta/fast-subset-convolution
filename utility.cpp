@@ -91,36 +91,41 @@ void output_set(set_t setRep, int n)
 }
 
 
-//Todo generate subsets in order, see special sets
+
+#if 0
+// find next k-combination "Gopher's hack"
+bool next_combination(unsigned long& x) // assume x has form x'01^a10^b in binary
+{
+    unsigned long u = x & -x; // extract rightmost bit 1; u =  0'00^a10^b
+    unsigned long v = u + x; // set last non-trailing bit 0, and clear to the right; v=x'10^a00^b
+    if (v==0) // then overflow in v, or x==0
+        return false; // signal that next k-combination cannot be represented
+    x = v +(((v^x)/u)>>2); // v^x = 0'11^a10^b, (v^x)/u = 0'0^b1^{a+2}, and x ← x'100^b1^a
+    return true; // successful completion
+}
+#endif
+//http://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation
 
 
-//alternative: relavel such that K is always of the form 0....01...1, generate all subsets in order as below
-// and add for each subset p\in V\K
-vector<set_t> generate_special_sets(int n,int k,set_t K){
-    set_t next_perm;
-    vector<set_t> subsets;
-    int max_subsets=nChoosek(n,k);
-    subsets.reserve(max_subsets);
-    //start set
-    set_t current_perm=0;
-    for(int i=0;i<k;++i){
-        current_perm=current_perm|(1<<i);
+
+//K is the superset, subset_size is the desired size of the generated subsets, k is the size of K
+vector<set_t> generate_subsets_of_size_k(set_t K, int subset_size, int n){
+    unsigned int current_perm=(int)pow(2,subset_size)-1; // sets the first subset_size bits to 1
+    unsigned int next_perm; // next permutation of bits
+    unsigned check=1<<(n+1);
+    if (n==0){
+        return vector<set_t>(1,0); //return just the empty set
     }
 
-    for(int i=0;i<max_subsets;++i){
-        //prüfe ob momentanes set die form hat teilmenge von k und optinonal + anderer knoten
-        if(__builtin_popcount((current_perm xor (current_perm bitand K)))<=1){
-            //add to subsets
-            subsets.push_back(current_perm);
-        }
-        //http://graphics.stanford.edu/~seander/bithacks.html#NextBitPermutation
+    while(!(current_perm & check)){ //as long as the k+1 bit is not set
+
         unsigned int t = current_perm | (current_perm - 1); // t gets v's least significant 0 bits set to 1
         // Next set to 1 the most significant bit to change,
         // set to 0 the least significant ones, and add the necessary 1 bits.
-        current_perm= (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(current_perm) + 1));
+        current_perm = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(current_perm) + 1));
+
+        //now check current_perm in k?
+
     }
-
-
-    return subsets;
 
 }

@@ -211,7 +211,7 @@ public:
         if (x_size < level && x_size > 1) {
             return W[s bitor p];
         }
-        return INT_MAX; //TODO:max überprüfen insbesondere mit fast uint;
+        return INT_MAX; //TODO:das geht nicht mit embedd into int product
     }
 
 };
@@ -225,13 +225,50 @@ public:
     }
 
     int operator()(set_t s) {
-        return (int)pow(base,f(s));
+        int value=f(s);
+        if(value==INT_MAX) return INT_MAX; //reicht immer noch nicht ,hiermit wird bei convolution ja noch gferechent
+        return (int)pow(base,value);
     }
 
 };
 
 
 
+int mobius_dreyfuss(weight_matrix &graph_adj,int n, set_t K, int input_range){
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
+    vector<vector <int> > W; //W[q][X] with q in V\K and X subset of K (maybe q=0 signals q in K)
+    int k = __builtin_popcount(K);
+
+    //SUBSET GENERATION
+    vector<set_t> subsets = get_subsets_it(K);
+    subsets.reserve(((int)pow(2,k))*(n-k+1));
+    vector<set_t> V_without_K_singletons; //should contain all nodes in V/K represented as singleton sets, i.e. a
+    // set_t with exactly 1 bit set
+
+    for(int i=0;i<n;++i){
+        if (!(K bitand (1<<i))){
+            V_without_K_singletons.push_back(i<<1);
+        }
+    }
+    int current_size=subsets.size();
+    for(int i=0;i<current_size;++i){
+        for(set_t singleton:V_without_K_singletons){
+            subsets.push_back(subsets[i] bitor singleton);
+        }
+    }
+    //subsets now contains all subsets of the form X u {q} with X subset of K and q element of V without K
+    std::sort(subsets.begin(),subsets.end(),cmp_setsize);
+
+    //levelwise computation
+    for(int l=2;l<k;++l){
+
+
+    }
+    return 0;
+}
+
+
+#if 0
 int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
     int k = __builtin_popcount(K);
@@ -240,7 +277,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
     //TODO: ALle subsets bis größe x von allen Knoten
 
 
-    vector<set_t> subsets = get_subsets_it(K);
+    vector<set_t> subsets = get_subsets_it(K); //das sind auch nicht alle subsets die wir brauchen, es fehlt für jedes
+    //X, Xu{p} mit p element von V\K
 
 
     std::sort(subsets.begin(), subsets.end(), cmp_setsize); //TODO: generate subsets in order->bankers code
@@ -257,12 +295,12 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
     //init W
     vector<int> W((int)pow(2,size));
     for (set_t i = 0; i < k + 1; ++i) { //subsets of size 0 and 1
-        W[0] = 0;
+        W[i] = 0;
         cout<<subsets[i]<<" ";
     }
     cout<<endl;
 
-    for (int i = size + 1; i < k + 1 + (k * (k - 1) / 2); ++i) { //subsets of size 2
+    for (int i = k + 1; i < k + 1 + (k * (k - 1) / 2); ++i) { //subsets of size 2
         set_t set_repr = subsets[i];
         cout<<subsets[i]<<" ";
         int ele1 = __builtin_ffs(i) - 1;
@@ -271,7 +309,6 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
         cout<<set_repr<<endl;
         W[subsets[i]] = pair_wise_dist[ele1][ele2]; //TODO: change when relabeling is done
     }
-    //soweit richtig
 
 //#if 0
     int last_index = k + 1 + (k * (k - 1) /
@@ -292,9 +329,12 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
             for (int i = input_range * 2; i >= 0; --i) {
                 int coeff = pow(base, i); //careful that this term does not exceed int
                 for (int j = 0; j < g[p].size(); ++j) {
+                    if(g[p][j]==INT_MAX){
+
+                    }
                     if (g[p][j] > coeff) {
                         g_transformed[p][j] = i;//at the end the minimal i will be in here
-                        g[p][j] = g[p][j] % coeff;
+                        g[p][j] = g[p][j] % coeff; //TODO: funktioniert das mit max
                     }
                 }
             }
@@ -328,7 +368,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
 //#endif
     return 0;
 }
-
+#endif
 
 void test_steiner() {
     /*  a --  1 --  b -- 1 --   d
