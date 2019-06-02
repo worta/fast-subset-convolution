@@ -72,40 +72,6 @@ weight_matrix compute_ap_shortest_path(weight_matrix adjancy, int size) {
     return distances;
 }
 
-void test_dijkstra() {
-    /*  a --  1 --  b -- 1 --   d
-     *     --2      |2
-     *         --   c
-     */
-    std::cout << "Test Dijkstra: \n";
-    weight_matrix graph(boost::extents[4][4]);
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            graph[i][j] = -1;
-            if (i == j) {
-                graph[i][i] = 0;
-            }
-        }
-    }
-    graph[0][1] = 1;
-    graph[1][0] = 1;
-    graph[0][2] = 2;
-    graph[2][0] = 2;
-    graph[1][2] = 2;
-    graph[2][1] = 2;
-    graph[1][3] = 1;
-    graph[3][1] = 1;
-    weight_matrix distances = compute_ap_shortest_path(graph, 4);
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            std::cout << distances[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-    std::cout << "should be\n";
-    std::cout << "0 1 2 2\n1 0 2 1\n2 2 0 3\n2 1 3 0\n";
-
-}
 //bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
 
 inline set_t to_byte_repr(vector<int> indices) {
@@ -195,75 +161,144 @@ bool cmp_setsize(set_t i, set_t j) { return (__builtin_popcount(i) < __builtin_p
 
 class Function_p
         : public Function<int> { //TODO ADD MAP SO THAT RELEVANT SUBSET ARE ALWAYS THE LOWEST BITS IN SET REPR
-    int level;
-    vector<int> W;
-    set_t p;
-public:
-    Function_p(vector<int> &W, int level, int p) {
-        this->W = W;
-        this->level = level;
-        this->p = 1 << p;
 
+private:
+    int level;
+    vector<vector<int> > W;
+    set_t p;
+    int max_value;
+public:
+    Function_p(vector<vector<int> > &W_, int level_, int p_, int max_value_) :
+            W(W_), level(level_), p(p_), max_value(max_value_) {
     };
 
-    int operator()(set_t s) {
+    int operator()(set_t s) { //das if und so kann ich mri vermutlich sparenw enn ich w am anfang apassend befülle
         int x_size = __builtin_popcount(s);
-        if (x_size < level && x_size > 1) {
-            return W[s bitor p];
+        if (x_size < level && x_size >= 1) {
+            return W[p][s];
         }
-        return INT_MAX; //TODO:das geht nicht mit embedd into int product
+        return max_value; //TODO:das geht nicht mit embedd into int product
     }
 
 };
 
-class EmbeddIntoIntProduct:public Function<int>{
+class EmbeddIntoIntProduct : public Function<int> {
     Function<int> &f;
     int base;
 public:
-    EmbeddIntoIntProduct(Function<int> &func,int n):f(func){ //because f is a reference it has to be in a initializer list
-        this->base=pow(2,n)+1;
+    EmbeddIntoIntProduct(Function<int> &func, int n) : f(
+            func) { //because f is a reference it has to be in a initializer list
+        this->base = pow(2, n) + 1;
     }
 
     int operator()(set_t s) {
-        int value=f(s);
-        if(value==INT_MAX) return INT_MAX; //reicht immer noch nicht ,hiermit wird bei convolution ja noch gferechent
-        return (int)pow(base,value);
+        int value = f(s);
+        if (value == INT_MAX) return INT_MAX; //reicht immer noch nicht ,hiermit wird bei convolution ja noch gferechent
+        return (int) pow(base, value);
     }
 
 };
 
 
-
-int mobius_dreyfuss(weight_matrix &graph_adj,int n, set_t K, int input_range){
+int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
-    vector<vector <int> > W; //W[q][X] with q in V\K and X subset of K (maybe q=0 signals q in K)
+    //vector<vector <int> > W; //W[q][X] with q in V\K and X subset of K (maybe q=0 signals q in K)
     int k = __builtin_popcount(K);
+    vector<int> indices = get_element_indices(K);
+    int highest_index = 0;
+    for (int index:indices) { //inefficient but does not matter
+        if (index > highest_index) {
+            highest_index = index;
+        }
+    }
+
+    vector<vector <int> > W(n, vector<int>((int) pow(2, n),(n-1)*input_range+1));
+    vector<vector <int> > g(n, vector<int>((int) pow(2, k)));
 
     //SUBSET GENERATION
-    vector<set_t> subsets = get_subsets_it(K);
-    subsets.reserve(((int)pow(2,k))*(n-k+1));
+    //vector<set_t> subsets = get_subsets_it(K);
+    //subsets.reserve(((int) pow(2, k)) * (n - k + 1));
+
+
     vector<set_t> V_without_K_singletons; //should contain all nodes in V/K represented as singleton sets, i.e. a
     // set_t with exactly 1 bit set
 
-    for(int i=0;i<n;++i){
-        if (!(K bitand (1<<i))){
-            V_without_K_singletons.push_back(i<<1);
+    //relabel
+    int relabel[n];
+    for(int i=0;i<indices.size();++i){
+        relabel[i]=indices[i]-1;
+    }
+    int new_index=indices.size();
+    for (int i = 0; i < n; ++i) {
+        if (!(K bitand (1 << i))) {
+            V_without_K_singletons.push_back(i << 1);
+            relabel[new_index]=i;
+            new_index++;
         }
     }
-    int current_size=subsets.size();
+    //Subsets can now be treated as 000..011..1
+    set_t relabeld_K=0;
+    for(int i=0;i<indices.size();i++){
+        relabeld_K=relabeld_K|(1<<i);
+    }
+
+
+
+#if 0
+    /*int current_size=subsets.size();
     for(int i=0;i<current_size;++i){
         for(set_t singleton:V_without_K_singletons){
             subsets.push_back(subsets[i] bitor singleton);
         }
-    }
+    }*/
     //subsets now contains all subsets of the form X u {q} with X subset of K and q element of V without K
-    std::sort(subsets.begin(),subsets.end(),cmp_setsize);
+    //std::sort(subsets.begin(),subsets.end(),cmp_setsize);
+#endif
+    //init for W for l=2
+    for (int q = 0; q < n; q++) {
+        for (int p = 0; p < k; p++) {
+            W[q][1 << p] = pair_wise_dist[relabel[q]][relabel[p]];
+        }
+    }
 
     //levelwise computation
-    for(int l=2;l<k;++l){
-
+    int max_value = (n - 1) * input_range + 1;
+    for (int l = 2; l < k; ++l) {
+        for (int p = 0; p < n; ++p) {
+            Function_p f_p(W, l, p, max_value);
+            g[p]=advanced_convolute<int>(f_p, f_p, k);
+            //g[p][subset element of Xs]=convolute fp and fp
+        }
+        for (int q = 0; q < n; ++q) {
+            vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l, k);
+            for (set_t X:Xs) {
+                int min_value=INT_MAX;
+                for(int p=0;p<n;++p){
+                    int value= pair_wise_dist[relabel[q]][relabel[p]]+g[p][X];
+                    if(value<min_value){
+                        min_value=value;
+                    }
+                }
+                W[q][X]=min_value;
+            }
+        }
 
     }
+    cout<<"relabeld K:"<<relabeld_K<<endl;
+    cout<<"k:"<<k<<endl;
+    /*for(int q=0;q<n;++q){
+
+        vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, k-1,k);
+        for(set_t X:Xs){
+            cout<<"q="<<relabel[q]<<" X:"<<X<<" value:"<<W[q][X]<<endl;
+        }
+    }*/
+    for (int j = 0; j <n; ++j) {
+        cout<<g[j][relabeld_K xor (1<<j)]<<endl;
+    }
+
+
+
     return 0;
 }
 
@@ -404,9 +439,37 @@ void test_steiner() {
 }
 
 
+void test_dijkstra() {
+    /*  a --  1 --  b -- 1 --   d
+     *     --2      |2
+     *         --   c
+     */
+    std::cout << "Test Dijkstra: \n";
+    weight_matrix graph(boost::extents[4][4]);
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            graph[i][j] = -1;
+            if (i == j) {
+                graph[i][i] = 0;
+            }
+        }
+    }
+    graph[0][1] = 1;
+    graph[1][0] = 1;
+    graph[0][2] = 2;
+    graph[2][0] = 2;
+    graph[1][2] = 2;
+    graph[2][1] = 2;
+    graph[1][3] = 1;
+    graph[3][1] = 1;
+    weight_matrix distances = compute_ap_shortest_path(graph, 4);
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            std::cout << distances[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "should be\n";
+    std::cout << "0 1 2 2\n1 0 2 1\n2 2 0 3\n2 1 3 0\n";
 
-
-
-
-
-
+}

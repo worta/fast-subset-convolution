@@ -109,23 +109,29 @@ bool next_combination(unsigned long& x) // assume x has form x'01^a10^b in binar
 
 
 //K is the superset, subset_size is the desired size of the generated subsets, k is the size of K
-vector<set_t> generate_subsets_of_size_k(set_t K, int subset_size, int n){
-    unsigned int current_perm=(int)pow(2,subset_size)-1; // sets the first subset_size bits to 1
+//bitcount is the maximum amount of bits that need to be checked, i.e. the highest bit of K
+vector<set_t> generate_subsets_of_size_k(set_t K, int subset_size, int bitcount){
+    unsigned int current_perm=0;
     unsigned int next_perm; // next permutation of bits
-    unsigned check=1<<(n+1);
-    if (n==0){
+    unsigned check=1<<(bitcount);
+    vector<set_t> subsets;
+    if (bitcount==0){
         return vector<set_t>(1,0); //return just the empty set
+    }
+    // set the first subset_size bits to 1
+    for(int i=0;i<subset_size;++i){
+        current_perm=current_perm|(1<<i);
     }
 
     while(!(current_perm & check)){ //as long as the k+1 bit is not set
-
+        subsets.push_back(current_perm);        //}
         unsigned int t = current_perm | (current_perm - 1); // t gets v's least significant 0 bits set to 1
         // Next set to 1 the most significant bit to change,
         // set to 0 the least significant ones, and add the necessary 1 bits.
         current_perm = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(current_perm) + 1));
+        //if((current_perm bitand K)  == current_perm){ //is current_perm subset of K
 
         //now check current_perm in k?
-
     }
-
+    return subsets;
 }
