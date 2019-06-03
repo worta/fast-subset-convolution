@@ -182,6 +182,7 @@ public:
 
 };
 
+
 class EmbeddIntoIntProduct : public Function<int> {
     Function<int> &f;
     int base;
