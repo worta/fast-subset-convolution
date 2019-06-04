@@ -497,28 +497,28 @@ void test_steiner() {
             }
         }
     }
-    graph[0][1] = 5;
-    graph[1][0] = 5;
-    graph[0][2] = 2;
-    graph[2][0] = 2;
-    graph[1][2] = 2;
-    graph[2][1] = 2;
-    graph[1][3] = 1;
-    graph[3][1] = 1;
-    graph[2][4] = 1;
-    graph[4][2] = 1;
-    graph[2][5]=1;
-    graph[5][2]=1;
-    graph[4][5]=3;
-    graph[5][4]=3;
+    graph2[0][1] = 5;
+    graph2[1][0] = 5;
+    graph2[0][2] = 2;
+    graph2[2][0] = 2;
+    graph2[1][2] = 2;
+    graph2[2][1] = 2;
+    graph2[1][3] = 1;
+    graph2[3][1] = 1;
+    graph2[2][4] = 1;
+    graph2[4][2] = 1;
+    graph2[2][5]=1;
+    graph2[5][2]=1;
+    graph2[4][5]=3;
+    graph2[5][4]=3;
 
-    result = classic_dreyfuss_wagner(graph, 6, 0b111000);
+    result = classic_dreyfuss_wagner(graph2, 6, 0b111000);
     if (result != 5) {
         cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
-    result = mobius_dreyfuss(graph, 6, 0b111000, 3);
+    result = mobius_dreyfuss(graph2, 6, 0b111000, 3);
     cout << "ADVANCED RESULT:" << result << endl;
 
 }
