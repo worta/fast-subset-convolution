@@ -302,8 +302,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
             cout<<"---------------------------"<<endl;*/
             //g[p][subset element of Xs]=convolute fp and fp
         }
+        vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l, k);
         for (int q = 0; q < n; ++q) {
-            vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l, k);
             for (set_t X:Xs) {
                 int min_value=INT_MAX;
                 for(int p=0;p<n;++p){
@@ -327,6 +327,12 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         }
     }*/
 
+
+    for (set_t j = 0; j <k; ++j) {
+        cout<<g[j][relabeld_K xor (1<<j)].min()<<endl;
+
+    }
+
     //calculate best
     int result=INT_MAX;
     for(int i=0;i<n;++i){
@@ -337,10 +343,6 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
 
     }
 
-    for (set_t j = 0; j <k; ++j) {
-        cout<<g[j][relabeld_K xor (1<<j)].min()<<endl;
-
-    }
 
 
 
