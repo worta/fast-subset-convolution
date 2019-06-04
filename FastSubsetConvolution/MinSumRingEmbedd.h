@@ -7,10 +7,10 @@
 
 #include <math.h>
 #include <algorithm>
-#include <set>
+#include <map>
 //#define NDEBUG //to disable assert
 #include <assert.h>     /* assert */
-
+#if 0
 struct Element {
     int value;
     int count;
@@ -24,20 +24,26 @@ struct element_compare {
         return lhs.value < rhs.value;
     }
 };
+#endif
 
+
+typedef std::pair<const int, int> Value_Count;
 class MinSumRingEmbedd {
 public:
-    std::set<Element, element_compare> &mset; //should use multiset, it is checked anyway if multiple are entered
+    std::map<int,int> mset; //should use multiset, it is checked anyway if multiple are entered
     MinSumRingEmbedd(int x) :
-            mset(std::set<int, element_compare>()) {
-        mset.insert(Element(x, 1));
+            mset(std::map<int,int>()) {
+        mset.insert(Value_Count(x, 1));
     }
 
+    MinSumRingEmbedd(){
+
+    }
     MinSumRingEmbedd &operator=(const int &x) //that is not well defined
     {
         mset.clear();
         if (x != 0) {
-            mset.insert(Element(x, 1)); //if it is set to 0, that is the 0 element of the ring, that is the empty set
+            mset.insert(Value_Count(x, 1)); //if it is set to 0, that is the 0 element of the ring, that is the empty set
         }
         return *this;
     }
@@ -47,54 +53,60 @@ public:
         return *this;
     }
 
-    MinSumRingEmbedd(std::set<Element, element_compare, std::allocator<Element>> m) :
+    MinSumRingEmbedd(std::map<int,int> m) :
             mset(m) {
     }
 
     MinSumRingEmbedd operator*(const MinSumRingEmbedd &rhs) {
-        std::set<Element, element_compare> newS = std::set<Element, element_compare>();
-        for (Element node_rhs:rhs.mset) {
-            for (Element node_lhs:mset) {
-                Element node = Element(node_lhs.value + node_rhs.value, node_lhs.count * node_rhs.count);
-                assert(node.count != 0);//shouldnt happen
-                newS.insert(node);
+        //std::map<int,int> newS = std::map<int,int>();
+        MinSumRingEmbedd newE=MinSumRingEmbedd();
+        for (auto node_rhs:rhs.mset) {
+            for (auto node_lhs:mset) {
+                Value_Count node = Value_Count(node_lhs.first + node_rhs.first, node_lhs.second * node_rhs.second);
+                assert(node.second != 0);//shouldnt happen
+                newE.mset.insert(node);
             }
         }
-        return MinSumRingEmbedd(newS);
+        return newE;
     }
 
     MinSumRingEmbedd operator+(const MinSumRingEmbedd &rhs) {
-        std::set<Element, element_compare> newS = std::set<Element, element_compare>();
-        newS.insert(mset.begin(), mset.end());
-        for (Element node:rhs.mset) {
-            auto it = newS.find(node);
-            if (it == newS.end()) {
-                newS.insert(node);
-            } else {
-                newS.erase(it);
+        //std::map<Element, element_compare> newS = std::map<Element, element_compare>();
+        MinSumRingEmbedd newE=MinSumRingEmbedd();
+        std::pair<std::map<int,int>::iterator,bool> ret;
+        newE.mset.insert(mset.begin(),mset.end());
+        for(auto node:rhs.mset){
+            Value_Count normal=Value_Count(node.first,node.second);
+            ret=newE.mset.insert(normal);
+            if(ret.second==false){ //the element exists already
+                ret.first->second+=normal.second;
+                /*if(ret.first->second==0){ //TODO: priciple should be optional, maybe tested whats better for performance
+                    newE.mset.erase(ret);
+                }*/
             }
         }
-        return MinSumRingEmbedd(newS);
+
+        return newE;
     }
 
     MinSumRingEmbedd operator-(
-            const MinSumRingEmbedd &rhs) //+ and minus could easily be implemented with third function to avoid code duplication and nverted node
+            const MinSumRingEmbedd &rhs)
     {
-        //extract, wenn niemand drin ist muss entweder eine struct das zählen oder es gibt ein weiteres multiset mit
-        //entfernten nodes
-        std::set<Element,element_compare> newS = std::set<Element,element_compare>();
-        newS.insert(mset.begin(), mset.end());
-        for (Element node:rhs.mset) {
-            auto it = newS.find(node);//was it removed before
-            if (it == newS.end()) {
-                newS.insert(node);
-            } else {
-                newS.erase(it);
+        MinSumRingEmbedd newE=MinSumRingEmbedd();
+        std::pair<std::map<int,int>::iterator,bool> ret;
+        newE.mset.insert(mset.begin(),mset.end());
+        for(auto node:rhs.mset){
+            Value_Count inverse=Value_Count(node.first,-node.second);
+            ret=newE.mset.insert(inverse);
+            if(ret.second==false){ //the element exists already
+                ret.first->second+=inverse.second;
+                /*if(ret.first->second==0){ //TODO: priciple should be optional, maybe tested whats better for performance
+                    newE.mset.erase(ret);
+                }*/
             }
         }
-        return MinSumRingEmbedd(newS);
     }
-
+    return newE;
 };
 
 
