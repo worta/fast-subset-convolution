@@ -182,7 +182,7 @@ public:
 
 };
 
-
+#if 0
 class EmbeddIntoIntProduct : public Function<int> {
     Function<int> &f;
     int base;
@@ -199,7 +199,7 @@ public:
     }
 
 };
-
+#endif
 
 int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
