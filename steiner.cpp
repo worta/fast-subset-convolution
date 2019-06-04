@@ -14,7 +14,7 @@
 #include <deque>
 #include <set>
 #include <array>
-
+#include "MinSumRingEmbedd.h"
 typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
@@ -177,10 +177,25 @@ public:
         if (x_size < level && x_size >= 1) {
             return W[p][s];
         }
-        return max_value; //TODO:das geht nicht mit embedd into int product
+        return max_value;
     }
 
 };
+
+class Function_Embedd:public Function<MinSumRingEmbedd>{
+    Function_p &f_p;
+public:
+    Function_Embedd(Function_p &f):
+    f_p(f)
+    {
+    }
+
+
+    MinSumRingEmbedd operator()(set_t s){
+        return MinSumRingEmbedd(f_p(s));
+    }
+};
+
 
 #if 0
 class EmbeddIntoIntProduct : public Function<int> {
@@ -213,8 +228,15 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         }
     }
 
-    vector<vector <int> > W(n, vector<int>((int) pow(2, n),(n-1)*input_range+1));
-    vector<vector <int> > g(n, vector<int>((int) pow(2, k)));
+    vector<vector <int> > W(n, vector<int>((int) pow(2, k),(n-1)*input_range+1));
+    for(int i=0;i<W.size();++i)
+    {
+        for(int j=0;j<W[i].size();++j){
+            cout<<"i:"<<i<<" j:"<<j<<" W:"<<W[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+    vector<vector <MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>((int) pow(2, k)));
 
     //SUBSET GENERATION
     //vector<set_t> subsets = get_subsets_it(K);
@@ -243,7 +265,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         relabeld_K=relabeld_K|(1<<i);
     }
 
-
+//TODO change all constructors from type a=type() to type a();
 
 #if 0
     /*int current_size=subsets.size();
@@ -267,7 +289,17 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     for (int l = 2; l < k; ++l) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
-            g[p]=advanced_convolute<int>(f_p, f_p, k);
+            Function_Embedd f(f_p);
+            //g[p]=advanced_convolute<MinSumRingEmbedd>(f, f, k);
+            g[p]=naive_convolute<MinSumRingEmbedd>(f, f, k);
+            cout<<"Level: "<<l<<" p:"<<p<<endl;
+          /*  cout<<"---------------------------"<<endl;
+            for(set_t z;z<g[p].size();++z){
+                cout<<"set:";
+                output_set(z,k);
+                cout<<" "<<g[p][z].min();
+            }
+            cout<<"---------------------------"<<endl;*/
             //g[p][subset element of Xs]=convolute fp and fp
         }
         for (int q = 0; q < n; ++q) {
@@ -275,7 +307,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
             for (set_t X:Xs) {
                 int min_value=INT_MAX;
                 for(int p=0;p<n;++p){
-                    int value= pair_wise_dist[relabel[q]][relabel[p]]+g[p][X];
+                    int value= pair_wise_dist[relabel[q]][relabel[p]]+g[p][X].min();
                     if(value<min_value){
                         min_value=value;
                     }
@@ -294,13 +326,25 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
             cout<<"q="<<relabel[q]<<" X:"<<X<<" value:"<<W[q][X]<<endl;
         }
     }*/
-    for (int j = 0; j <n; ++j) {
-        cout<<g[j][relabeld_K xor (1<<j)]<<endl;
+
+    //calculate best
+    int result=INT_MAX;
+    for(int i=0;i<n;++i){
+        int v=pair_wise_dist[relabel[0]][relabel[i]]+g[i][relabeld_K-1].min();
+        if(v<result){
+            result=v;
+        }
+
+    }
+
+    for (set_t j = 0; j <k; ++j) {
+        cout<<g[j][relabeld_K xor (1<<j)].min()<<endl;
+
     }
 
 
 
-    return 0;
+    return result;
 }
 
 
@@ -429,14 +473,14 @@ void test_steiner() {
     graph[2][1] = 2;
     graph[1][3] = 1;
     graph[3][1] = 1;
-    int result = classic_dreyfuss_wagner(graph, 4, 0b1001);
+    int result = classic_dreyfuss_wagner(graph, 4, 0b1011);
     if (result != 2) {
-        cout << "ERROR:Steiner: Should be 2 but is: " << result << endl;
+        cout << "ERROR:Steiner: Should be 4 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
-    result = mobius_dreyfuss(graph, 4, 0b1001, 2);
-    cout << "ADVANCED RESuLT:" << result << endl;
+    result = mobius_dreyfuss(graph, 4, 0b1011, 3);
+    cout << "ADVANCED RESULT:" << result << endl;
 }
 
 

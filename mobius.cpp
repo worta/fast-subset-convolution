@@ -78,7 +78,7 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
 
 
 template<typename T>
-vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n) {
+vector<T> naive_convolute(Function<T>  &f,Function<T> &g, int n) {
     vector<T> conv((int) pow(2, n));
     for (int k = 0; k < pow(2, n); ++k) {
         vector<set_t > subsets;

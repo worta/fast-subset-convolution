@@ -39,12 +39,13 @@ public:
     MinSumRingEmbedd(){
 
     }
+    //should only be used to set map to 0, i.e. to empty set
     MinSumRingEmbedd &operator=(const int &x) //that is not well defined
     {
         mset.clear();
-        if (x != 0) {
+       /* if (x != 0) {
             mset.insert(Value_Count(x, 1)); //if it is set to 0, that is the 0 element of the ring, that is the empty set
-        }
+        }*/
         return *this;
     }
 
@@ -105,8 +106,19 @@ public:
                 }*/
             }
         }
+        return newE;
     }
-    return newE;
+
+    int min(){
+        for(auto pairIt:mset){
+            if(pairIt.second!=0){
+                return pairIt.first;
+            }
+        }
+        assert(false);
+        return 100;
+    }
+
 };
 
 

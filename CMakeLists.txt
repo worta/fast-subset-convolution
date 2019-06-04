@@ -27,4 +27,4 @@ add_executable(fast_subset_convolution
         steiner.cpp
         steiner.h
         utility.cpp
-        utility.h common.h tests.cpp tests.h FastSubsetConvolution/MinSumRingEmbedd.cpp FastSubsetConvolution/MinSumRingEmbedd.h)
+        utility.h common.h tests.cpp tests.h MinSumRingEmbedd.cpp MinSumRingEmbedd.h)
