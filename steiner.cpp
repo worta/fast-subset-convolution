@@ -290,19 +290,10 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
-            //g[p]=advanced_convolute<MinSumRingEmbedd>(f, f, k);
-            g[p]=naive_convolute<MinSumRingEmbedd>(f, f, k);
-            cout<<"Level: "<<l<<" p:"<<p<<endl;
-          /*  cout<<"---------------------------"<<endl;
-            for(set_t z;z<g[p].size();++z){
-                cout<<"set:";
-                output_set(z,k);
-                cout<<" "<<g[p][z].min();
-            }
-            cout<<"---------------------------"<<endl;*/
-            //g[p][subset element of Xs]=convolute fp and fp
+            g[p]=advanced_convolute<MinSumRingEmbedd>(f, f, k);
+            //g[p]=naive_convolute<MinSumRingEmbedd>(f, f, k);
         }
-        vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l, k);
+        vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l, k); //can skip this for l=k-1
         for (int q = 0; q < n; ++q) {
             for (set_t X:Xs) {
                 int min_value=INT_MAX;
@@ -453,11 +444,15 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
 #endif
 
 void test_steiner() {
+
+    //GRAPH 1
+
     /*  a --  1 --  b -- 1 --   d
      *     --2      |2
      *         --   c
      */
     std::cout << "Test Steiner: \n";
+    std::cout << "Graph 1: \n";
     weight_matrix graph(boost::extents[4][4]);
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
@@ -483,6 +478,49 @@ void test_steiner() {
     }
     result = mobius_dreyfuss(graph, 4, 0b1011, 3);
     cout << "ADVANCED RESULT:" << result << endl;
+
+
+    /*  a --  5 --  b -- 1 --   d
+    *     --2      |2
+    *         --   c-----1------e
+    *                -1-    -3-
+    *                    f
+    */
+    std::cout << "Test Steiner: \n";
+    std::cout << "Graph 2: \n";
+    weight_matrix graph2(boost::extents[6][6]);
+    for (int i = 0; i < 6; ++i) {
+        for (int j = 0; j < 6; ++j) {
+            graph2[i][j] = -1;
+            if (i == j) {
+                graph2[i][i] = 0;
+            }
+        }
+    }
+    graph[0][1] = 5;
+    graph[1][0] = 5;
+    graph[0][2] = 2;
+    graph[2][0] = 2;
+    graph[1][2] = 2;
+    graph[2][1] = 2;
+    graph[1][3] = 1;
+    graph[3][1] = 1;
+    graph[2][4] = 1;
+    graph[4][2] = 1;
+    graph[2][5]=1;
+    graph[5][2]=1;
+    graph[4][5]=3;
+    graph[5][4]=3;
+
+    result = classic_dreyfuss_wagner(graph, 6, 0b111000);
+    if (result != 5) {
+        cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
+    } else {
+        cout << "Steiner:OK" << endl;
+    }
+    result = mobius_dreyfuss(graph, 6, 0b111000, 3);
+    cout << "ADVANCED RESULT:" << result << endl;
+
 }
 
 
