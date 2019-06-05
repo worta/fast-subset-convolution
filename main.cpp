@@ -191,8 +191,9 @@ int main()
     test_ranked_mobius_and_convolute();
 
     test_dijkstra();
+    test_ring_embedd();
     test_steiner();
-    ofstream myfile;
+   // ofstream myfile;
 
     /*myfile.open ("results.txt");
     myfile<<"n naive mobius\n";

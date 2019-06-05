@@ -15,4 +15,5 @@ void test_dijkstra();
 int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K);
 int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range);
 void test_steiner();
+void test_ring_embedd();
 #endif // STEINER_H_INCLUDED

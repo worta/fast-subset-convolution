@@ -15,6 +15,7 @@
 #include <set>
 #include <array>
 #include "MinSumRingEmbedd.h"
+
 typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
@@ -182,16 +183,15 @@ public:
 
 };
 
-class Function_Embedd:public Function<MinSumRingEmbedd>{
+class Function_Embedd : public Function<MinSumRingEmbedd> {
     Function_p &f_p;
 public:
-    Function_Embedd(Function_p &f):
-    f_p(f)
-    {
+    Function_Embedd(Function_p &f) :
+            f_p(f) {
     }
 
 
-    MinSumRingEmbedd operator()(set_t s){
+    MinSumRingEmbedd operator()(set_t s) {
         return MinSumRingEmbedd(f_p(s));
     }
 };
@@ -228,15 +228,19 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         }
     }
 
-    vector<vector <int> > W(n, vector<int>((int) pow(2, k),(n-1)*input_range+1));
-    for(int i=0;i<W.size();++i)
-    {
-        for(int j=0;j<W[i].size();++j){
-            cout<<"i:"<<i<<" j:"<<j<<" W:"<<W[i][j]<<" ";
-        }
-        cout<<endl;
+    if(k==2){ //just shortest path
+        return pair_wise_dist[indices[0]-1][indices[1]-1];
     }
-    vector<vector <MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>((int) pow(2, k)));
+
+    vector<vector<int> > W(n, vector<int>((int) pow(2, k))); //,(n-1)*input_range+1) in the second brackes
+    for (int i = 0; i < W.size(); ++i) {
+        for (int j = 0; j < W[i].size(); ++j) {
+            W[i][j] = (n - 1) * input_range + 1; //without this, the program sigaborts
+            //   cout<<"i:"<<i<<" j:"<<j<<" W:"<<W[i][j]<<" ";
+        }
+        //cout<<endl;
+    }
+    vector<vector<MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>((int) pow(2, k)));
 
     //SUBSET GENERATION
     //vector<set_t> subsets = get_subsets_it(K);
@@ -248,21 +252,21 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
 
     //relabel
     int relabel[n];
-    for(int i=0;i<indices.size();++i){
-        relabel[i]=indices[i]-1;
+    for (int i = 0; i < indices.size(); ++i) {
+        relabel[i] = indices[i] - 1;
     }
-    int new_index=indices.size();
+    int new_index = indices.size();
     for (int i = 0; i < n; ++i) {
         if (!(K bitand (1 << i))) {
             V_without_K_singletons.push_back(i << 1);
-            relabel[new_index]=i;
+            relabel[new_index] = i;
             new_index++;
         }
     }
     //Subsets can now be treated as 000..011..1
-    set_t relabeld_K=0;
-    for(int i=0;i<indices.size();i++){
-        relabeld_K=relabeld_K|(1<<i);
+    set_t relabeld_K = 0;
+    for (int i = 0; i < indices.size(); i++) {
+        relabeld_K = relabeld_K | (1 << i);
     }
 
 //TODO change all constructors from type a=type() to type a();
@@ -290,26 +294,28 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
-            g[p]=advanced_convolute<MinSumRingEmbedd>(f, f, k);
+            g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k);
             //g[p]=naive_convolute<MinSumRingEmbedd>(f, f, k);
         }
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l, k); //can skip this for l=k-1
-        for (int q = 0; q < n; ++q) {
+        for (int q = 0; q < k; ++q) {
             for (set_t X:Xs) {
-                int min_value=INT_MAX;
-                for(int p=0;p<n;++p){
-                    int value= pair_wise_dist[relabel[q]][relabel[p]]+g[p][X].min();
-                    if(value<min_value){
-                        min_value=value;
+                if((X bitand (1<<q))==0){ //for all X with q not in X
+                    int min_value = INT_MAX;
+                    for (int p = 0; p < n; ++p) {
+                        int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
+                        if (value < min_value) {
+                            min_value = value;
+                        }
                     }
+                    W[q][X] = min_value;
                 }
-                W[q][X]=min_value;
             }
         }
 
     }
-    cout<<"relabeld K:"<<relabeld_K<<endl;
-    cout<<"k:"<<k<<endl;
+    //cout<<"relabeld K:"<<relabeld_K<<endl;
+    //cout<<"k:"<<k<<endl;
     /*for(int q=0;q<n;++q){
 
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, k-1,k);
@@ -319,22 +325,20 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     }*/
 
 
-    for (set_t j = 0; j <k; ++j) {
-        cout<<g[j][relabeld_K xor (1<<j)].min()<<endl;
+    //for (set_t j = 0; j <k; ++j) {
+    //   cout<<g[j][relabeld_K xor (1<<j)].min()<<endl;
 
-    }
+    //}
 
     //calculate best
-    int result=INT_MAX;
-    for(int i=0;i<n;++i){
-        int v=pair_wise_dist[relabel[0]][relabel[i]]+g[i][relabeld_K-1].min();
-        if(v<result){
-            result=v;
+    int result = INT_MAX;
+    for (int i = 0; i < n; ++i) {
+        int v = pair_wise_dist[relabel[0]][relabel[i]] + g[i][relabeld_K - 1].min();
+        if (v < result) {
+            result = v;
         }
 
     }
-
-
 
 
     return result;
@@ -451,7 +455,8 @@ void test_steiner() {
      *     --2      |2
      *         --   c
      */
-    std::cout << "Test Steiner: \n";
+    std::cout << "------------------" << endl;
+    std::cout << "Test Steiner: ";
     std::cout << "Graph 1: \n";
     weight_matrix graph(boost::extents[4][4]);
     for (int i = 0; i < 4; ++i) {
@@ -472,7 +477,7 @@ void test_steiner() {
     graph[3][1] = 1;
     int result = classic_dreyfuss_wagner(graph, 4, 0b1011);
     if (result != 2) {
-        cout << "ERROR:Steiner: Should be 4 but is: " << result << endl;
+        cout << "ERROR:Steiner: Should be 2 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
@@ -486,7 +491,7 @@ void test_steiner() {
     *                -1-    -3-
     *                    f
     */
-    std::cout << "Test Steiner: \n";
+    std::cout << "Test Steiner: ";
     std::cout << "Graph 2: \n";
     weight_matrix graph2(boost::extents[6][6]);
     for (int i = 0; i < 6; ++i) {
@@ -507,19 +512,88 @@ void test_steiner() {
     graph2[3][1] = 1;
     graph2[2][4] = 1;
     graph2[4][2] = 1;
-    graph2[2][5]=1;
-    graph2[5][2]=1;
-    graph2[4][5]=3;
-    graph2[5][4]=3;
+    graph2[2][5] = 1;
+    graph2[5][2] = 1;
+    graph2[4][5] = 3;
+    graph2[5][4] = 3;
 
-    result = classic_dreyfuss_wagner(graph2, 6, 0b111000);
+
+    cout<<"Test with: {d,e,f},Expected Value: 5\n";
+    /*result = classic_dreyfuss_wagner(graph2, 6, 0b111000);
+    if (result != 5) {
+        cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
+    } else {
+          cout << "Steiner:OK" << endl;
+    }*/
+    result = mobius_dreyfuss(graph2, 6, 0b111000, 5);
+    cout << "ADVANCED RESULT:" << result << endl;
+
+    cout<<"Test with: {a,b,c,f},Expected Value: 5\n";
+    /*result = classic_dreyfuss_wagner(graph2, 6, 0b100111);
     if (result != 5) {
         cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
-    }
-    result = mobius_dreyfuss(graph2, 6, 0b111000, 3);
+    }*/
+    result = mobius_dreyfuss(graph2, 6, 0b100111, 5);
     cout << "ADVANCED RESULT:" << result << endl;
+
+
+    cout<<"Test with: {a,b,d,f},Expected Value: 6\n";
+    /*result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
+    if (result != 5) {
+        cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
+    } else {
+        cout << "Steiner:OK" << endl;
+    }*/
+    result = mobius_dreyfuss(graph2, 6, 0b101011, 5);
+    cout << "ADVANCED RESULT:" << result << endl;
+
+
+    cout<<"Test with: {a,b},Expected Value: 4\n";
+    /*result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
+    if (result != 5) {
+        cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
+    } else {
+        cout << "Steiner:OK" << endl;
+    }*/
+    result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
+    cout << "ADVANCED RESULT:" << result << endl;
+}
+
+
+
+void test_ring_embedd()
+{
+    MinSumRingEmbedd a= MinSumRingEmbedd(0)+MinSumRingEmbedd(3)-(MinSumRingEmbedd(1));
+    MinSumRingEmbedd b= MinSumRingEmbedd(1)+MinSumRingEmbedd(0)-MinSumRingEmbedd(3);
+    MinSumRingEmbedd c= MinSumRingEmbedd(3)+MinSumRingEmbedd(3)-MinSumRingEmbedd(4);
+
+    MinSumRingEmbedd dist1=a*(b+c);
+    MinSumRingEmbedd dist2=a*b+a*c;
+
+
+
+    cout<<"-------------"<<endl;
+    cout<<"Test: Ring Embedding \n";
+    cout<<"Example 1\n";
+    //check equal
+    if(dist1.mset==dist2.mset){
+        cout<<"a*(b+c)=ab+ac : Valid\n";
+    }
+    else{
+        cout<<"ERROR:a*(b+c)!=ab+ac\n";
+    }
+    dist1=(a+b)*c;
+    dist2=a*c+b*c;
+
+    //check equal
+    if(dist1.mset==dist2.mset){
+        cout<<"(a+b)*c=ac+bc : Valid\n";
+    }
+    else{
+        cout<<"ERROR:(a+b)*c!=ac+bc\n";
+    }
 
 }
 

@@ -61,11 +61,15 @@ public:
     MinSumRingEmbedd operator*(const MinSumRingEmbedd &rhs) {
         //std::map<int,int> newS = std::map<int,int>();
         MinSumRingEmbedd newE=MinSumRingEmbedd();
+        std::pair<std::map<int,int>::iterator,bool> ret;
         for (auto node_rhs:rhs.mset) {
             for (auto node_lhs:mset) {
                 Value_Count node = Value_Count(node_lhs.first + node_rhs.first, node_lhs.second * node_rhs.second);
-                assert(node.second != 0);//shouldnt happen
-                newE.mset.insert(node);
+               // assert(node.second != 0);//shouldnt happen in normal code, but does in tsetrs
+                ret=newE.mset.insert(node);
+                if(ret.second==false) { //the element exists already
+                    ret.first->second += node.second;
+                }
             }
         }
         return newE;
