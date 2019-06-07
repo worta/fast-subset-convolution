@@ -37,11 +37,11 @@ public:
 template <typename T>
 class VectFunction : public Function<T>
 {
-    vector<T> v;
+    vector<T> &v;
 public:
-    VectFunction(vector<T> &vect) //TODO: Reference?
+    VectFunction(vector<T> &vect):
+    v(vect)
     {
-        v=vect;
     };
     T operator() (set_t s)
     {
@@ -52,11 +52,11 @@ public:
 template <typename T>
 class RankedVectFunction : public RankedFunction<T>
 {
-    vector<vector<T> > v;
+    vector<vector<T> > &v;
 public:
-    RankedVectFunction(vector<vector<T> > &vect)
+    RankedVectFunction(vector<vector<T> > &vect):
+    v(vect)
     {
-        v=vect;
     };
     T operator() (int ran,set_t subset)
     {

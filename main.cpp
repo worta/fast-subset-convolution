@@ -16,7 +16,7 @@ using namespace std::chrono;
 
 
 
-/*class int_max //TODO rework as embedding into either int_sum_product or own vector representation
+/*class int_max
 {
 public:
     int value;
