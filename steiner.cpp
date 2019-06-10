@@ -229,15 +229,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     if (k == 2) { //just shortest path
         return pair_wise_dist[indices[0] - 1][indices[1] - 1];
     }
-
-    vector<vector<int> > W(n, vector<int>((int) pow(2, k))); //,(n-1)*input_range+1) in the second brackes
-    for (int i = 0; i < W.size(); ++i) {
-        for (int j = 0; j < W[i].size(); ++j) {
-            W[i][j] = (n - 1) * input_range + 1; //without this, the program sigaborts
-            //   cout<<"i:"<<i<<" j:"<<j<<" W:"<<W[i][j]<<" ";
-        }
-        //cout<<endl;
-    }
+    int max_value= (n - 1) * input_range + 1;
+    vector<vector<int> > W(n, vector<int>((int) pow(2, k),max_value)); //,(n-1)*input_range+1) in the second brackes
     vector<vector<MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>((int) pow(2, k)));
 
     //relabel
@@ -271,7 +264,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     }
 
     //levelwise computation
-    int max_value = (n - 1) * input_range + 1;
+//    int max_value = (n - 1) * input_range + 1;
     for (int l = 2; l < k; ++l) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
