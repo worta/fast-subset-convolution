@@ -172,11 +172,11 @@ public:
     };
 
     int operator()(set_t s) { //das if und so kann ich mri vermutlich sparenw enn ich w am anfang apassend befülle
-        int x_size = __builtin_popcount(s);
-        if (x_size < level && x_size >= 1) {
-            return W[p][s];
-        }
-        return max_value;
+       // int x_size = __builtin_popcount(s);
+       // if (x_size < level && x_size >= 1) {
+        return W[p][s];
+       // }
+       // return max_value;
     }
 
 };
@@ -216,16 +216,9 @@ public:
 //TODO change all constructors from type a=type() to type a();
 int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
-    //vector<vector <int> > W; //W[q][X] with q in V\K and X subset of K (maybe q=0 signals q in K)
     int k = __builtin_popcount(K);
     vector<int> indices = get_element_indices(K);
-    int highest_index = 0;
-    for (int index:indices) { //inefficient but does not matter
-        if (index > highest_index) {
-            highest_index = index;
-        }
-    }
-
+ 
     if (k == 2) { //just shortest path
         return pair_wise_dist[indices[0] - 1][indices[1] - 1];
     }
@@ -268,8 +261,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
-            g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k);
-            //g[p]=naive_convolute<MinSumRingEmbedd>(f, f, k); //TODO strange
+            //g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k);
+            g[p]=naive_convolute<MinSumRingEmbedd>(f, f, k);
         }
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
@@ -281,8 +274,12 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                         int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
                         if (value < min_value) {
                             min_value = value;
+                            if((min_value==6 )and (q==3)){
+                                cout<<"check";
+                            }
                         }
                     }
+
                     W[q][X] = min_value;
                 }
             }
@@ -303,7 +300,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         cout<<" Result: "<<W[test][relabeld_K xor (1<<test)]; //should be the same everywhere
     }
     cout<<endl;
-    result = W[0][relabeld_K - 1];
+    result = W[0][relabeld_K xor 1];
     //output_tree(0,relabeld_K xor (1),n,W,g,relabel);
 
     return result;
@@ -513,8 +510,8 @@ void test_steiner() {
     }
 
     cout<<"Should be 2\n";
-    result = mobius_dreyfuss(graph, 4, 0b1011, 3);
-    cout << "ADVANCED RESULT:" << result << endl;
+  //  result = mobius_dreyfuss(graph, 4, 0b1011, 3);
+  //  cout << "ADVANCED RESULT:" << result << endl;
 
 
     /*  a --  5 --  b -- 1 --   d
@@ -557,8 +554,8 @@ void test_steiner() {
     } else {
           cout << "Steiner:OK" << endl;
     }
-    result = mobius_dreyfuss(graph2, 6, 0b111000, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+//    result = mobius_dreyfuss(graph2, 6, 0b111000, 5);
+//    cout << "ADVANCED RESULT:" << result << endl;
 
     cout << "Test with: {a,b,c,f},Expected Value: 5\n";
     //result = classic_dreyfuss_wagner(graph2, 6, 0b100111);
@@ -567,8 +564,8 @@ void test_steiner() {
     } else {
         cout << "Steiner:OK" << endl;
     }
-    result = mobius_dreyfuss(graph2, 6, 0b100111, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+//    result = mobius_dreyfuss(graph2, 6, 0b100111, 5);
+//    cout << "ADVANCED RESULT:" << result << endl;
 
 
     cout << "Test with: {a,b,d,f},Expected Value: 6\n";
@@ -582,15 +579,15 @@ void test_steiner() {
     cout << "ADVANCED RESULT:" << result << endl;
 
 
-    cout << "Test with: {a,b},Expected Value: 4\n";
+    //cout << "Test with: {a,b},Expected Value: 4\n";
     //result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
     if (result != 5) {
       //  cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
-    result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+   // result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
+    //cout << "ADVANCED RESULT:" << result << endl;
 
 
     cout << "Test with: {a,b,c,d,e,f},Expected Value: 7\n";
@@ -600,8 +597,8 @@ void test_steiner() {
     } else {
         cout << "Steiner:OK" << endl;
     }
-    result = mobius_dreyfuss(graph2, 6, 0b111111, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+    //result = mobius_dreyfuss(graph2, 6, 0b111111, 5);
+   // cout << "ADVANCED RESULT:" << result << endl;
 }
 
 
