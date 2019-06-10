@@ -172,11 +172,11 @@ public:
     };
 
     int operator()(set_t s) { //das if und so kann ich mri vermutlich sparenw enn ich w am anfang apassend befülle
-       // int x_size = __builtin_popcount(s);
-       // if (x_size < level && x_size >= 1) {
+        // int x_size = __builtin_popcount(s);
+        // if (x_size < level && x_size >= 1) {
         return W[p][s];
-       // }
-       // return max_value;
+        // }
+        // return max_value;
     }
 
 };
@@ -213,19 +213,20 @@ public:
 
 };
 #endif
+
 //TODO change all constructors from type a=type() to type a();
 int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
     int k = __builtin_popcount(K);
     vector<int> indices = get_element_indices(K);
- 
+
     if (k == 2) { //just shortest path
         return pair_wise_dist[indices[0] - 1][indices[1] - 1];
     }
-    int max_value= (n - 1) * input_range + 1;
-    vector<vector<int> > W(n, vector<int>((int) pow(2, k),max_value)); //,(n-1)*input_range+1) in the second brackes
+    int max_value = (n - 1) * input_range + 1;
+    vector<vector<int> > W(n, vector<int>((int) pow(2, k), max_value)); //,(n-1)*input_range+1) in the second brackes
     vector<vector<MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>((int) pow(2, k)));
-      //relabel
+    //relabel
     int relabel[n];
     for (int i = 0; i < indices.size(); ++i) {
         relabel[i] = indices[i] - 1;
@@ -243,7 +244,6 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         relabeld_K = relabeld_K | (1 << i);
     }
 
-
     //init for W for l=2
     for (int q = 0; q < n; ++q) {
         for (int p = 0; p < k; p++) {
@@ -251,8 +251,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         }
     }
     //init for Y=1;
-    for(int q=0;q<n;++q){
-        W[q][0]=0;
+    for (int q = 0; q < n; ++q) {
+        W[q][0] = 0;
     }
 
     //levelwise computation
@@ -262,7 +262,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
             //g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k);
-            g[p]=naive_convolute<MinSumRingEmbedd>(f, f, k);
+            g[p] = naive_convolute<MinSumRingEmbedd>(f, f, k);
         }
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
@@ -274,8 +274,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                         int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
                         if (value < min_value) {
                             min_value = value;
-                            if((min_value==6 )and (q==3)){
-                                cout<<"check";
+                            if ((min_value == 6) and (q == 3)) {
+                                cout << "check";
                             }
                         }
                     }
@@ -296,10 +296,10 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
           }
 
       }*/
-    for(int test=0;test<k;test++){
-        cout<<" Result: "<<W[test][relabeld_K xor (1<<test)]; //should be the same everywhere
+    for (int test = 0; test < k; test++) {
+        cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
     }
-    cout<<endl;
+    cout << endl;
     result = W[0][relabeld_K xor 1];
     //output_tree(0,relabeld_K xor (1),n,W,g,relabel);
 
@@ -307,66 +307,65 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
 }
 
 
-
-
-void output_tree(int q,set_t relabeld_K,int n,vector<vector <int> > &W, vector< vector <MinSumRingEmbedd> > &g,int relabeling[]){
-    if(__builtin_popcount(relabeld_K)==1){
-        cout<<relabeling[__builtin_ffs(relabeld_K)-1];
+void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector<vector<MinSumRingEmbedd> > &g,
+                 int relabeling[]) {
+    if (__builtin_popcount(relabeld_K) == 1) {
+        cout << relabeling[__builtin_ffs(relabeld_K) - 1];
         return;
     }
-    if(relabeld_K==0){
+    if (relabeld_K == 0) {
         return;
     }
-    set_t X=relabeld_K;
-    if(X==0){
+    set_t X = relabeld_K;
+    if (X == 0) {
         return;
     }
-    int min=INT_MAX;
-    int corresponding_p=n+1;
-    for(int p=0;p<n;++p){
-        int value=W[p][1<<q]+g[p][X].min();
-        if(value<min){
-            min=value;
-            corresponding_p=p;
+    int min = INT_MAX;
+    int corresponding_p = n + 1;
+    for (int p = 0; p < n; ++p) {
+        int value = W[p][1 << q] + g[p][X].min();
+        if (value < min) {
+            min = value;
+            corresponding_p = p;
         }
     }
-    cout<<"path("<<relabeling[q]<<","<<relabeling[corresponding_p]<<") "<<endl;
+    cout << "path(" << relabeling[q] << "," << relabeling[corresponding_p] << ") " << endl;
 
-    vector<set_t> sets=get_subsets_it(X);
-    if(sets.size()==2){
-        cout<<"p:"<<relabeling[__builtin_ffs(X)-1];
+    vector<set_t> sets = get_subsets_it(X);
+    if (sets.size() == 2) {
+        cout << "p:" << relabeling[__builtin_ffs(X) - 1];
         return;
     }
-    set_t min_set=-1;
-    min=INT_MAX;
-    for(set_t s:sets){
-        if((s!=0) and (s!=X)){
-            int value= W[corresponding_p][s]+W[corresponding_p][X xor s];
-            if(value<min){
-                min=value;
-                min_set=s;
+    set_t min_set = -1;
+    min = INT_MAX;
+    for (set_t s:sets) {
+        if ((s != 0) and (s != X)) {
+            int value = W[corresponding_p][s] + W[corresponding_p][X xor s];
+            if (value < min) {
+                min = value;
+                min_set = s;
             }
         }
     }
-    set_t D=min_set;
-    set_t X_wo_D=X xor D;
-    vector<int> d=get_element_indices(D);
-    cout<<"H2:";
-    for(int el:d){
-        cout<<relabeling[el-1]<<" ";
+    set_t D = min_set;
+    set_t X_wo_D = X xorD;
+    vector<int> d = get_element_indices(D);
+    cout << "H2:";
+    for (int el:d) {
+        cout << relabeling[el - 1] << " ";
     }
-    cout<<endl;
-    cout<<"H2 connects:"<<relabeling[corresponding_p]<<" ";
+    cout << endl;
+    cout << "H2 connects:" << relabeling[corresponding_p] << " ";
     //cout<<endl;
-    output_tree(corresponding_p,D,n,W,g,relabeling);
-    d=get_element_indices(X_wo_D);
-    cout<<"H3:";
-    for(int el:d){
-        cout<<relabeling[el-1]<<" ";
+    output_tree(corresponding_p, D, n, W, g, relabeling);
+    d = get_element_indices(X_wo_D);
+    cout << "H3:";
+    for (int el:d) {
+        cout << relabeling[el - 1] << " ";
     }
-    cout<<"H3 connects:"<<relabeling[corresponding_p]<<" ";
+    cout << "H3 connects:" << relabeling[corresponding_p] << " ";
     //cout<<endl;
-    output_tree(corresponding_p,X_wo_D,n,W,g,relabeling);
+    output_tree(corresponding_p, X_wo_D, n, W, g, relabeling);
 
 }
 
@@ -502,16 +501,16 @@ void test_steiner() {
     graph[1][3] = 1;
     graph[3][1] = 1;
     //int result = classic_dreyfuss_wagner(graph, 4, 0b1011);
-    int result=0;
+    int result = 0;
     if (result != 2) {
-     //   cout << "ERROR:Steiner: Should be 2 but is: " << result << endl;
+        //   cout << "ERROR:Steiner: Should be 2 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
 
-    cout<<"Should be 2\n";
-  //  result = mobius_dreyfuss(graph, 4, 0b1011, 3);
-  //  cout << "ADVANCED RESULT:" << result << endl;
+    cout << "Should be 2\n";
+    //  result = mobius_dreyfuss(graph, 4, 0b1011, 3);
+    //  cout << "ADVANCED RESULT:" << result << endl;
 
 
     /*  a --  5 --  b -- 1 --   d
@@ -550,9 +549,9 @@ void test_steiner() {
     cout << "Test with: {d,e,f},Expected Value: 5\n";
     //result = classic_dreyfuss_wagner(graph2, 6, 0b111000);
     if (result != 5) {
-       // cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
+        // cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
     } else {
-          cout << "Steiner:OK" << endl;
+        cout << "Steiner:OK" << endl;
     }
 //    result = mobius_dreyfuss(graph2, 6, 0b111000, 5);
 //    cout << "ADVANCED RESULT:" << result << endl;
@@ -560,7 +559,7 @@ void test_steiner() {
     cout << "Test with: {a,b,c,f},Expected Value: 5\n";
     //result = classic_dreyfuss_wagner(graph2, 6, 0b100111);
     if (result != 5) {
-       // cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
+        // cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
@@ -571,7 +570,7 @@ void test_steiner() {
     cout << "Test with: {a,b,d,f},Expected Value: 6\n";
     //result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
     if (result != 5) {
-      //  cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
+        //  cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
@@ -582,23 +581,23 @@ void test_steiner() {
     //cout << "Test with: {a,b},Expected Value: 4\n";
     //result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
     if (result != 5) {
-      //  cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
+        //  cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
-   // result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
+    // result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
     //cout << "ADVANCED RESULT:" << result << endl;
 
 
     cout << "Test with: {a,b,c,d,e,f},Expected Value: 7\n";
     //result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
     if (result != 5) {
-       // cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
+        // cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
     } else {
         cout << "Steiner:OK" << endl;
     }
     //result = mobius_dreyfuss(graph2, 6, 0b111111, 5);
-   // cout << "ADVANCED RESULT:" << result << endl;
+    // cout << "ADVANCED RESULT:" << result << endl;
 }
 
 
