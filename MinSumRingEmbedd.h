@@ -5,26 +5,12 @@
 #ifndef FAST_SUBSET_CONVOLUTION_MINSUMRINGEMBEDD_H
 #define FAST_SUBSET_CONVOLUTION_MINSUMRINGEMBEDD_H
 
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include <map>
 //#define NDEBUG //to disable assert
-#include <assert.h>     /* assert */
-#if 0
-struct Element {
-    int value;
-    int count;
+#include <cassert>     /* assert */
 
-    Element(int v, int c) :
-            value(v), count(c) {}
-};
-
-struct element_compare {
-    bool operator()(const Element &lhs, const Element &rhs) const {
-        return lhs.value < rhs.value;
-    }
-};
-#endif
 
 
 typedef std::pair<const int, int> Value_Count;
@@ -36,10 +22,7 @@ public:
         mset.insert(Value_Count(x, 1));
     }
 
-    MinSumRingEmbedd(){
-
-    }
-
+    MinSumRingEmbedd()= default;
     //should only be used to set map to 0, i.e. to empty set
     MinSumRingEmbedd &operator=(const int &x) //that is not well defined
     {
@@ -55,7 +38,7 @@ public:
         return *this;
     }
 
-    MinSumRingEmbedd(std::map<int,int> m) :
+    explicit MinSumRingEmbedd(std::map<int,int> &m) :
             mset(m) {
     }
 
@@ -68,7 +51,7 @@ public:
                 Value_Count node = Value_Count(node_lhs.first + node_rhs.first, node_lhs.second * node_rhs.second);
                // assert(node.second != 0);//shouldnt happen in normal code, but does in tsetrs
                 ret=newE.mset.insert(node);
-                if(ret.second==false) { //the element exists already
+                if(!ret.second) { //the element exists already
                     ret.first->second += node.second;
                 }
             }
@@ -84,7 +67,7 @@ public:
         for(auto node:rhs.mset){
             Value_Count normal=Value_Count(node.first,node.second);
             ret=newE.mset.insert(normal);
-            if(ret.second==false){ //the element exists already
+            if(!ret.second){ //the element exists already
                 ret.first->second+=normal.second;
                 /*if(ret.first->second==0){ //TODO: priciple should be optional, maybe tested whats better for performance
                     newE.mset.erase(ret);
@@ -104,7 +87,7 @@ public:
         for(auto node:rhs.mset){
             Value_Count inverse=Value_Count(node.first,-node.second);
             ret=newE.mset.insert(inverse);
-            if(ret.second==false){ //the element exists already
+            if(!ret.second){ //the element exists already
                 ret.first->second+=inverse.second;
                 /*if(ret.first->second==0){ //TODO: priciple should be optional, maybe tested whats better for performance
                     newE.mset.erase(ret);
