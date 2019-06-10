@@ -82,7 +82,7 @@ vector<T> naive_convolute(Function<T>  &f,Function<T> &g, int n) {
     vector<T> conv((int) pow(2, n));
     set_t N= ((uint32_t)1 << n) - 1;
     for (int k = 0; k < pow(2, n); ++k) {
-        vector<set_t > subsets=get_subsets_it(N);
+        //vector<set_t > subsets=get_subsets_it(N);
         //subsets.reserve((int) pow(2, n));
         //getSubsets(k, subsets);
         conv[k] = 0;
@@ -128,13 +128,13 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
         original_f[s] = 0;
         int element_count = __builtin_popcount(s);
         //for(int i=0;i<pow(2,__builtin_popcount(s));++i){
-        for (set_t i = 0; i < subsets.size(); ++i) {
-            set_t s_without_x = s xor subsets[i];
+        for (set_t subset :subsets) {
+            set_t s_without_x = s xor subset;
             //int factor=1-2*(__builtin_popcount(s_without_x)%2);
             if ((__builtin_popcount(s_without_x) % 2) == 0) {
-                original_f[s] = original_f[s] + f(element_count, subsets[i]);
+                original_f[s] = original_f[s] + f(element_count, subset);
             } else {
-                original_f[s] = original_f[s] - f(element_count, subsets[i]);
+                original_f[s] = original_f[s] - f(element_count, subset);
             }
 
         }

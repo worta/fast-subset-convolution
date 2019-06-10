@@ -31,7 +31,7 @@ typedef std::pair<const int, int> Value_Count;
 class MinSumRingEmbedd {
 public:
     std::map<int,int> mset; //should use multiset, it is checked anyway if multiple are entered
-    MinSumRingEmbedd(int x) :
+    explicit MinSumRingEmbedd(int x) :
             mset(std::map<int,int>()) {
         mset.insert(Value_Count(x, 1));
     }
@@ -39,6 +39,7 @@ public:
     MinSumRingEmbedd(){
 
     }
+
     //should only be used to set map to 0, i.e. to empty set
     MinSumRingEmbedd &operator=(const int &x) //that is not well defined
     {

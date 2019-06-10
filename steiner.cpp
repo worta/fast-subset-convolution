@@ -75,9 +75,9 @@ weight_matrix compute_ap_shortest_path(weight_matrix adjancy, int size) {
 
 //bool set_size_cmp (int i,int j) { return (__builtin_popcount(i)<__builtin_popcount(j)); }
 
-inline set_t to_byte_repr(vector<int> indices) {
+inline set_t to_byte_repr(vector<int> &indices) {
     set_t set_repr = 0;
-    for (int elem:indices) {
+    for (unsigned int elem:indices) {
         set_repr += 1 << (elem - 1);
     }
     return set_repr;
@@ -89,8 +89,7 @@ int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_
 //Both eval W and eval g should keep track of a list of optimal choices
 int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_arr &g, int &nodes) {
     int ele_count = __builtin_popcount(set_repr);
-    int value;
-    int min = INT_MAX;
+        int min = INT_MAX;
     if (ele_count < 2) {
         return 0;
     }
@@ -106,7 +105,7 @@ int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_
         return W[set_repr];
     } else {
         for (int i = 0; i < nodes; ++i) {
-            value = pair_wise_dist[q - 1][i] + eval_g(pair_wise_dist, W, nodes, set_repr, i, g);
+            int  value = pair_wise_dist[q - 1][i] + eval_g(pair_wise_dist, W, nodes, set_repr, i, g);
             if (value < min) {
                 min = value;
             }
@@ -164,14 +163,14 @@ class Function_p
 private:
     int level;
     vector<vector<int> > W;
-    set_t p;
+    int p;
     int max_value;
 public:
-    Function_p(vector<vector<int> > &W_, int level_, int p_, int max_value_) :
+    Function_p(vector<vector<int> > &W_, int level_, int p_, int max_value_) : //TODO level and max value unimprotant
             W(W_), level(level_), p(p_), max_value(max_value_) {
     };
 
-    int operator()(set_t s) { //das if und so kann ich mri vermutlich sparenw enn ich w am anfang apassend befülle
+    int operator()(set_t s)  override{ //das if und so kann ich mri vermutlich sparenw enn ich w am anfang apassend befülle
         // int x_size = __builtin_popcount(s);
         // if (x_size < level && x_size >= 1) {
         return W[p][s];
@@ -184,12 +183,12 @@ public:
 class Function_Embedd : public Function<MinSumRingEmbedd> {
     Function_p &f_p;
 public:
-    Function_Embedd(Function_p &f) :
+    explicit Function_Embedd(Function_p &f) :
             f_p(f) {
     }
 
 
-    MinSumRingEmbedd operator()(set_t s) {
+    MinSumRingEmbedd operator()(set_t s) override {
         return MinSumRingEmbedd(f_p(s));
     }
 };
@@ -271,7 +270,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                 if ((X bitand (1 << q)) == 0) { //for all X with q not in X
                     int min_value = INT_MAX;
                     for (int p = 0; p < n; ++p) {
-                        int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
+                       int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
+                       //int value = W[p][1<<q]+g[p][X].min();
                         if (value < min_value) {
                             min_value = value;
                             if ((min_value == 6) and (q == 3)) {
@@ -336,7 +336,7 @@ void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector
         cout << "p:" << relabeling[__builtin_ffs(X) - 1];
         return;
     }
-    set_t min_set = -1;
+    set_t min_set = 0;
     min = INT_MAX;
     for (set_t s:sets) {
         if ((s != 0) and (s != X)) {
@@ -348,7 +348,7 @@ void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector
         }
     }
     set_t D = min_set;
-    set_t X_wo_D = X xorD;
+    set_t X_wo_D = X xor D;
     vector<int> d = get_element_indices(D);
     cout << "H2:";
     for (int el:d) {
