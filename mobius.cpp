@@ -80,10 +80,11 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
 template<typename T>
 vector<T> naive_convolute(Function<T>  &f,Function<T> &g, int n) {
     vector<T> conv((int) pow(2, n));
+    set_t N= ((uint32_t)1 << n) - 1;
     for (int k = 0; k < pow(2, n); ++k) {
-        vector<set_t > subsets;
-        subsets.reserve((int) pow(2, n));
-        getSubsets(k, subsets);
+        vector<set_t > subsets=get_subsets_it(N);
+        //subsets.reserve((int) pow(2, n));
+        //getSubsets(k, subsets);
         conv[k] = 0;
         for (set_t i = 0; i < pow(2, __builtin_popcount(k)); ++i) {
             conv[k] = conv[k] + f(i) * g(k xor i);
