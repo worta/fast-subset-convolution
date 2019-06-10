@@ -260,14 +260,14 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
-            //g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k);
+            //g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k); //TODO change approach based on n, e.g. naive for k<17 and advanced for k>=17
             g[p] = naive_convolute<MinSumRingEmbedd>(f, f, k);
         }
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
         for (unsigned int q = 0; q < k; ++q) {
             for (set_t X:Xs) {
-                if ((X bitand (1 << q)) == 0) { //for all X with q not in X
+                //if ((X bitand (1 << q)) == 0) { //for all X with q not in X
                     int min_value = INT_MAX;
                     for (int p = 0; p < n; ++p) {
                        int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
@@ -278,18 +278,18 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                     }
 
                     W[q][X] = min_value;
-                }
+                //}
             }
         }
 
     }
 
 
-    for (int test = 0; test < k; test++) {
+   /* for (int test = 0; test < k; test++) {
         cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
     }
-    cout << endl;
-    int result = W[0][relabeld_K xor 1];
+    cout << endl;*/
+    int result = W[1][relabeld_K xor 2];
     //output_tree(0,relabeld_K xor (1),n,W,g,relabel);
 
     return result;
