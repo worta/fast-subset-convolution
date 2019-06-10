@@ -274,9 +274,6 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                        //int value = W[p][1<<q]+g[p][X].min();
                         if (value < min_value) {
                             min_value = value;
-                            if ((min_value == 6) and (q == 3)) {
-                                cout << "check";
-                            }
                         }
                     }
 
@@ -287,20 +284,12 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
 
     }
 
-    //calculate best
-    int result = INT_MAX;
-    /*  for (int i = 0; i < k; ++i) {
-          int v = pair_wise_dist[relabel[0]][relabel[i]] + g[i][relabeld_K - 1].min();
-          if (v < result) {
-              result = v;
-          }
 
-      }*/
     for (int test = 0; test < k; test++) {
         cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
     }
     cout << endl;
-    result = W[0][relabeld_K xor 1];
+    int result = W[0][relabeld_K xor 1];
     //output_tree(0,relabeld_K xor (1),n,W,g,relabel);
 
     return result;
@@ -587,6 +576,11 @@ void test_steiner() {
     }
     // result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
     //cout << "ADVANCED RESULT:" << result << endl;
+
+
+    cout << "Test with: {b,c,d,e,f},Expected Value: 5\n";
+    result = mobius_dreyfuss(graph2, 6, 0b111110, 5);
+    cout << "ADVANCED RESULT:" << result << endl;
 
 
     cout << "Test with: {a,b,c,d,e,f},Expected Value: 7\n";
