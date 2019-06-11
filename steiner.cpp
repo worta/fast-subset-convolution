@@ -89,7 +89,7 @@ int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_
 //Both eval W and eval g should keep track of a list of optimal choices
 int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_arr &g, int &nodes) {
     int ele_count = __builtin_popcount(set_repr);
-        int min = INT_MAX;
+    int min = INT_MAX;
     if (ele_count < 2) {
         return 0;
     }
@@ -100,18 +100,19 @@ int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_
         return pair_wise_dist[ele1][ele2];
     }
     int q = __builtin_ffs(set_repr) - 1;
-    set_repr = set_repr xor (1 << q); //remove q
+    set_t without_q = set_repr xor (1 << q); //remove q
     if (W[set_repr] >= 0) {
         return W[set_repr];
     } else {
         for (int i = 0; i < nodes; ++i) {
-            int  value = pair_wise_dist[q - 1][i] + eval_g(pair_wise_dist, W, nodes, set_repr, i, g);
+            int  value = pair_wise_dist[q ][i];
+            value+= eval_g(pair_wise_dist, W, nodes, without_q, i, g);
             if (value < min) {
                 min = value;
             }
         }
     }
-    W[set_repr] = min;
+    W[set_repr] = min; //put back q
     return min;
 }
 
@@ -126,8 +127,8 @@ int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_
     int value;
     for (set_t set:sets) {
         if (set != 0 && set != set_repr) { //not empty and not all of X
-            value = eval_W(pair_wise_dist, set or (1 << p), W, g, nodes) +
-                    eval_W(pair_wise_dist, set_repr xor set, W, g, nodes);
+            value = eval_W(pair_wise_dist, set bitor (1 << p), W, g, nodes) +
+                    eval_W(pair_wise_dist, (set_repr xor set) bitor (1<<p), W, g, nodes);
             if (value < min) {
                 min = value;
             }
@@ -142,7 +143,7 @@ int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
 int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int subset_count = (int) pow(2, __builtin_popcount(K));
+    int subset_count = (int) pow(2, size); //make space for all subsets of n
     vector<int> W(subset_count, -1);
     intd2_arr g(boost::extents[size][subset_count]);
     for (int i = 0; i < size; ++i) {
@@ -267,7 +268,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
         for (unsigned int q = 0; q < k; ++q) {
             for (set_t X:Xs) {
-                //if ((X bitand (1 << q)) == 0) { //for all X with q not in X
+                if ((X bitand (1 << q)) == 0) { //for all X with q not in X
                     int min_value = INT_MAX;
                     for (int p = 0; p < n; ++p) {
                        int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
@@ -278,7 +279,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                     }
 
                     W[q][X] = min_value;
-                //}
+                }
             }
         }
 
@@ -288,8 +289,15 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
    /* for (int test = 0; test < k; test++) {
         cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
     }
-    cout << endl;*/
-    int result = W[1][relabeld_K xor 2];
+    cout << endl;*/ //TODO WHY IS IT NOT EVERYWHERE THE SAME, IS THE LOOP BELOW NECESSARY?
+    int result=INT_MAX;
+    for(int q=0;q<k;++q){
+        int value=W[q][relabeld_K xor (1<<q)];
+        if(value<result){
+            result=value;
+        }
+    }
+    //int result = W[1][relabeld_K xor 2];
     //output_tree(0,relabeld_K xor (1),n,W,g,relabel);
 
     return result;
@@ -489,17 +497,12 @@ void test_steiner() {
     graph[2][1] = 2;
     graph[1][3] = 1;
     graph[3][1] = 1;
-    //int result = classic_dreyfuss_wagner(graph, 4, 0b1011);
-    int result = 0;
-    if (result != 2) {
-        //   cout << "ERROR:Steiner: Should be 2 but is: " << result << endl;
-    } else {
-        cout << "Steiner:OK" << endl;
-    }
-
-    cout << "Should be 2\n";
-    //  result = mobius_dreyfuss(graph, 4, 0b1011, 3);
-    //  cout << "ADVANCED RESULT:" << result << endl;
+    int result = classic_dreyfuss_wagner(graph, 4, 0b1011);
+    //int result = 0;
+    cout<<"Classic: " <<result<<endl;
+    cout << "Should be 2,testing b,d,a\n";
+    result = mobius_dreyfuss(graph, 4, 0b1011, 3);
+    cout << "ADVANCED RESULT:" << result << endl;
 
 
     /*  a --  5 --  b -- 1 --   d
@@ -536,62 +539,29 @@ void test_steiner() {
 
 
     cout << "Test with: {d,e,f},Expected Value: 5\n";
-    //result = classic_dreyfuss_wagner(graph2, 6, 0b111000);
-    if (result != 5) {
-        // cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
-    } else {
-        cout << "Steiner:OK" << endl;
-    }
-//    result = mobius_dreyfuss(graph2, 6, 0b111000, 5);
-//    cout << "ADVANCED RESULT:" << result << endl;
+    result = mobius_dreyfuss(graph2, 6, 0b111000, 5);
+    cout << "ADVANCED RESULT:" << result << endl;
 
     cout << "Test with: {a,b,c,f},Expected Value: 5\n";
-    //result = classic_dreyfuss_wagner(graph2, 6, 0b100111);
-    if (result != 5) {
-        // cout << "ERROR:Steiner: Should be 5 but is: " << result << endl;
-    } else {
-        cout << "Steiner:OK" << endl;
-    }
-//    result = mobius_dreyfuss(graph2, 6, 0b100111, 5);
-//    cout << "ADVANCED RESULT:" << result << endl;
-
-
-    cout << "Test with: {a,b,d,f},Expected Value: 6\n";
-    //result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
-    if (result != 5) {
-        //  cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
-    } else {
-        cout << "Steiner:OK" << endl;
-    }
-    result = mobius_dreyfuss(graph2, 6, 0b101011, 5);
+    result = mobius_dreyfuss(graph2, 6, 0b100111, 5);
     cout << "ADVANCED RESULT:" << result << endl;
 
 
-    //cout << "Test with: {a,b},Expected Value: 4\n";
-    //result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
-    if (result != 5) {
-        //  cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
-    } else {
-        cout << "Steiner:OK" << endl;
-    }
-    // result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
-    //cout << "ADVANCED RESULT:" << result << endl;
+    cout << "Test with: {a,b,d,f},Expected Value: 6\n";
+    result = mobius_dreyfuss(graph2, 6, 0b101011, 5);
+    cout << "ADVANCED RESULT:" << result << endl;
 
+    cout << "Test with: {a,b},Expected Value: 4\n";
+    result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
+    cout << "ADVANCED RESULT:" << result << endl;
 
     cout << "Test with: {b,c,d,e,f},Expected Value: 5\n";
     result = mobius_dreyfuss(graph2, 6, 0b111110, 5);
     cout << "ADVANCED RESULT:" << result << endl;
 
-
     cout << "Test with: {a,b,c,d,e,f},Expected Value: 7\n";
-    //result = classic_dreyfuss_wagner(graph2, 6, 0b100011);
-    if (result != 5) {
-        // cout << "ERROR:Steiner: Should be 6 but is: " << result << endl;
-    } else {
-        cout << "Steiner:OK" << endl;
-    }
-    //result = mobius_dreyfuss(graph2, 6, 0b111111, 5);
-    // cout << "ADVANCED RESULT:" << result << endl;
+    result = mobius_dreyfuss(graph2, 6, 0b111111, 5);
+    cout << "ADVANCED RESULT:" << result << endl;
 }
 
 

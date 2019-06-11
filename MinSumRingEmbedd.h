@@ -16,7 +16,7 @@
 typedef std::pair<const int, int> Value_Count;
 class MinSumRingEmbedd {
 public:
-    std::map<int,int> mset; //should use multiset, it is checked anyway if multiple are entered
+    std::map<int,int> mset;
     explicit MinSumRingEmbedd(int x) :
             mset(std::map<int,int>()) {
         mset.insert(Value_Count(x, 1));
@@ -46,7 +46,7 @@ public:
         //std::map<int,int> newS = std::map<int,int>();
         MinSumRingEmbedd newE=MinSumRingEmbedd();
         std::pair<std::map<int,int>::iterator,bool> ret;
-        for (auto node_rhs:rhs.mset) {
+        for (auto node_rhs:rhs.mset) { //todo: hier über hint beim einfügen nachdenken
             for (auto node_lhs:mset) {
                 Value_Count node = Value_Count(node_lhs.first + node_rhs.first, node_lhs.second * node_rhs.second);
                // assert(node.second != 0);//shouldnt happen in normal code, but does in tsetrs
@@ -69,9 +69,9 @@ public:
             ret=newE.mset.insert(normal);
             if(!ret.second){ //the element exists already
                 ret.first->second+=normal.second;
-                /*if(ret.first->second==0){ //TODO: priciple should be optional, maybe tested whats better for performance
-                    newE.mset.erase(ret);
-                }*/
+               // if(ret.first->second==0){ //TODO: priciple should be optional, maybe tested whats better for performance
+               //     newE.mset.erase(ret.second);
+               // }
             }
         }
 
@@ -89,9 +89,9 @@ public:
             ret=newE.mset.insert(inverse);
             if(!ret.second){ //the element exists already
                 ret.first->second+=inverse.second;
-                /*if(ret.first->second==0){ //TODO: priciple should be optional, maybe tested whats better for performance
-                    newE.mset.erase(ret);
-                }*/
+               // if(ret.first->second==0){ //TODO: priciple should be optional, maybe tested whats better for performance
+                //    newE.mset.erase(ret.second);
+               // }
             }
         }
         return newE;
