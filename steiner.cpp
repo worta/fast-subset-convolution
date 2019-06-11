@@ -497,10 +497,12 @@ void test_steiner() {
     graph[2][1] = 2;
     graph[1][3] = 1;
     graph[3][1] = 1;
-    int result = classic_dreyfuss_wagner(graph, 4, 0b1011);
+
     //int result = 0;
+
+    cout << "Testing {b,d,a}, expected result:2\n";
+    int result = classic_dreyfuss_wagner(graph, 4, 0b1011);
     cout<<"Classic: " <<result<<endl;
-    cout << "Should be 2,testing b,d,a\n";
     result = mobius_dreyfuss(graph, 4, 0b1011, 3);
     cout << "ADVANCED RESULT:" << result << endl;
 
@@ -539,27 +541,39 @@ void test_steiner() {
 
 
     cout << "Test with: {d,e,f},Expected Value: 5\n";
+    result = classic_dreyfuss_wagner(graph2, 6, 0b111000);
+    cout << "Classic RESULT:" << result << endl;
     result = mobius_dreyfuss(graph2, 6, 0b111000, 5);
     cout << "ADVANCED RESULT:" << result << endl;
 
     cout << "Test with: {a,b,c,f},Expected Value: 5\n";
+    result = classic_dreyfuss_wagner(graph2, 6, 0b100111);
+    cout << "Classic RESULT:" << result << endl;
     result = mobius_dreyfuss(graph2, 6, 0b100111, 5);
     cout << "ADVANCED RESULT:" << result << endl;
 
 
     cout << "Test with: {a,b,d,f},Expected Value: 6\n";
+    result = classic_dreyfuss_wagner(graph2, 6, 0b101011);
+    cout << "Classic RESULT:" << result << endl;
     result = mobius_dreyfuss(graph2, 6, 0b101011, 5);
     cout << "ADVANCED RESULT:" << result << endl;
 
     cout << "Test with: {a,b},Expected Value: 4\n";
+    result = classic_dreyfuss_wagner(graph2, 6, 0b000011);
+    cout << "Classic RESULT:" << result << endl;
     result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
     cout << "ADVANCED RESULT:" << result << endl;
 
     cout << "Test with: {b,c,d,e,f},Expected Value: 5\n";
+    result = classic_dreyfuss_wagner(graph2, 6, 0b111110);
+    cout << "Classic RESULT:" << result << endl;
     result = mobius_dreyfuss(graph2, 6, 0b111110, 5);
     cout << "ADVANCED RESULT:" << result << endl;
 
     cout << "Test with: {a,b,c,d,e,f},Expected Value: 7\n";
+    result = classic_dreyfuss_wagner(graph2, 6, 0b111111);
+    cout << "Classic RESULT:" << result << endl;
     result = mobius_dreyfuss(graph2, 6, 0b111111, 5);
     cout << "ADVANCED RESULT:" << result << endl;
 }
