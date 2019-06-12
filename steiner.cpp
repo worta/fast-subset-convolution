@@ -77,7 +77,7 @@ weight_matrix compute_ap_shortest_path(weight_matrix adjancy, int size) {
 
 inline set_t to_byte_repr(vector<int> &indices) {
     set_t set_repr = 0;
-    for (unsigned int elem:indices) {
+    for (int elem:indices) {
         set_repr += 1 << (elem - 1);
     }
     return set_repr;
