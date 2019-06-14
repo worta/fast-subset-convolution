@@ -1,7 +1,7 @@
 //
 // Created by dominik on 6/12/19.
 //
-
+//Unnötig, einfach eigene beispiele
 #include "stp_parser.h"
 void stp_parser::parse(){
 
