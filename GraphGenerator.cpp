@@ -17,5 +17,5 @@ adjancy_matrix GraphGenerator::generate_complete_graph_with_uniform_weights(int 
         }
     }
     return graph;
-
+    //the resulting steiner tree should probably always just contain the nodes of K with weight (n-1)*weight
 }
