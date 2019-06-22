@@ -539,7 +539,7 @@ void test_steiner() {
     graph2[4][5] = 3;
     graph2[5][4] = 3;
 
-
+    //TODO Assert
     cout << "Test with: {d,e,f},Expected Value: 5\n";
     result = classic_dreyfuss_wagner(graph2, 6, 0b111000);
     cout << "Classic RESULT:" << result << endl;
