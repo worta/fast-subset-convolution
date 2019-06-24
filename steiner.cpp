@@ -84,10 +84,12 @@ inline set_t to_byte_repr(vector<int> &indices) {
 }
 
 
-int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_repr, int p, intd2_arr &g);
+
+int eval_g(weight_matrix &pair_wise_dist, unordered_map<set_t,int> &W, int &nodes, set_t set_repr, int p, vector<unordered_map<set_t,int> >  &g);
 
 //Both eval W and eval g should keep track of a list of optimal choices
-int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_arr &g, int &nodes) {
+//int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_arr &g, int &nodes) {
+int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, unordered_map<set_t,int> &W, vector<unordered_map<set_t,int> >  &g, int &nodes) {
     int ele_count = __builtin_popcount(set_repr);
     int min = INT_MAX;
     if (ele_count < 2) {
@@ -101,8 +103,9 @@ int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_
     }
     int q = __builtin_ffs(set_repr) - 1;
     set_t without_q = set_repr xor (1 << q); //remove q
-    if (W[set_repr] >= 0) {
-        return W[set_repr];
+    auto ret=W.find(set_repr);
+    if(ret!=W.end()){
+        return  ret->second;
     } else {
         for (int i = 0; i < nodes; ++i) {
             int  value = pair_wise_dist[q ][i];
@@ -117,9 +120,10 @@ int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_
 }
 
 
-int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_repr, int p,
-           intd2_arr &g) {
-    if (g[p][set_repr] >= 0) {
+int eval_g(weight_matrix &pair_wise_dist, unordered_map<set_t,int> &W, int &nodes, set_t set_repr, int p,
+           vector<unordered_map<set_t,int> > &g) {
+    auto ret=g[p].find(set_repr);
+    if(ret!=g[p].end()){
         return g[p][set_repr];
     }
     vector<set_t> sets = get_subsets_it(set_repr);
@@ -138,21 +142,25 @@ int eval_g(weight_matrix &pair_wise_dist, vector<int> &W, int &nodes, set_t set_
     return min;
 }
 
-
 //K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
 int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int subset_count = (int) pow(2, size); //make space for all subsets of n
-    vector<int> W(subset_count, -1);
-    intd2_arr g(boost::extents[size][subset_count]);
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < subset_count; ++j) {
-            g[i][j] = -1;
-        }
-    }
+    //int subset_count = (int) pow(2, size); //make space for all subsets of n
+    //vector<int> W(subset_count, -1);
+    int k=__builtin_popcount(K);
+    int subset_count=(int) pow(2,k);
+    unordered_map<set_t,int> W(subset_count);
+    vector<unordered_map<set_t,int> > g(size,unordered_map<set_t,int>(subset_count));
+    //intd2_arr g(boost::extents[size][subset_count]);
+    //for (int i = 0; i < size; ++i) {
+    //    for (int j = 0; j < subset_count; ++j) {
+    //        g[i][j] = -1;
+    //    }
+    //}
     int weight = eval_W(pair_wise_dist, K, W, g, size);
     return weight;
+
 }
 
 bool cmp_setsize(set_t i, set_t j) { return (__builtin_popcount(i) < __builtin_popcount(j)); }
