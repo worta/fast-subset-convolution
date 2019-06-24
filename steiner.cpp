@@ -15,7 +15,7 @@
 #include <set>
 #include <array>
 #include "MinSumRingEmbedd.h"
-
+#include <cassert>
 typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
@@ -498,13 +498,15 @@ void test_steiner() {
     graph[1][3] = 1;
     graph[3][1] = 1;
 
-    //int result = 0;
-
+    int resultc = 0;
+    int resultm =1;
     cout << "Testing {b,d,a}, expected result:2\n";
-    int result = classic_dreyfuss_wagner(graph, 4, 0b1011);
-    cout<<"Classic: " <<result<<endl;
-    result = mobius_dreyfuss(graph, 4, 0b1011, 3);
-    cout << "ADVANCED RESULT:" << result << endl;
+    resultc = classic_dreyfuss_wagner(graph, 4, 0b1011);
+    resultm = mobius_dreyfuss(graph, 4, 0b1011, 3);
+    assert(resultm==2);
+    assert(resultc==resultm);
+    cout<<"Classic: " <<resultc<<endl;
+    cout << "ADVANCED RESULT:" << resultm << endl;
 
 
     /*  a --  5 --  b -- 1 --   d
@@ -539,43 +541,55 @@ void test_steiner() {
     graph2[4][5] = 3;
     graph2[5][4] = 3;
 
-    //TODO Assert
+
     cout << "Test with: {d,e,f},Expected Value: 5\n";
-    result = classic_dreyfuss_wagner(graph2, 6, 0b111000);
-    cout << "Classic RESULT:" << result << endl;
-    result = mobius_dreyfuss(graph2, 6, 0b111000, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111000);
+    cout << "Classic RESULT:" << resultc << endl;
+    resultm = mobius_dreyfuss(graph2, 6, 0b111000, 5);
+    cout << "ADVANCED RESULT:" << resultm << endl;
+    assert(resultm==5);
+    assert(resultc==resultm);
 
     cout << "Test with: {a,b,c,f},Expected Value: 5\n";
-    result = classic_dreyfuss_wagner(graph2, 6, 0b100111);
-    cout << "Classic RESULT:" << result << endl;
-    result = mobius_dreyfuss(graph2, 6, 0b100111, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
-
+    resultc = classic_dreyfuss_wagner(graph2, 6, 0b100111);
+    cout << "Classic RESULT:" << resultc << endl;
+    resultm = mobius_dreyfuss(graph2, 6, 0b100111, 5);
+    cout << "ADVANCED RESULT:" << resultm << endl;
+    assert(resultm==5);
+    assert(resultc==resultm);
 
     cout << "Test with: {a,b,d,f},Expected Value: 6\n";
-    result = classic_dreyfuss_wagner(graph2, 6, 0b101011);
-    cout << "Classic RESULT:" << result << endl;
-    result = mobius_dreyfuss(graph2, 6, 0b101011, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+    resultc = classic_dreyfuss_wagner(graph2, 6, 0b101011);
+    cout << "Classic RESULT:" << resultc << endl;
+    resultm = mobius_dreyfuss(graph2, 6, 0b101011, 5);
+    cout << "ADVANCED RESULT:" << resultm << endl;
+    assert(resultm==6);
+    assert(resultc==resultm);
 
     cout << "Test with: {a,b},Expected Value: 4\n";
-    result = classic_dreyfuss_wagner(graph2, 6, 0b000011);
-    cout << "Classic RESULT:" << result << endl;
-    result = mobius_dreyfuss(graph2, 6, 0b000011, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+    resultc = classic_dreyfuss_wagner(graph2, 6, 0b000011);
+    cout << "Classic RESULT:" << resultc << endl;
+    resultm = mobius_dreyfuss(graph2, 6, 0b000011, 5);
+    cout << "ADVANCED RESULT:" << resultm << endl;
+    assert(resultm==4);
+    assert(resultc==resultm);
 
     cout << "Test with: {b,c,d,e,f},Expected Value: 5\n";
-    result = classic_dreyfuss_wagner(graph2, 6, 0b111110);
-    cout << "Classic RESULT:" << result << endl;
-    result = mobius_dreyfuss(graph2, 6, 0b111110, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111110);
+    cout << "Classic RESULT:" << resultc << endl;
+    resultm = mobius_dreyfuss(graph2, 6, 0b111110, 5);
+    cout << "ADVANCED RESULT:" << resultm << endl;
+    assert(resultm==5);
+    assert(resultc==resultm);
+
 
     cout << "Test with: {a,b,c,d,e,f},Expected Value: 7\n";
-    result = classic_dreyfuss_wagner(graph2, 6, 0b111111);
-    cout << "Classic RESULT:" << result << endl;
-    result = mobius_dreyfuss(graph2, 6, 0b111111, 5);
-    cout << "ADVANCED RESULT:" << result << endl;
+    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111111);
+    cout << "Classic RESULT:" << resultc << endl;
+    resultm = mobius_dreyfuss(graph2, 6, 0b111111, 5);
+    cout << "ADVANCED RESULT:" << resultm << endl;
+    assert(resultm==7);
+    assert(resultc==resultm);
 }
 
 
