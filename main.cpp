@@ -10,6 +10,7 @@
 #include "steiner.h"
 #include "common.h"
 #include "utility.h"
+#include "benchmark_steiner.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -193,10 +194,16 @@ int main()
     test_dijkstra();
     test_ring_embedd();
     test_steiner();
-   // ofstream myfile;
 
-    /*myfile.open ("results.txt");
-    myfile<<"n naive mobius\n";
+    //ofstream myfile;
+    //myfile.open("/home/dominik/Studium/Master/fast-subset-convolution/benchmarks/results.txt");
+    //myfile<<"n naive mobius\n";
+    //myfile.close();
+
+    cout<<"Starting Steiner Benchmark \n";
+    benchmark_steiner::complete_graphs(21);
+    cout<<"Finished Benchmark\n";
+    /*
     for(int i=6; i<21; ++i)
     {
         int n=i;

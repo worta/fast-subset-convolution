@@ -261,8 +261,13 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
-            //g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k); //TODO change approach based on n, e.g. naive for k<17 and advanced for k>=17
-            g[p] = naive_convolute<MinSumRingEmbedd>(f, f, k);
+            if(l>15){
+                g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k);
+            }
+            else{
+                g[p] = naive_convolute<MinSumRingEmbedd>(f, f, k);
+            }
+            ////TODO change approach based on n, e.g. naive for k<17 and advanced for k>=17
         }
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result

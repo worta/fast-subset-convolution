@@ -7,6 +7,7 @@
 
 
 class benchmark_steiner {
+public:
     static void complete_graphs(int max_size);
 };
 
