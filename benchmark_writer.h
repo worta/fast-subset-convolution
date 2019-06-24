@@ -1,0 +1,14 @@
+//
+// Created by dominik on 6/24/19.
+//
+
+#ifndef FAST_SUBSET_CONVOLUTION_BENCHMARK_WRITER_H
+#define FAST_SUBSET_CONVOLUTION_BENCHMARK_WRITER_H
+
+
+class benchmark_writer {
+
+};
+
+
+#endif //FAST_SUBSET_CONVOLUTION_BENCHMARK_WRITER_H
