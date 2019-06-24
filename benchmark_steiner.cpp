@@ -45,6 +45,7 @@ void benchmark_steiner::complete_graphs(int max_size){
         duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
         b.write(duration);
         b.writeln("");
+        assert(class_result==mob_result);
     }
     b.close();
 
