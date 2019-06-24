@@ -11,7 +11,7 @@ Benchmark_writer::Benchmark_writer(std::string  &filename){
     char buffer [8];
     timeinfo = localtime (&rawtime);
     strftime(buffer,80,"%d%m%y",timeinfo);
-    bfile.open(path+buffer+filename+".txt");
+    bfile.open(path+buffer+filename+".csv");
 }
 
 
