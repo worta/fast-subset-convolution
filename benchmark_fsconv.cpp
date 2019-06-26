@@ -35,6 +35,7 @@ void benchmark_fsconv::constant_func(int max_n) {
         b.write("Classic");
         b.write(n);
         b.write(duration);
+        b.writeln("");
         //mobius
         t1 = high_resolution_clock::now();
         advanced_convolute<int>(f,f,n);
@@ -43,6 +44,7 @@ void benchmark_fsconv::constant_func(int max_n) {
         b.write("Mobius");
         b.write(n);
         b.write(duration);
+        b.writeln("");
         //myfile<<" "<<duration<<"\n";
     }
 
