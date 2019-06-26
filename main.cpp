@@ -11,6 +11,7 @@
 #include "common.h"
 #include "utility.h"
 #include "benchmark_steiner.h"
+#include "benchmark_fsconv.h"
 
 using namespace std;
 
