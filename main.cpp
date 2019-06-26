@@ -13,7 +13,7 @@
 #include "benchmark_steiner.h"
 
 using namespace std;
-using namespace std::chrono;
+
 
 //TODO maybe add const classifier to relevant functions
 
@@ -201,7 +201,11 @@ int main()
     //myfile.close();
 
     cout<<"Starting Steiner Benchmark \n";
-    benchmark_steiner::complete_graphs(30);
+    //benchmark_steiner::complete_graphs(30);
+    cout<<"Finished Benchmark\n";
+
+    cout<<"Starting Fast Subset COnv Benchmark \n";
+    benchmark_fsconv::constant_func(20);
     cout<<"Finished Benchmark\n";
 
 
