@@ -201,7 +201,7 @@ int main()
     //myfile.close();
 
     cout<<"Starting Steiner Benchmark \n";
-    benchmark_steiner::complete_graphs(21);
+    benchmark_steiner::complete_graphs(30);
     cout<<"Finished Benchmark\n";
     /*
     for(int i=6; i<21; ++i)

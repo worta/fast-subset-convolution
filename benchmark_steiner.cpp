@@ -13,23 +13,23 @@
 //Test with complete graphs of increasing size
 //maybe return time
 void benchmark_steiner::complete_graphs(int max_size){
-    int k=3;
+    int k=8;
     std::string name="steiner_benchmark";
     Benchmark_writer b=Benchmark_writer(name);
     b.write("Type");
     b.write("Nodes");
     b.write("Duration(ms)");
     b.writeln("");
-    for(int nodes=4;nodes<max_size;++nodes){
+    for(int nodes=10;nodes<max_size;++nodes){
         if(nodes%10==0){
             std::cout<<"Finished "<<nodes <<"\\"<<max_size<<"\n";
         }
 
         adjancy_matrix graph=GraphGenerator::generate_complete_graph_with_uniform_weights(nodes,1);
-        int test_set=0b1111;
+        int test_set=0b11111111;
         //Test naive
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        int class_result=classic_dreyfuss_wagner(graph,nodes,test_set);
+       // int class_result=classic_dreyfuss_wagner(graph,nodes,test_set);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         b.write("Classic");
         b.write(nodes);
@@ -45,7 +45,7 @@ void benchmark_steiner::complete_graphs(int max_size){
         duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
         b.write(duration);
         b.writeln("");
-        assert(class_result==mob_result);
+       // assert(class_result==mob_result);
     }
     b.close();
 

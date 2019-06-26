@@ -223,6 +223,7 @@ public:
 #endif
 
 //TODO change all constructors from type a=type() to type a();
+//TODO test map instead of array
 int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
     int k = __builtin_popcount(K);
@@ -241,7 +242,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     }
     int new_index = indices.size();
     for (int i = 0; i < n; ++i) {
-        if (!(K bitand (1 << i))) {
+        //if (!(K bitand (1 << i))) { //is i in K
+        if(std::find(indices.begin(), indices.end(), i+1) == indices.end()){ //works for n>32 if k is below 32
             relabel[new_index] = i;
             new_index++;
         }
@@ -269,13 +271,12 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
-            if(l>15){
+            if(l>10){ //TODO fine tune
                 g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k);
             }
             else{
                 g[p] = naive_convolute<MinSumRingEmbedd>(f, f, k);
             }
-            ////TODO change approach based on n, e.g. naive for k<17 and advanced for k>=17
         }
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
@@ -316,7 +317,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     return result;
 }
 
-
+#if 0
 void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector<vector<MinSumRingEmbedd> > &g,
                  int relabeling[]) {
     if (__builtin_popcount(relabeld_K) == 1) {
@@ -378,7 +379,7 @@ void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector
     output_tree(corresponding_p, X_wo_D, n, W, g, relabeling);
 
 }
-
+#endif
 
 #if 0
 int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range) {
