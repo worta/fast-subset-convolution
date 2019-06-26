@@ -146,21 +146,12 @@ int eval_g(weight_matrix &pair_wise_dist, unordered_map<set_t,int> &W, int &node
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
 int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    //int subset_count = (int) pow(2, size); //make space for all subsets of n
-    //vector<int> W(subset_count, -1);
     int k=__builtin_popcount(K);
     int subset_count=(int) pow(2,k);
     unordered_map<set_t,int> W(subset_count);
     vector<unordered_map<set_t,int> > g(size,unordered_map<set_t,int>(subset_count));
-    //intd2_arr g(boost::extents[size][subset_count]);
-    //for (int i = 0; i < size; ++i) {
-    //    for (int j = 0; j < subset_count; ++j) {
-    //        g[i][j] = -1;
-    //    }
-    //}
     int weight = eval_W(pair_wise_dist, K, W, g, size);
     return weight;
-
 }
 
 bool cmp_setsize(set_t i, set_t j) { return (__builtin_popcount(i) < __builtin_popcount(j)); }
@@ -280,7 +271,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         }
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
-        for (unsigned int q = 0; q < k; ++q) {
+        for (unsigned int q = 0; q < k; ++q) { //todo think about if you could calculate less here
             for (set_t X:Xs) {
                 if ((X bitand (1 << q)) == 0) { //for all X with q not in X
                     int min_value = INT_MAX;

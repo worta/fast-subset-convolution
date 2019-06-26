@@ -203,27 +203,7 @@ int main()
     cout<<"Starting Steiner Benchmark \n";
     benchmark_steiner::complete_graphs(30);
     cout<<"Finished Benchmark\n";
-    /*
-    for(int i=6; i<21; ++i)
-    {
-        int n=i;
-        //naive
-        high_resolution_clock::time_point t1 = high_resolution_clock::now();
-        vector<int_max> result_naive=naive_convolute(f,f,n);
-        high_resolution_clock::time_point t2 = high_resolution_clock::now();
-        auto duration = duration_cast<milliseconds>( t2 - t1 ).count();
-        myfile<<n<<" "<<duration;
-        cout<<"naive approach with n:"<<n<<" done in "<<duration<<"ms"<<endl;
-        //mobius
 
-        t1 = high_resolution_clock::now();
-        advanced_convolute<int_max>(f,n);
-        t2 = high_resolution_clock::now();
-        duration = duration_cast<milliseconds>( t2 - t1 ).count();
-        myfile<<" "<<duration<<"\n";
-        cout<<"mobius approach with n:"<<n<<" done in "<<duration<<"ms"<<endl;
-    }
 
-    myfile.close();*/
     return 0;
 }
