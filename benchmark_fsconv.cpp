@@ -20,11 +20,14 @@ void benchmark_fsconv::constant_func(int max_n) {
     b.write("Nodes");
     b.write("Duration(ms)");
     b.writeln("");
+    ConstFunction<int> f(1);
     for(int i=6; i<21; ++i)
     {
+        if(i%5==0){
+            cout<<"Finished "<<i<<"\\"<<max_n<<endl;
+        }
         int n=i;
         //naive
-        ConstFunction<int> f(1);
         high_resolution_clock::time_point t1 = high_resolution_clock::now();
         naive_convolute(f,f,n);
         high_resolution_clock::time_point t2 = high_resolution_clock::now();
