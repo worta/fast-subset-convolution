@@ -142,6 +142,93 @@ int eval_g(weight_matrix &pair_wise_dist, unordered_map<set_t,int> &W, int &node
     return min;
 }
 
+
+int classic_dreyfuss_wagner2(weight_matrix &graph_adj,int n, set_t K){
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
+    int k=__builtin_popcount(K);
+    vector<unordered_map<set_t,int> >  s(n,unordered_map<set_t,int>()); //TODO: can change map to array/vector
+    vector<int> indices=get_element_indices(K);
+    //relabel
+    int relabel[n];
+    for (int i = 0; i < indices.size(); ++i) {
+        relabel[i] = indices[i] - 1;
+    }
+    int new_index = indices.size();
+    for (int i = 0; i < n; ++i) {
+        if(std::find(indices.begin(), indices.end(), i+1) == indices.end()){ //works for n>32 if k is below 32
+            relabel[new_index] = i;
+            new_index++;
+        }
+    }
+    set_t relabeld_K = 0;
+    for (int i = 0; i < indices.size(); i++) {
+        relabeld_K = relabeld_K | (1 << i);
+    }
+    //choose q:
+    int q=1<<(__builtin_ffs(relabeld_K)-1);
+    set_t C=relabeld_K xor q;
+    vector<int> new_indices = get_element_indices(C);
+    for(int i=0;i<n;++i){
+        for(int p=0;p<k;++p){
+            s[i][1<<p]=pair_wise_dist[relabel[i]][relabel[p]];
+        }
+    }
+
+    for(int m=2;m<k-1;++m){ //|K|-1 is equal to |C|
+        vector<set_t> Ds = generate_subsets_of_size_k(C,m,k-1);
+        for(set_t D:Ds){
+            for(int i=0;i<n;++i){
+                s[i][D]=100000;//TODO max finden
+            }
+            for(int j=0;j<n;++j){
+                int u=100000;
+                vector<set_t> Es=get_subsets_it(D);
+                set_t D_1=1<<(__builtin_ffs(D)-1);
+                for(set_t e:Es){
+                    if((D_1 bitand e) and (e !=D)){ //is D_1 in e and e real subset of D
+                        int val=s[j][e]+s[j][D xor e]; //D xor e is D-e (D\e) if e is subset of D
+                        if(val<u){
+                            u=val;
+                        }
+                    }
+                }
+                for(int i=0;i<n;++i){
+                    int val=pair_wise_dist[relabel[i]][relabel[j]]+u;
+                    if (s[i].find(D) == s[i].end() )
+                    {
+                        s[i][D]=val;
+                    }
+                    else{
+                        if(val<s[i][D]){
+                            s[i][D]=val;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    int result=100000;
+    for(int j=0;j<n;++j){
+        int u=10000000;
+        vector<set_t> Es=get_subsets_it(C);
+        set_t C_1=1<<(__builtin_ffs(C)-1);
+        for(set_t e:Es) {
+            if ((C_1 bitand e) and (e != C)) {
+                int val=s[j][e]+s[j][C xor e]; //D xor e is D-e (D\e) if e is subset of D
+                if(val<u){
+                    u=val;
+                }
+            }
+        }
+        int value=pair_wise_dist[relabel[j]][relabel[q]]+u;
+        if(value<result){
+            result=value;
+        }
+    }
+    return result;
+}
+
+
 //K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
 //represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
 int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
@@ -251,6 +338,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
             W[q][1 << p] = pair_wise_dist[relabel[q]][relabel[p]];
         }
     }
+
     //init for Y=1;
     for (int q = 0; q < n; ++q) {
         W[q][0] = 0;
@@ -506,7 +594,7 @@ void test_steiner() {
     int resultc = 0;
     int resultm =1;
     cout << "Testing {b,d,a}, expected result:2\n";
-    resultc = classic_dreyfuss_wagner(graph, 4, 0b1011);
+    resultc = classic_dreyfuss_wagner2(graph, 4, 0b1011);
     resultm = mobius_dreyfuss(graph, 4, 0b1011, 3);
     assert(resultm==2);
     assert(resultc==resultm);
@@ -548,7 +636,7 @@ void test_steiner() {
 
 
     cout << "Test with: {d,e,f},Expected Value: 5\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111000);
+    resultc = classic_dreyfuss_wagner2(graph2, 6, 0b111000);
     cout << "Classic RESULT:" << resultc << endl;
     resultm = mobius_dreyfuss(graph2, 6, 0b111000, 5);
     cout << "ADVANCED RESULT:" << resultm << endl;
@@ -556,7 +644,7 @@ void test_steiner() {
     assert(resultc==resultm);
 
     cout << "Test with: {a,b,c,f},Expected Value: 5\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b100111);
+    resultc = classic_dreyfuss_wagner2(graph2, 6, 0b100111);
     cout << "Classic RESULT:" << resultc << endl;
     resultm = mobius_dreyfuss(graph2, 6, 0b100111, 5);
     cout << "ADVANCED RESULT:" << resultm << endl;
@@ -564,7 +652,7 @@ void test_steiner() {
     assert(resultc==resultm);
 
     cout << "Test with: {a,b,d,f},Expected Value: 6\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b101011);
+    resultc = classic_dreyfuss_wagner2(graph2, 6, 0b101011);
     cout << "Classic RESULT:" << resultc << endl;
     resultm = mobius_dreyfuss(graph2, 6, 0b101011, 5);
     cout << "ADVANCED RESULT:" << resultm << endl;
@@ -572,7 +660,7 @@ void test_steiner() {
     assert(resultc==resultm);
 
     cout << "Test with: {a,b},Expected Value: 4\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b000011);
+    resultc = classic_dreyfuss_wagner2(graph2, 6, 0b000011);
     cout << "Classic RESULT:" << resultc << endl;
     resultm = mobius_dreyfuss(graph2, 6, 0b000011, 5);
     cout << "ADVANCED RESULT:" << resultm << endl;
@@ -580,7 +668,7 @@ void test_steiner() {
     assert(resultc==resultm);
 
     cout << "Test with: {b,c,d,e,f},Expected Value: 5\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111110);
+    resultc = classic_dreyfuss_wagner2(graph2, 6, 0b111110);
     cout << "Classic RESULT:" << resultc << endl;
     resultm = mobius_dreyfuss(graph2, 6, 0b111110, 5);
     cout << "ADVANCED RESULT:" << resultm << endl;
@@ -589,7 +677,7 @@ void test_steiner() {
 
 
     cout << "Test with: {a,b,c,d,e,f},Expected Value: 7\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111111);
+    resultc = classic_dreyfuss_wagner2(graph2, 6, 0b111111);
     cout << "Classic RESULT:" << resultc << endl;
     resultm = mobius_dreyfuss(graph2, 6, 0b111111, 5);
     cout << "ADVANCED RESULT:" << resultm << endl;

@@ -29,7 +29,7 @@ void benchmark_steiner::complete_graphs(int max_size){
         int test_set=0b11111111;
         //Test naive
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-       // int class_result=classic_dreyfuss_wagner(graph,nodes,test_set);
+        int class_result=classic_dreyfuss_wagner2(graph,nodes,test_set);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         b.write("Classic");
         b.write(nodes);
