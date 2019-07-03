@@ -347,6 +347,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     //levelwise computation
 //    int max_value = (n - 1) * input_range + 1;
     for (int l = 2; l < k; ++l) {
+        vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
+                                                      k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
@@ -357,8 +359,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                 g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
             }
         }
-        vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
-                                                      k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
+
         for (unsigned int q = 0; q < k; ++q) { //todo think about if you could calculate less here
             for (set_t X:Xs) {
                 if ((X bitand (1 << q)) == 0) { //for all X with q not in X
