@@ -17,33 +17,36 @@ void benchmark_steiner::complete_graphs(int max_size){
     std::string name="steiner_benchmark";
     Benchmark_writer b=Benchmark_writer(name);
     b.write("Type");
-    b.write("Nodes");
+    b.write("|Y|");
     b.write("Duration(ms)");
+    b.write("Nodes");
     b.writeln("");
-    for(int nodes=10;nodes<max_size;++nodes){
-        if(nodes%10==0){
-            std::cout<<"Finished "<<nodes <<"\\"<<max_size<<"\n";
-        }
 
-        adjancy_matrix graph=GraphGenerator::generate_complete_graph_with_uniform_weights(nodes,1);
-        int test_set=0b11111111;
+    adjancy_matrix graph=GraphGenerator::generate_complete_graph_with_uniform_weights(max_size,1);
+    for(int k=2;k<max_size;++k){
+        if(k%5==0){
+            std::cout<<"Finished "<<k <<"\\"<<max_size<<"\n";
+        }
+        int test_set=((int)pow(2,k))-1;
         //Test naive
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        int class_result=classic_dreyfuss_wagner2(graph,nodes,test_set);
+        int class_result=classic_dreyfuss_wagner2(graph,max_size,test_set);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         b.write("Classic");
-        b.write(nodes);
+        b.write(k);
         auto duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
         b.write(duration);
+        b.write(max_size);
         b.writeln("");
         //test mobius
         t1 = std::chrono::high_resolution_clock::now();
-        int mob_result=mobius_dreyfuss(graph,nodes,test_set,1);
+        int mob_result=mobius_dreyfuss(graph,max_size,test_set,1);
         t2 = std::chrono::high_resolution_clock::now();
         b.write("Mobius");
-        b.write(nodes);
+        b.write(k);
         duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
         b.write(duration);
+        b.write(max_size);
         b.writeln("");
        // assert(class_result==mob_result);
     }

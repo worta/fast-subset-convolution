@@ -351,10 +351,10 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
             if(l>10){ //TODO fine tune
-                g[p] = advanced_convolute<MinSumRingEmbedd>(f, f, k);
+                g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
             }
             else{
-                g[p] = naive_convolute<MinSumRingEmbedd>(f, f, k);
+                g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
             }
         }
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
@@ -382,7 +382,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
    /* for (int test = 0; test < k; test++) {
         cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
     }
-    cout << endl;*/ //TODO WHY IS IT NOT EVERYWHERE THE SAME, IS THE LOOP BELOW NECESSARY?
+    cout << endl;*/ //TODO think about this below
     int result=INT_MAX;
     for(int q=0;q<k;++q){
         int value=W[q][relabeld_K xor (1<<q)];

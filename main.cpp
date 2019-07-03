@@ -205,9 +205,9 @@ int main()
     benchmark_steiner::complete_graphs(30);
     cout<<"Finished Benchmark\n";
 
-    //cout<<"Starting Fast Subset COnv Benchmark \n";
-    //benchmark_fsconv::constant_func(20);
-    //cout<<"Finished Benchmark\n";
+    cout<<"Starting Fast Subset COnv Benchmark \n";
+ //   benchmark_fsconv::constant_func(20);
+    cout<<"Finished Benchmark\n";
 
 
     return 0;
