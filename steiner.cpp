@@ -84,70 +84,15 @@ inline set_t to_byte_repr(vector<int> &indices) {
 }
 
 
-
-int eval_g(weight_matrix &pair_wise_dist, unordered_map<set_t,int> &W, int &nodes, set_t set_repr, int p, vector<unordered_map<set_t,int> >  &g);
-
-//Both eval W and eval g should keep track of a list of optimal choices
-//int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, vector<int> &W, intd2_arr &g, int &nodes) {
-int eval_W(weight_matrix &pair_wise_dist, set_t set_repr, unordered_map<set_t,int> &W, vector<unordered_map<set_t,int> >  &g, int &nodes) {
-    int ele_count = __builtin_popcount(set_repr);
-    int min = INT_MAX;
-    if (ele_count < 2) {
-        return 0;
-    }
-    if (ele_count == 2) {
-        int ele1 = __builtin_ffs(set_repr) - 1;
-        set_repr = set_repr xor (1 << ele1);
-        int ele2 = __builtin_ffs(set_repr) - 1;
-        return pair_wise_dist[ele1][ele2];
-    }
-    int q = __builtin_ffs(set_repr) - 1;
-    set_t without_q = set_repr xor (1 << q); //remove q
-    auto ret=W.find(set_repr);
-    if(ret!=W.end()){
-        return  ret->second;
-    } else {
-        for (int i = 0; i < nodes; ++i) {
-            int  value = pair_wise_dist[q ][i];
-            value+= eval_g(pair_wise_dist, W, nodes, without_q, i, g);
-            if (value < min) {
-                min = value;
-            }
-        }
-    }
-    W[set_repr] = min; //put back q
-    return min;
-}
-
-
-int eval_g(weight_matrix &pair_wise_dist, unordered_map<set_t,int> &W, int &nodes, set_t set_repr, int p,
-           vector<unordered_map<set_t,int> > &g) {
-    auto ret=g[p].find(set_repr);
-    if(ret!=g[p].end()){
-        return g[p][set_repr];
-    }
-    vector<set_t> sets = get_subsets_it(set_repr);
-    int min = INT_MAX;
-    int value;
-    for (set_t set:sets) {
-        if (set != 0 && set != set_repr) { //not empty and not all of X
-            value = eval_W(pair_wise_dist, set bitor (1 << p), W, g, nodes) +
-                    eval_W(pair_wise_dist, (set_repr xor set) bitor (1<<p), W, g, nodes);
-            if (value < min) {
-                min = value;
-            }
-        }
-    }
-    g[p][set_repr] = min;
-    return min;
-}
-
-
 int classic_dreyfuss_wagner2(weight_matrix &graph_adj,int n, set_t K){
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
-    int k=__builtin_popcount(K);
-    vector<unordered_map<set_t,int> >  s(n,unordered_map<set_t,int>()); //TODO: can change map to array/vector
     vector<int> indices=get_element_indices(K);
+    int k=__builtin_popcount(K);
+    if(k==2){ //return the shortest path
+            return pair_wise_dist[indices[0] - 1][indices[1] - 1];
+    }
+    vector<unordered_map<set_t,int> >  s(n,unordered_map<set_t,int>());
+
     //relabel
     int relabel[n];
     for (int i = 0; i < indices.size(); ++i) {
@@ -161,11 +106,12 @@ int classic_dreyfuss_wagner2(weight_matrix &graph_adj,int n, set_t K){
         }
     }
     set_t relabeld_K = 0;
-    for (int i = 0; i < indices.size(); i++) {
+    for (int i = 0; i < indices.size(); i++) { //relabeld_K=1<<indices.size -1
         relabeld_K = relabeld_K | (1 << i);
     }
     //choose q:
-    int q=1<<(__builtin_ffs(relabeld_K)-1);
+    int original_q=indices[indices.size()-1]-1;  //this is the q that corresponds to the highest bit in the relabeld k
+    int q=1<<(k-1);
     set_t C=relabeld_K xor q;
     vector<int> new_indices = get_element_indices(C);
     for(int i=0;i<n;++i){
@@ -194,14 +140,9 @@ int classic_dreyfuss_wagner2(weight_matrix &graph_adj,int n, set_t K){
                 }
                 for(int i=0;i<n;++i){
                     int val=pair_wise_dist[relabel[i]][relabel[j]]+u;
-                    if (s[i].find(D) == s[i].end() )
+                    if ((s[i].find(D) == s[i].end()) or (val<s[i][D]))
                     {
                         s[i][D]=val;
-                    }
-                    else{
-                        if(val<s[i][D]){
-                            s[i][D]=val;
-                        }
                     }
                 }
             }
@@ -220,26 +161,15 @@ int classic_dreyfuss_wagner2(weight_matrix &graph_adj,int n, set_t K){
                 }
             }
         }
-        int value=pair_wise_dist[relabel[j]][relabel[q]]+u;
+        int value=pair_wise_dist[relabel[j]][original_q]+u;
         if(value<result){
             result=value;
         }
     }
+    cout<<result<<endl;
     return result;
 }
 
-
-//K is a subset of the nodes of the graph, called the terminals in the Steiner Tree problem. The set is
-//represented as bit mask, e.g. the set {1,3} would be 0...0101, so the first and third bit are set.
-int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
-    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int k=__builtin_popcount(K);
-    int subset_count=(int) pow(2,k);
-    unordered_map<set_t,int> W(subset_count);
-    vector<unordered_map<set_t,int> > g(size,unordered_map<set_t,int>(subset_count));
-    int weight = eval_W(pair_wise_dist, K, W, g, size);
-    return weight;
-}
 
 bool cmp_setsize(set_t i, set_t j) { return (__builtin_popcount(i) < __builtin_popcount(j)); }
 
@@ -352,12 +282,12 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
-            if(l>10){ //TODO fine tune
+            //if(l>10){ //TODO fine tune
                 g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
-            }
-            else{
-                g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
-            }
+            //}
+           // else{
+           //     g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
+          //  }
         }
 
         for (unsigned int q = 0; q < k; ++q) { //todo think about if you could calculate less here

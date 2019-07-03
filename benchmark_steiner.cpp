@@ -23,10 +23,10 @@ void benchmark_steiner::complete_graphs(int max_size){
     b.writeln("");
 
     adjancy_matrix graph=GraphGenerator::generate_complete_graph_with_uniform_weights(max_size,1);
-    for(int k=2;k<max_size;++k){
-        if(k%5==0){
+    for(int k=2;k<15;++k){
+       // if(k%5==0){
             std::cout<<"Finished "<<k <<"\\"<<max_size<<"\n";
-        }
+       // }
         int test_set=((int)pow(2,k))-1;
         //Test naive
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -48,7 +48,8 @@ void benchmark_steiner::complete_graphs(int max_size){
         b.write(duration);
         b.write(max_size);
         b.writeln("");
-       // assert(class_result==mob_result);
+        assert(class_result==mob_result);
+        std::cout<<class_result<<":"<<mob_result<<std::endl;
     }
     b.close();
 
