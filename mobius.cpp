@@ -51,8 +51,8 @@ vector<T> fastMobiusInversion(Function<T> &f_mobius, int n) {
 template<typename T>
 vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference to fastMobius is the initalization
 {
-    vector<vector<T> > d(n + 1, vector<T>((int) pow(2, n)));//hier muss eig noch t hin
-    for (int k = 0; k < pow(2, n); k++) {
+    vector<vector<T> > d(n + 1, vector<T>(1<<n));//hier muss eig noch t hin
+    for (int k = 0; k < (1<<n); k++) {
         if (__builtin_popcount(k) ==
             subsetRank)  //__builtin_popcount counts bits set to 1, on hardware level if possible
         {
@@ -63,7 +63,7 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
     }
 
     for (int j = 1; j < n + 1; j++) {
-        for (int k = 0; k < (int) pow(2, n); k++) {
+        for (int k = 0; k < (1<<n); k++) {
             if (k & (1 << (j - 1)))   //is j in subset k?
             {
                 d[j][k] = d[j - 1][k] + d[j - 1][k ^ (1 << (j - 1))];

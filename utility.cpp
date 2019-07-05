@@ -30,7 +30,7 @@ void getSubsets(set_t superset, vector<set_t> &results) {
 }
 
 vector<set_t> get_subsets_it(set_t superset) {
-    int limit = (int) pow(2, __builtin_popcount(superset));
+    int limit = (int) pow(2, __builtin_popcount(superset)); //replace by 1<<uperset
     vector<set_t> r; //vector needs! to be empty at the beginning, i.e. size=0
     r.reserve(limit);
     std::deque<set_t> d;
@@ -43,10 +43,10 @@ vector<set_t> get_subsets_it(set_t superset) {
     while (!d.empty()) {
         int index = d.front();
         d.pop_front();
-        int currSize = r.size();
+        int currSize = r.size(); //get new size by doubling
         set_t element = (1 << (index - 1));
         for (int i = 0; i < currSize; ++i) {
-            r.push_back(r[i] xor element);
+            r.push_back(r[i] xor element); //replace push back bei setting knwon index
         }
     }
     return r;

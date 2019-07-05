@@ -23,14 +23,14 @@ void benchmark_steiner::complete_graphs(int max_size){
     b.writeln("");
 
     adjancy_matrix graph=GraphGenerator::generate_complete_graph_with_uniform_weights(max_size,1);
-    for(int k=2;k<15;++k){
+    for(int k=2;k<11;++k){
        // if(k%5==0){
             std::cout<<"Finished "<<k <<"\\"<<max_size<<"\n";
        // }
         int test_set=((int)pow(2,k))-1;
         //Test naive
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        int class_result=classic_dreyfuss_wagner2(graph,max_size,test_set);
+        int class_result= classic_dreyfuss_wagner(graph, max_size, test_set);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         b.write("Classic");
         b.write(k);
