@@ -27,4 +27,4 @@ add_executable(fast_subset_convolution
         steiner.cpp
         steiner.h
         utility.cpp
-        utility.h common.h tests.cpp tests.h MinSumRingEmbedd.cpp MinSumRingEmbedd.h stp_parser.cpp stp_parser.h GraphGenerator.cpp GraphGenerator.h benchmark_steiner.cpp benchmark_steiner.h benchmark_writer.cpp benchmark_writer.h benchmark_fsconv.cpp benchmark_fsconv.h)
+        utility.h common.h tests.cpp tests.h MinSumRingEmbedd.cpp MinSumRingEmbedd.h stp_parser.cpp stp_parser.h GraphGenerator.cpp GraphGenerator.h benchmark_steiner.cpp benchmark_steiner.h benchmark_writer.cpp benchmark_writer.h benchmark_fsconv.cpp benchmark_fsconv.h Path_Embedding.cpp Path_Embedding.h Tree.cpp Tree.h)
