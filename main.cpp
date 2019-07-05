@@ -202,7 +202,7 @@ int main()
     //myfile.close();
 
     cout<<"Starting Steiner Benchmark \n";
-    benchmark_steiner::complete_graphs(30);
+    benchmark_steiner::complete_graphs(25);
     cout<<"Finished Benchmark\n";
 
     cout<<"Starting Fast Subset COnv Benchmark \n";
