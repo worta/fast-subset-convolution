@@ -32,11 +32,11 @@ vector<T> fastMobius(Function<T> &f, int n) {
 template<typename T>
 vector<T> fastMobiusInversion(Function<T> &f_mobius, int n) {
     vector<vector<int> > d(n + 1, vector<int>((int) pow(2, n)));
-    for (int k = 0; k < pow(2, n); k++) {
+    for (int k = 0; k < (1<<n); k++) {
         d[0][k] = f_mobius(k);
     }
     for (set_t j = 1; j < n + 1; j++) {
-        for (set_t k = 0; k < (int) pow(2, n); k++) {
+        for (set_t k = 0; k < (1<<n); k++) {
             if (k & (1 << (j - 1))) { //if j is in K
                 d[j][k] = d[j - 1][k] - d[j - 1][k ^ (1 << (j - 1))];
             } else { //j is not in K
@@ -51,8 +51,10 @@ vector<T> fastMobiusInversion(Function<T> &f_mobius, int n) {
 template<typename T>
 vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference to fastMobius is the initalization
 {
-    vector<vector<T> > d(n + 1, vector<T>(1<<n));//hier muss eig noch t hin
-    for (int k = 0; k < (1<<n); k++) {
+    int subset_count=1<<n;
+    //T nullValue=0;
+    vector<vector<T> > d(n + 1, vector<T>(subset_count,(T)0));//hier muss eig noch t hin
+    for (int k = 0; k < subset_count; k++) {
         if (__builtin_popcount(k) ==
             subsetRank)  //__builtin_popcount counts bits set to 1, on hardware level if possible
         {
@@ -78,35 +80,18 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
 
 template<typename T>
 vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n) {
-    vector<T> conv((int) pow(2, n));
-    set_t N = ((set_t) 1 << n) - 1;
-    for (int k = 0; k < pow(2, n); ++k) {
-        conv[k] = 0;
-        for (set_t i = 0; i < pow(2, __builtin_popcount(k)); ++i) {
-            conv[k] = conv[k] + f(i) * g(k xor i);
+    vector<T> conv(1<<n);
+    //set_t N = ((set_t) 1 << n) - 1;
+    for (int subset = 0; subset < (1<<n); ++subset) {
+        conv[subset] = 0;
+        for (set_t i = 0; i < (1<<__builtin_popcount(subset)); ++i) {
+            conv[subset] = conv[subset] + f(i) * g(subset xor i);
         }
 
     }
     return conv;
-
 }
 
-
-template<typename T>
-vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction<T> &g, int n) {
-    //Create result vector
-    vector<vector<T> > conv(n + 1, vector<T>((int) pow(2, n)));
-    int subset_count = (int) pow(2, n);
-    for (int k = 0; k <= n; k++) {
-        for (int subset = 0; subset < subset_count; subset++) {
-            conv[k][subset] = 0;
-            for (int j = 0; j <= k; j++) {
-                conv[k][subset] = conv[k][subset] + f(j, subset) * g(k - j, subset);
-            }
-        }
-    }
-    return conv;
-}
 
 template<typename T>
 vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction<T> &g, int n,vector<set_t> subsets) {
@@ -124,13 +109,30 @@ vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction<T> &g, 
 }
 
 
+template<typename T>
+vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction<T> &g, int n) {
+    //Create result vector
+    vector<vector<T> > conv(n + 1, vector<T>(1<<n));
+    int subset_count = 1<<n;
+    for (int k = 0; k <= n; k++) {
+        for (int subset = 0; subset < subset_count; subset++) {
+            conv[k][subset] = 0;
+            for (int j = 0; j <= k; j++) {
+                conv[k][subset] = conv[k][subset] + f(j, subset) * g(k - j, subset);
+            }
+        }
+    }
+    return conv;
+}
 
 template<typename T>
 vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
-    vector<T> original_f((int) pow(2, n));
-    for (set_t s = 0; s < pow(2, n); ++s) { //TODO replace pow 2,n with 1<<n
+    int subset_count=1<<n;
+//    T val=0;
+    vector<T> original_f(subset_count);
+    for (set_t s = 0; s < (1<<n); ++s) {
         vector<set_t> subsets=get_subsets_it(s);
-        original_f[s] = 0;
+        //original_f[s] = 0;
         int element_count = __builtin_popcount(s);
         for (set_t subset :subsets) {
             set_t s_without_x = s xor subset;
@@ -146,6 +148,8 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
 }
 
 
+
+
 template<typename T>
 vector<T> advanced_convolute(Function<T> &f, int n) {
     vector<vector<T> > fast_ranked_transform_f(n + 1);
@@ -158,6 +162,10 @@ vector<T> advanced_convolute(Function<T> &f, int n) {
     vector<T> result_advanced = ranked_Mobius_inversion<T>(conv_f, n);
     return result_advanced;
 }
+
+
+
+
 
 
 

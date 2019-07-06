@@ -47,6 +47,6 @@ void benchmark_fsconv::constant_func(int max_n) {
         b.writeln("");
         //myfile<<" "<<duration<<"\n";
     }
-
+    b.close();
 
 }
