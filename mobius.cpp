@@ -11,8 +11,9 @@ using namespace std;
 
 template<typename T>
 vector<T> fastMobius(Function<T> &f, int n) {
-    vector<vector<int> > d(n + 1, vector<int>((int) pow(2, n)));
-    for (int k = 0; k < pow(2, n); k++) {
+    int subset_count=1<<n;
+    vector<vector<int> > d(n + 1, vector<int>(subset_count));
+    for (int k = 0; k < subset_count; k++) {
         d[0][k] = f(k);
     }
     for (set_t j = 1; j < n + 1; j++) {
@@ -31,12 +32,13 @@ vector<T> fastMobius(Function<T> &f, int n) {
 
 template<typename T>
 vector<T> fastMobiusInversion(Function<T> &f_mobius, int n) {
-    vector<vector<int> > d(n + 1, vector<int>((int) pow(2, n)));
-    for (int k = 0; k < (1<<n); k++) {
+    int subset_count=1<<n;
+    vector<vector<int> > d(n + 1, vector<int>(subset_count));
+    for (int k = 0; k < subset_count; k++) {
         d[0][k] = f_mobius(k);
     }
     for (set_t j = 1; j < n + 1; j++) {
-        for (set_t k = 0; k < (1<<n); k++) {
+        for (set_t k = 0; k < subset_count; k++) {
             if (k & (1 << (j - 1))) { //if j is in K
                 d[j][k] = d[j - 1][k] - d[j - 1][k ^ (1 << (j - 1))];
             } else { //j is not in K
@@ -94,7 +96,7 @@ vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n) {
 
 
 template<typename T>
-vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction<T> &g, int n,vector<set_t> subsets) {
+vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction<T> &g, int n,vector<set_t> &subsets) {
     //Create result vector
     vector<vector<T> > conv(n + 1, vector<T>((int) pow(2, n)));
     for (int k = 0; k <= n; k++) {

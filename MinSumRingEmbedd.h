@@ -23,6 +23,7 @@ public:
     }
 
     MinSumRingEmbedd()= default;
+
     //should only be used to set map to 0, i.e. to empty set
     MinSumRingEmbedd &operator=(const int &x) //that is not well defined
     {

@@ -38,7 +38,7 @@ void benchmark_fsconv::constant_func(int max_n) {
         b.writeln("");
         //mobius
         t1 = high_resolution_clock::now();
-        advanced_convolute<int>(f,f,n);
+        advanced_convolute<int>(f,n);
         t2 = high_resolution_clock::now();
         duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
         b.write("Mobius");
