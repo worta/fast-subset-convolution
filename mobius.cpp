@@ -55,12 +55,12 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
 {
     int subset_count=1<<n;
     //T nullValue=0;
-    vector<vector<T> > d(n + 1, vector<T>(subset_count));//hier muss eig noch t hin
+    vector<vector<T> > d(n + 1, vector<T>(subset_count));//vector wird mit 0 / standard constructor gebaut
     vector<set_t> subsets=generate_subsets_of_size_k(0,subsetRank,n);
     for(set_t subset:subsets){
         d[0][subset]=f(subset);
     }
-  /*  for (int k = 0; k < subset_count; k++) {
+#if 0 /*  for (int k = 0; k < subset_count; k++) {
         if (__builtin_popcount(k) ==
             subsetRank)  //__builtin_popcount counts bits set to 1, on hardware level if possible
         {
@@ -69,14 +69,15 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
             d[0][k] = 0; //Klassen müssen eine Umwandlung von int/0 zum Ringelement erlauben
         }
     }*/
-
+#endif
     for (int j = 1; j < n + 1; j++) {
+        int index=j-1;
         for (int k = 0; k < (1<<n); k++) {
-            if (k & (1 << (j - 1)))   //is j in subset k?
+            if (k & (1 << (index)))   //is j in subset k?
             {
-                d[j][k] = d[j - 1][k] + d[j - 1][k ^ (1 << (j - 1))];
+                d[j][k] = d[index][k] + d[index][k ^ (1 << (index))];
             } else {
-                d[j][k] = d[j - 1][k];
+                d[j][k] = d[index][k];
             }
         }
     }
@@ -156,7 +157,7 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
 
 
 template<typename T>
-vector<T> ranked_Mobius_inversion2(RankedFunction<T> &f, int n) {
+vector<T> ranked_Mobius_inversion2(RankedFunction<T> &f, int n, int subset_rank) {
     int subset_count=1<<n;
     //T val(0);
     vector<T> original_f();
