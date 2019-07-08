@@ -5,7 +5,7 @@
 #include "utility.h"
 #include <cstdint>
 #include "common.h"
-
+#include <array>
 
 using namespace std;
 
@@ -13,11 +13,11 @@ template<typename T>
 vector<T> fastMobius(Function<T> &f, int n) {
     int subset_count=1<<n;
     vector<vector<int> > d(n + 1, vector<int>(subset_count));
-    for (int k = 0; k < subset_count; k++) {
-        d[0][k] = f(k);
+    for (int subset = 0; subset < subset_count; subset++) {
+        d[0][subset] = f(subset);
     }
     for (set_t j = 1; j < n + 1; j++) {
-        for (set_t k = 0; k < (int) pow(2, n); k++) {
+        for (set_t k = 0; k < subset_count; k++) {
             if (k & (1 << (j - 1))) { //if j is in K
                 //cout <<k << " " <<j <<endl;
                 d[j][k] = d[j - 1][k] + d[j - 1][k ^ (1 << (j - 1))];
@@ -55,8 +55,12 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
 {
     int subset_count=1<<n;
     //T nullValue=0;
-    vector<vector<T> > d(n + 1, vector<T>(subset_count,(T)0));//hier muss eig noch t hin
-    for (int k = 0; k < subset_count; k++) {
+    vector<vector<T> > d(n + 1, vector<T>(subset_count));//hier muss eig noch t hin
+    vector<set_t> subsets=generate_subsets_of_size_k(0,subsetRank,n);
+    for(set_t subset:subsets){
+        d[0][subset]=f(subset);
+    }
+  /*  for (int k = 0; k < subset_count; k++) {
         if (__builtin_popcount(k) ==
             subsetRank)  //__builtin_popcount counts bits set to 1, on hardware level if possible
         {
@@ -64,7 +68,7 @@ vector<T> rankedMobius(Function<T> &f, int n, int subsetRank) //only difference 
         } else {
             d[0][k] = 0; //Klassen müssen eine Umwandlung von int/0 zum Ringelement erlauben
         }
-    }
+    }*/
 
     for (int j = 1; j < n + 1; j++) {
         for (int k = 0; k < (1<<n); k++) {
@@ -130,18 +134,18 @@ vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction<T> &g, 
 template<typename T>
 vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
     int subset_count=1<<n;
-//    T val=0;
+    //T val(0);
     vector<T> original_f(subset_count);
-    for (set_t s = 0; s < (1<<n); ++s) {
+    for (set_t s = 0; s < subset_count; ++s) {
         vector<set_t> subsets=get_subsets_it(s);
         //original_f[s] = 0;
         int element_count = __builtin_popcount(s);
         for (set_t subset :subsets) {
             set_t s_without_x = s xor subset;
-            if ((__builtin_popcount(s_without_x) % 2) == 0) {
-                original_f[s] = original_f[s] + f(element_count, subset);
-            } else {
+            if ((__builtin_popcount(s_without_x) % 2) ) {
                 original_f[s] = original_f[s] - f(element_count, subset);
+            } else {
+                original_f[s] = original_f[s] + f(element_count, subset);
             }
 
         }
@@ -149,6 +153,18 @@ vector<T> ranked_Mobius_inversion(RankedFunction<T> &f, int n) {
     return original_f;
 }
 
+
+
+template<typename T>
+vector<T> ranked_Mobius_inversion2(RankedFunction<T> &f, int n) {
+    int subset_count=1<<n;
+    //T val(0);
+    vector<T> original_f();
+    original_f.reserve(subset_count);
+
+
+    return original_f;
+}
 
 
 
