@@ -21,11 +21,8 @@ void benchmark_fsconv::constant_func(int max_n) {
     b.write("Duration(ms)");
     b.writeln("");
     ConstFunction<int> f(1);
-    for(int i=6; i<21; ++i)
+    for(int i=6; i<max_n; ++i)
     {
-        if(i%5==0){
-            cout<<"Finished "<<i<<"\\"<<max_n<<endl;
-        }
         int n=i;
         //naive
         high_resolution_clock::time_point t1 = high_resolution_clock::now();
@@ -46,6 +43,7 @@ void benchmark_fsconv::constant_func(int max_n) {
         b.write(duration);
         b.writeln("");
         //myfile<<" "<<duration<<"\n";
+        cout<<"Finished "<<i<<"\\"<<max_n<<endl;
     }
     b.close();
 
