@@ -6,6 +6,7 @@
 #define FAST_SUBSET_CONVOLUTION_BENCHMARK_FSCONV_H
 
 
+
 class benchmark_fsconv {
 public:
     static void constant_func(int max_n);

@@ -11,11 +11,11 @@ IF (Boost_FOUND)
 endif()
 
 
-#if(NOT CMAKE_BUILD_TYPE)
-#    set(CMAKE_BUILD_TYPE Release)
-#endif()
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+#set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -march=native")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
 
 add_executable(fast_subset_convolution
         functions.cpp
@@ -27,4 +27,10 @@ add_executable(fast_subset_convolution
         steiner.cpp
         steiner.h
         utility.cpp
-        utility.h common.h tests.cpp tests.h MinSumRingEmbedd.cpp MinSumRingEmbedd.h stp_parser.cpp stp_parser.h GraphGenerator.cpp GraphGenerator.h benchmark_steiner.cpp benchmark_steiner.h benchmark_writer.cpp benchmark_writer.h benchmark_fsconv.cpp benchmark_fsconv.h Path_Embedding.cpp Path_Embedding.h Tree.cpp Tree.h)
+        utility.h FastSubsetConvolution.cpp FastSubsetConvolution.h
+        common.h tests.cpp tests.h MinSumRingEmbedd.cpp
+        MinSumRingEmbedd.h stp_parser.cpp stp_parser.h GraphGenerator.cpp
+        GraphGenerator.h benchmark_steiner.cpp benchmark_steiner.h
+        benchmark_writer.cpp benchmark_writer.h benchmark_fsconv.cpp
+        benchmark_fsconv.h Path_Embedding.cpp Path_Embedding.h Tree.cpp
+        Tree.h)

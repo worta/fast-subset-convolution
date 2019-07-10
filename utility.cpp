@@ -11,6 +11,8 @@
 #include <cmath>
 #include <deque>
 #include "common.h"
+#include <array>
+#include "common.h"
 void getSubsets(set_t superset, vector<set_t> &results) {
     int index = __builtin_ffs(
             superset); //Returns one plus the index of the least significant 1-bit of x, or if x is zero, returns zero.
@@ -30,8 +32,8 @@ void getSubsets(set_t superset, vector<set_t> &results) {
 }
 
 vector<set_t> get_subsets_it(set_t superset) {
-    int limit = 1<< __builtin_popcount(superset); //replace by 1<<uperset
-    vector<set_t> r; //vector needs! to be empty at the beginning, i.e. size=0
+    int limit = 1<< __builtin_popcount(superset);
+    vector<set_t> r;
     r.reserve(limit);
     std::deque<set_t> d;
     while (superset != 0) {
@@ -112,16 +114,18 @@ bool next_combination(unsigned long& x) // assume x has form x'01^a10^b in binar
 //bitcount is the maximum amount of bits that need to be checked, i.e. the highest bit of K
 vector<set_t> generate_subsets_of_size_k(set_t K, int subset_size, int bitcount){
     unsigned int current_perm=0;
-    unsigned int next_perm; // next permutation of bits
+   // unsigned int next_perm; // next permutation of bits
     unsigned check=1<<(bitcount);
     vector<set_t> subsets;
+    subsets.reserve(1<<bitcount);
     if (bitcount==0){
         return vector<set_t>(1,0); //return just the empty set
     }
     // set the first subset_size bits to 1
-    for(int i=0;i<subset_size;++i){
-        current_perm=current_perm|(1<<i);
-    }
+    current_perm=(1<<subset_size)-1;
+    //for(int i=0;i<subset_size;++i){
+     //   current_perm=current_perm|(1<<i);
+    //}
 
     while(!(current_perm & check)){ //as long as the k+1 bit is not set
         subsets.push_back(current_perm);        //}
@@ -135,3 +139,28 @@ vector<set_t> generate_subsets_of_size_k(set_t K, int subset_size, int bitcount)
     }
     return subsets;
 }
+
+
+void generate_sets_of_size_k(int subset_size, int bitcount,set_t *result){
+    unsigned int current_perm=0;
+    // unsigned int next_perm; // next permutation of bits
+    unsigned check=1<<(bitcount);
+    if (subset_size==0){
+        result[0]=0; //return just the empty set
+        return;
+    }
+    // set the first subset_size bits to 1
+    current_perm=(1<<subset_size)-1;
+    int i=0;
+    while(!(current_perm & check)){ //as long as the k+1 bit is not set
+        result[i]=current_perm;
+        ++i;
+        unsigned int t = current_perm | (current_perm - 1); // t gets v's least significant 0 bits set to 1
+        // Next set to 1 the most significant bit to change,
+        // set to 0 the least significant ones, and add the necessary 1 bits.
+        current_perm = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(current_perm) + 1));
+    }
+
+}
+
+
