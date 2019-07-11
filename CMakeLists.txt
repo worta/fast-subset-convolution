@@ -15,7 +15,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 #set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -march=native")
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_executable(fast_subset_convolution
         functions.cpp

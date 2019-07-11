@@ -91,7 +91,8 @@ vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n) {
     //set_t N = ((set_t) 1 << n) - 1;
     for (int subset = 0; subset < (1<<n); ++subset) {
         conv[subset] = 0;
-        for (set_t i = 0; i < (1<<__builtin_popcount(subset)); ++i) {
+        vector<set_t> subsets=get_subsets_it(subset);
+        for(set_t i:subsets){
             conv[subset] = conv[subset] + f(i) * g(subset xor i);
         }
 
