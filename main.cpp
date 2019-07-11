@@ -12,11 +12,10 @@
 #include "utility.h"
 #include "benchmark_steiner.h"
 #include "benchmark_fsconv.h"
+#include "FastSubsetConvolution.h"
 
 using namespace std;
 
-
-//TODO maybe add const classifier to relevant functions
 
 /*class int_max
 {
@@ -128,8 +127,8 @@ void test_ranked_mobius_and_convolute()
     f_1= {0,2,2,4};
     f_2= {0,1,1,6};
     results= {f_0,f_1,f_2};
-    RankedVectFunction<int> ranked_f=RankedVectFunction<int>(rankedFVec);
-    vector< vector<int> > conv=ranked_convolute(ranked_f,ranked_f,n);
+    //RankedVectFunction<int> ranked_f=RankedVectFunction<int>(rankedFVec);
+    vector< vector<int> > conv=ranked_convolute(rankedFVec,rankedFVec,n);
     for(int rang=0; rang<=n; rang++)
     {
         /*for(set_t i=0;i<conv[rang].size();++i){
@@ -157,7 +156,7 @@ void test_ranked_mobius_and_convolute()
         cout<<"Error: Naive convolute: Incorrect values"<<endl;
     }
 
-    vector<int> normal_invert=ranked_Mobius_inversion(ranked_f,n); //should be the same values as f
+    vector<int> normal_invert=ranked_Mobius_inversion(rankedFVec,n); //should be the same values as f
     if(normal_invert==vector<int> {1,1,1,1})
     {
         cout <<"Normal Mobius inversion: OK"<<endl;
@@ -168,7 +167,7 @@ void test_ranked_mobius_and_convolute()
     }
 
     RankedVectFunction<int> ranked_conv=RankedVectFunction<int>(conv);
-    vector<int> inverse=ranked_Mobius_inversion<int>(ranked_conv,n); //should be the same as f*f
+    vector<int> inverse=ranked_Mobius_inversion<int>(conv,n); //should be the same as f*f
     //cout<<inverse.size()<<endl;
     if (inverse==convolute_result)
     {
@@ -189,13 +188,13 @@ void test_ranked_mobius_and_convolute()
 int main()
 {
     //ConstFunction<int> f=ConstFunction<int>(1);
-    test_subset_gen();
+//    test_subset_gen();
     test_ranked_mobius_and_convolute();
-
+/*
     test_dijkstra();
     test_ring_embedd();
     test_steiner();
-
+    */
     //ofstream myfile;
     //myfile.open("/home/dominik/Studium/Master/fast-subset-convolution/benchmarks/results.txt");
     //myfile<<"n naive mobius\n";
@@ -206,7 +205,7 @@ int main()
     cout<<"Finished Benchmark\n";
 
     cout<<"Starting Fast Subset COnv Benchmark \n";
-    benchmark_fsconv::constant_func(20);
+    benchmark_fsconv::constant_func(19);
     cout<<"Finished Benchmark\n";
 
 

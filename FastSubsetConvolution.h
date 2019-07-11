@@ -11,7 +11,7 @@ class FastSubsetConvolution {
     int n;
 
     int *rows;
-   // T *buffer;
+    T *buffer;
     void fast_mobius( T f[],T result[]);
     void fast_mobius_inversion( T f_mobius[], T result[]);
 
@@ -24,6 +24,8 @@ public:
     FastSubsetConvolution(int _n);
     void advanced_convolute(Function<T> &f,T result[]);
     void advanced_convolute(Function<T> &f,T &g, T result[]);
+
+    virtual ~FastSubsetConvolution();
 
 };
 
