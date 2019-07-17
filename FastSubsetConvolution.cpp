@@ -117,7 +117,7 @@ void FastSubsetConvolution<T>::fast_mobius_inversion(T *f_mobius, T *result) {
             result[k] = buffer[previous_row + k];
         }
     }
-   // delete[] buffer;
+   // delete[] buffer; //if own buffer for each function is used
 }
 
 

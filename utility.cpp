@@ -142,13 +142,13 @@ vector<set_t> generate_subsets_of_size_k(set_t K, int subset_size, int bitcount)
 
 
 void generate_sets_of_size_k(int subset_size, int bitcount,set_t *result){
-    unsigned int current_perm=0;
-    // unsigned int next_perm; // next permutation of bits
-    unsigned check=1<<(bitcount);
     if (subset_size==0){
         result[0]=0; //return just the empty set
         return;
     }
+    unsigned int current_perm=0;
+    // unsigned int next_perm; // next permutation of bits
+    unsigned check=1<<(bitcount);
     // set the first subset_size bits to 1
     current_perm=(1<<subset_size)-1;
     int i=0;

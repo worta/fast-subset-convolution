@@ -103,21 +103,32 @@ void test_ranked_mobius_and_convolute()
 {
     int n=2; //test set={1,2}
     ConstFunction<int> f=ConstFunction<int>(1);
-
+    FastSubsetConvolution<int> Convolute(n);
     //Test mobius transformation
     //transformed f should be:
     vector<int> f_0 {1,1,1,1};
     vector<int> f_1 {0,1,1,2};
     vector<int> f_2 {0,0,0,1};
     vector<vector<int> > results {f_0,f_1,f_2};
+    int results_arr[]={1,1,1,1,0,1,1,2,0,0,0,1};
+    int r_ranked_mobius[12];
 
     vector<vector<int> > rankedFVec(n+1);
     for(int rang=0; rang<=n; rang++)
     {
+        Convolute.ranked_mobius(f,rang,&r_ranked_mobius[rang*Convolute.set_count]);
         rankedFVec[rang]=rankedMobius<int>(f,n,rang);
         if( rankedFVec[rang]==results[rang])
         {
             cout<<"Ranked mobius transform:Values for rank:" <<rang <<" OK"<<endl;
+
+        }
+        for(int i=0;i<Convolute.set_count;++i){
+            if(!(r_ranked_mobius[rang*Convolute.set_count+i]==results[rang][i])){
+
+                cout<<"ERROR: ranked mobius transform"<<endl;
+                assert(false);
+            }
         }
     }
 
@@ -127,13 +138,13 @@ void test_ranked_mobius_and_convolute()
     f_1= {0,2,2,4};
     f_2= {0,1,1,6};
     results= {f_0,f_1,f_2};
+
     //RankedVectFunction<int> ranked_f=RankedVectFunction<int>(rankedFVec);
     vector< vector<int> > conv=ranked_convolute(rankedFVec,rankedFVec,n);
+    int r_convoluted[12];
+    Convolute.ranked_convolute(r_ranked_mobius,r_ranked_mobius,r_convoluted);
     for(int rang=0; rang<=n; rang++)
     {
-        /*for(set_t i=0;i<conv[rang].size();++i){
-            cout<<conv[rang][i];
-        }*/
         if( conv[rang]==results[rang])
         {
             cout<<"Ranked mobius convolution:Values for rank:" <<rang <<" OK"<<endl;
@@ -142,6 +153,14 @@ void test_ranked_mobius_and_convolute()
         {
             cout<<"Error: ranked mobius convolution:Values for rank:" <<rang <<" are incorrect"<<endl;
         }
+        for(int i=0;i<Convolute.set_count;++i){
+            if(!(r_convoluted[rang*Convolute.set_count+i]==results[rang][i])){
+                cout<<"ERROR: ranked convolute"<<endl;
+                assert(false);
+            }
+        }
+
+
     }
 
     //test naive convolute:
@@ -156,7 +175,9 @@ void test_ranked_mobius_and_convolute()
         cout<<"Error: Naive convolute: Incorrect values"<<endl;
     }
 
+    int r_inverse_simple[4];
     vector<int> normal_invert=ranked_Mobius_inversion(rankedFVec,n); //should be the same values as f
+    Convolute.ranked_mobius_inversion(r_ranked_mobius,r_inverse_simple);
     if(normal_invert==vector<int> {1,1,1,1})
     {
         cout <<"Normal Mobius inversion: OK"<<endl;
@@ -165,10 +186,17 @@ void test_ranked_mobius_and_convolute()
     {
         cout<<"Error: normal invert is wrong"<<endl;
     }
+    for(int i=0;i<4;++i){
+        if(r_inverse_simple[i]!=1){
+            cout<<"ERROR: mobius inversion, simple case is wrong"<<endl;
+            assert(false);
+        }
+    }
 
     RankedVectFunction<int> ranked_conv=RankedVectFunction<int>(conv);
     vector<int> inverse=ranked_Mobius_inversion<int>(conv,n); //should be the same as f*f
-    //cout<<inverse.size()<<endl;
+    int r_inverse[4];
+    Convolute.ranked_mobius_inversion(r_convoluted,r_inverse);
     if (inverse==convolute_result)
     {
         cout<<"Mobius inversion of ranked convolution: OK"<<endl;
@@ -182,6 +210,13 @@ void test_ranked_mobius_and_convolute()
             cout<<","<<inverse[i];
         }
         cout<<"}"<<endl;
+    }
+    for(int i=0;i<4;++i){
+        if((r_inverse[i]!=convolute_result[i])){
+            cout<<"ERROR: ranked mobius inversion"<<endl;
+            cout<<"i: "<<i<<"Expected: "<<convolute_result[i]<<" is:"<<r_inverse[i]<<endl;
+            assert(false);
+        }
     }
 }
 
@@ -205,7 +240,7 @@ int main()
     cout<<"Finished Benchmark\n";
 
     cout<<"Starting Fast Subset COnv Benchmark \n";
-    benchmark_fsconv::constant_func(19);
+    benchmark_fsconv::constant_func(22);
     cout<<"Finished Benchmark\n";
 
 

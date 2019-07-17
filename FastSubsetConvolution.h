@@ -12,18 +12,20 @@ class FastSubsetConvolution {
 
     int *rows;
     T *buffer;
-    void fast_mobius( T f[],T result[]);
-    void fast_mobius_inversion( T f_mobius[], T result[]);
 
-    void ranked_mobius(Function<T> &f,int rank,T result[]);
-    void ranked_convolute(T f[], T g[],T result[]);
-    void ranked_mobius_inversion( T f[],T result[]);
 
 public:
     int set_count;
     FastSubsetConvolution(int _n);
     void advanced_convolute(Function<T> &f,T result[]);
     void advanced_convolute(Function<T> &f,T &g, T result[]);
+
+    void fast_mobius( T f[],T result[]);
+    void fast_mobius_inversion( T f_mobius[], T result[]);
+
+    void ranked_mobius(Function<T> &f,int rank,T result[]);
+    void ranked_convolute(T f[], T g[],T result[]);
+    void ranked_mobius_inversion( T f[],T result[]);
 
     virtual ~FastSubsetConvolution();
 
