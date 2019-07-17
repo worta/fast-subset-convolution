@@ -23,7 +23,7 @@ void benchmark_fsconv::constant_func(int max_n) {
     b.writeln("");
     ConstFunction<int> f(1);
 
-    for(int i=3; i<=max_n; ++i)
+    for(int i=10; i<=max_n; ++i)
     {
         int n=i;
         //naive
