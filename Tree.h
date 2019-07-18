@@ -21,12 +21,12 @@ public:
         father=0;
         childCount=0;
     }
-    void AddLeft(Tree *l){
+    void add_left(Tree *l){
         left=l;
         childCount++;
         l->father=this;
     }
-    void AddRight(Tree *r){
+    void add_right(Tree *r){
         right=r;
         childCount++;
         r->father=this;
