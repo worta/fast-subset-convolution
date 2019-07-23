@@ -225,10 +225,11 @@ int main()
     //ConstFunction<int> f=ConstFunction<int>(1);
 //    test_subset_gen();
     test_ranked_mobius_and_convolute();
+   // test_steiner();
 /*
     test_dijkstra();
     test_ring_embedd();
-    test_steiner();
+
     */
     //ofstream myfile;
     //myfile.open("/home/dominik/Studium/Master/fast-subset-convolution/benchmarks/results.txt");
@@ -236,11 +237,11 @@ int main()
     //myfile.close();
 
     cout<<"Starting Steiner Benchmark \n";
-   // benchmark_steiner::complete_graphs(20);
+    benchmark_steiner::complete_graphs(20);
     cout<<"Finished Benchmark\n";
 
     cout<<"Starting Fast Subset COnv Benchmark \n";
-    benchmark_fsconv::constant_func(22);
+   // benchmark_fsconv::constant_func(22);
     cout<<"Finished Benchmark\n";
 
 
