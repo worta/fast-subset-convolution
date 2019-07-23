@@ -5,8 +5,9 @@
 #include <iostream>
 #include "FastSubsetConvolution.h"
 #include "utility.h"
+#include "MinSumRingEmbedd.h"
 template class FastSubsetConvolution<int>; //need this for every type usen in the program
-
+template class FastSubsetConvolution<MinSumRingEmbedd>;
 template<class T>
 FastSubsetConvolution<T>::FastSubsetConvolution(int _n) {
     n = _n;
@@ -127,7 +128,7 @@ void FastSubsetConvolution<T>::ranked_convolute(T *f, T *g, T *result) {
         for (set_t subset = 0; subset < set_count; subset++) {
             result[rows[k] + subset] = 0;
             for (int j = 0; j <= k; j++) {
-                result[rows[k] + subset] += f[rows[j] + subset] * g[rows[k - j] + subset];
+                result[rows[k] + subset] =result[rows[k] + subset] + f[rows[j] + subset] * g[rows[k - j] + subset]; //alternative += but needs to be implkement for min sum ring
             }
         }
     }

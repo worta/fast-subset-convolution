@@ -16,6 +16,7 @@
 #include <array>
 #include "MinSumRingEmbedd.h"
 #include <cassert>
+#include "FastSubsetConvolution.h"
 typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
@@ -226,8 +227,6 @@ public:
 };
 #endif
 
-//TODO change all constructors from type a=type() to type a();
-//TODO test map instead of array
 int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
     int k = __builtin_popcount(K);
@@ -237,8 +236,6 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         return pair_wise_dist[indices[0] - 1][indices[1] - 1];
     }
     int max_value = (n - 1) * input_range + 1;
-    vector<vector<int> > W(n, vector<int>((int) pow(2, k), max_value)); //,(n-1)*input_range+1) in the second brackes
-    vector<vector<MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>((int) pow(2, k)));
     //relabel
     int relabel[n];
     for (int i = 0; i < indices.size(); ++i) {
@@ -258,6 +255,11 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         relabeld_K = relabeld_K | (1 << i);
     }
 
+    //1<<k =pow(2,k)
+    vector<vector<int> > W(n, vector<int>(1<<k, max_value)); //,(n-1)*input_range+1) in the second brackes
+    vector<vector<MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>(1<<k));
+    //MinSumRingEmbedd[]
+
     //init for W for l=2
     for (int q = 0; q < n; ++q) {
         for (int p = 0; p < k; p++) {
@@ -272,6 +274,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
 
     //levelwise computation
 //    int max_value = (n - 1) * input_range + 1;
+    FastSubsetConvolution<MinSumRingEmbedd> FastSubsetConv(k);
     for (int l = 2; l < k; ++l) {
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
@@ -279,7 +282,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
             //if(l>10){ //TODO fine tune
-                g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
+                //g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
+                FastSubsetConv.advanced_convolute(f,g[p].data());
             //}
            // else{
            //     g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
