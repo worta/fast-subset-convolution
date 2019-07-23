@@ -6,8 +6,9 @@
 #define FAST_SUBSET_CONVOLUTION_PATH_EMBEDDING_H
 #include "common.h"
 #include "Tree.h"
+#include <vector>
 class Path_Embedding {
-    static void embedd();
+    static void embedd(Tree& tree, std::vector<int> path_lengths);
     static void generateFullTrees(int depth,Tree& t);
 };
 

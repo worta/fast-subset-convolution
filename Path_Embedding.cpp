@@ -4,8 +4,7 @@
 
 #include "Path_Embedding.h"
 #include "Tree.h"
-void Path_Embedding::embedd() {
-
+void Path_Embedding::embedd(Tree& tree, std::vector<int> path_lengths) {
 
 
 }
