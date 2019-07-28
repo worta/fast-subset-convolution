@@ -14,6 +14,8 @@
 #include "benchmark_fsconv.h"
 #include "FastSubsetConvolution.h"
 
+#include "MinSumRingEmbeddBigInt.h"
+
 using namespace std;
 
 
@@ -220,6 +222,40 @@ void test_ranked_mobius_and_convolute()
     }
 }
 
+void test_ring_embedd_big_int(){
+    MinSumRingEmbeddBigInt::init(3,4);
+    MinSumRingEmbeddBigInt a = MinSumRingEmbeddBigInt(0) + MinSumRingEmbeddBigInt(3) + MinSumRingEmbeddBigInt(1);
+    MinSumRingEmbeddBigInt b = MinSumRingEmbeddBigInt(1) + MinSumRingEmbeddBigInt(0) + MinSumRingEmbeddBigInt(3);
+    MinSumRingEmbeddBigInt c = MinSumRingEmbeddBigInt(3) + MinSumRingEmbeddBigInt(3) + MinSumRingEmbeddBigInt(4);
+
+    MinSumRingEmbeddBigInt dist1 = a * (b + c);
+    MinSumRingEmbeddBigInt dist2 = a * b + a * c;
+
+
+
+
+    cout << "-------------" << endl;
+    cout << "Test: Ring Embedding \n";
+    cout << "Example 1\n";
+    dist1 = (a + b) * c;
+    dist2 = a * c + b * c;
+
+    //check equal
+    if (dist1.min() == dist2.min()) {
+        cout << "(a+b)*c=ac+bc : Valid\n";
+    } else {
+        cout << "ERROR:(a+b)*c!=ac+bc\n";
+    }
+
+
+    MinSumRingEmbeddBigInt min_test = MinSumRingEmbeddBigInt(1) + MinSumRingEmbeddBigInt(3) + MinSumRingEmbeddBigInt(2);
+    if(min_test.min()!=1){
+        cout<<"ERROR: wrong min: "<<min_test.min()<<" should be 1";
+        //assert(false);
+    }
+
+}
+
 int main()
 {
     //ConstFunction<int> f=ConstFunction<int>(1);
@@ -235,7 +271,8 @@ int main()
     //myfile.open("/home/dominik/Studium/Master/fast-subset-convolution/benchmarks/results.txt");
     //myfile<<"n naive mobius\n";
     //myfile.close();
-
+    //test_ring_embedd();
+    test_ring_embedd_big_int();
     cout<<"Starting Steiner Benchmark \n";
     benchmark_steiner::complete_graphs(20);
     cout<<"Finished Benchmark\n";

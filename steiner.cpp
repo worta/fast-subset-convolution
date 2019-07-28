@@ -279,7 +279,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
         for (int p = 0; p < n; ++p) {
-            Function_p f_p(W, l, p, max_value);
+            Function_p f_p(W, l, p, max_value); //change it here for new mapping to int
             Function_Embedd f(f_p);
             //if(l>10){ //TODO fine tune
                 //g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
@@ -295,7 +295,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
                 if ((X bitand (1 << q)) == 0) { //for all X with q not in X
                     int min_value = INT_MAX;
                     for (int p = 0; p < n; ++p) {
-                       int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
+                       int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min(); //and here
                        //int value = W[p][1<<q]+g[p][X].min();
                         if (value < min_value) {
                             min_value = value;
