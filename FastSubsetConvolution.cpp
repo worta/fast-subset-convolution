@@ -6,8 +6,10 @@
 #include "FastSubsetConvolution.h"
 #include "utility.h"
 #include "MinSumRingEmbedd.h"
+#include "MinSumRingEmbeddBigInt.h"
 template class FastSubsetConvolution<int>; //need this for every type usen in the program
 template class FastSubsetConvolution<MinSumRingEmbedd>;
+template class FastSubsetConvolution<MinSumRingEmbeddBigInt>;
 template<class T>
 FastSubsetConvolution<T>::FastSubsetConvolution(int _n) {
     n = _n;

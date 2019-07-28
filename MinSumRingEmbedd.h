@@ -45,7 +45,7 @@ public:
 
     MinSumRingEmbedd operator*(const MinSumRingEmbedd &rhs) {
         //std::map<int,int> newS = std::map<int,int>();
-        MinSumRingEmbedd newE=MinSumRingEmbedd();
+        MinSumRingEmbedd newE;
         std::pair<std::map<int,int>::iterator,bool> ret;
         for (auto node_rhs:rhs.mset) { //todo: hier über hint beim einfügen nachdenken
             for (auto node_lhs:mset) {
@@ -62,7 +62,7 @@ public:
 
     MinSumRingEmbedd operator+(const MinSumRingEmbedd &rhs) {
         //std::map<Element, element_compare> newS = std::map<Element, element_compare>();
-        MinSumRingEmbedd newE=MinSumRingEmbedd();
+        MinSumRingEmbedd newE;
         std::pair<std::map<int,int>::iterator,bool> ret;
         newE.mset.insert(mset.begin(),mset.end());
         for(auto node:rhs.mset){

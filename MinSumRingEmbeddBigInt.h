@@ -39,6 +39,13 @@ public:
         mpz_init(big_int);
     }
 
+
+    MinSumRingEmbeddBigInt &operator=(const int &x) //use only for x=0 to set to zero element
+    {
+        mpz_set_ui(big_int,0);
+        return *this;
+    }
+
     explicit MinSumRingEmbeddBigInt(unsigned int value){
         mpz_init(big_int);
         mpz_set(big_int,powers[value]);

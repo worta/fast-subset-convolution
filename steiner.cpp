@@ -15,6 +15,7 @@
 #include <set>
 #include <array>
 #include "MinSumRingEmbedd.h"
+#include "MinSumRingEmbeddBigInt.h"
 #include <cassert>
 #include "FastSubsetConvolution.h"
 typedef boost::multi_array<int, 2> weight_matrix;
@@ -194,7 +195,7 @@ public:
 
 };
 
-class Function_Embedd : public Function<MinSumRingEmbedd> {
+class Function_Embedd : public Function<MinSumRingEmbeddBigInt> {
     Function_p &f_p;
 public:
     explicit Function_Embedd(Function_p &f) :
@@ -202,8 +203,8 @@ public:
     }
 
 
-    MinSumRingEmbedd operator()(set_t s) override {
-        return MinSumRingEmbedd(f_p(s));
+    MinSumRingEmbeddBigInt operator()(set_t s) override {
+        return MinSumRingEmbeddBigInt(f_p(s));
     }
 };
 
@@ -257,7 +258,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
 
     //1<<k =pow(2,k)
     vector<vector<int> > W(n, vector<int>(1<<k, max_value)); //,(n-1)*input_range+1) in the second brackes
-    vector<vector<MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>(1<<k));
+    vector<vector<MinSumRingEmbeddBigInt> > g(n, vector<MinSumRingEmbeddBigInt>(1<<k));
     //MinSumRingEmbedd[]
 
     //init for W for l=2
@@ -273,8 +274,9 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     }
 
     //levelwise computation
-//    int max_value = (n - 1) * input_range + 1;
-    FastSubsetConvolution<MinSumRingEmbedd> FastSubsetConv(k);
+    //int max_value = (n - 1) * input_range + 1;
+    MinSumRingEmbeddBigInt::init(k,max_value);
+    FastSubsetConvolution<MinSumRingEmbeddBigInt> FastSubsetConv(k);
     for (int l = 2; l < k; ++l) {
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
