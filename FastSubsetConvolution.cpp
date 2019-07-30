@@ -22,7 +22,7 @@ FastSubsetConvolution<T>::FastSubsetConvolution(int _n) {
 }
 
 template<class T>
-void FastSubsetConvolution<T>::advanced_covering_product(Function<T> f, T *result) {
+void FastSubsetConvolution<T>::advanced_covering_product(Function<T> &f, T *result) {
     int hadamard[set_count];
     fast_mobius(f,hadamard);
     //element wise product= hadamard product

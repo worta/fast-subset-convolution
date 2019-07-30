@@ -19,7 +19,7 @@ public:
     FastSubsetConvolution(int _n);
     void advanced_convolute(Function<T> &f,T result[]);
     void advanced_convolute(Function<T> &f,T &g, T result[]);
-    void advanced_covering_product(Function<T>,T result[]);
+    void advanced_covering_product(Function<T> &f,T result[]);
 
 
     void fast_mobius(Function<T> &f,T result[]);
