@@ -40,12 +40,17 @@ unordered_map<int,int> get_value_id_map(vector<vector<Tree> > by_depth){
     unordered_map<int,int>result;
     for(int depth=by_depth.size();depth>=0;--depth){
         for(Tree t:by_depth[depth]){
-            result[t.value]=0;
-            if(t.right){ //the child exists
-                result[t.value]+=result[t.right->value];
+            if(!t.left && !t.right){ //in case of leaf
+                result[t.value]=1;
             }
-            if(t.left){ //the child exists
-                result[t.value]+=result[t.left->value];
+            else{
+                result[t.value]=0;
+                if(t.left){ //the child exists
+                    result[t.value]+=result[t.left->value]*2;
+                }
+                if(t.right){ //the child exists
+                    result[t.value]+=(result[t.right->value])*2;
+                }
             }
         }
     }
