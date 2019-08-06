@@ -8,8 +8,9 @@
 #include "Tree.h"
 #include <vector>
 class Path_Embedding {
-    static void embedd(Tree& tree, std::vector<int> path_lengths);
-    static void embedd_naive(Tree& tree, std::vector<int> path_lengths);
+    Path_Embedding();
+    void embedd(Tree& tree, std::vector<int> path_lengths);
+    void embedd_naive(Tree& tree, std::vector<int> path_lengths);
     static void generateFullTrees(int depth,Tree& t);
 };
 
