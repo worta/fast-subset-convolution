@@ -42,15 +42,15 @@ unordered_map<int,int> get_value_id_map(vector<vector<Tree> > by_depth){
     for(int depth=by_depth.size();depth>=0;--depth){
         for(Tree t:by_depth[depth]){
             if(!t.left && !t.right){ //in case of leaf
-                result[t.value]=1;
+                result[t.id]=1;
             }
             else{
-                result[t.value]=0;
+                result[t.id]=0;
                 if(t.left){ //the child exists
-                    result[t.value]+=result[t.left->value]*2;
+                    result[t.id]+=result[t.left->id]*2;
                 }
                 if(t.right){ //the child exists
-                    result[t.value]+=(result[t.right->value])*2;
+                    result[t.id]+=(result[t.right->id])*2;
                 }
             }
         }
@@ -129,9 +129,55 @@ void two_child_propagate_direct(int* table_l,int* table_r,vector<int> &path_leng
 void Path_Embedding::embedd_naive(Tree& tree, std::vector<int> path_lengths) {
     // go thhrough the tree from the bottom to the top
     //remember all results coded with associated tree number
+    int table_size=1<<path_lengths.size();
+    unordered_map<int,int*> tree_table_map;
+    vector<vector<Tree> > nodes_by_depth=get_nodes_by_depth(tree);
+    unordered_map<int,int> id_to_tree_number=get_value_id_map(nodes_by_depth);
+    int depth=nodes_by_depth.size();
+    //initialize for leaf, i.e. tree number 1
+    int* leaf_table=new int[table_size];
+    leaf_table[0]=0; //for the empty set 0
+    for(set_t P=1;P<table_size;++P){
+        leaf_table[P]=-depth; //equivalent to -inf
+    }
+
+    tree_table_map[1]=leaf_table;
 
 
+    //from bottom to top
+    for(int level=depth;--level;level>=0){ //TODO can start from depth-1, in depth only leaves
+        for(Tree node:nodes_by_depth[level]){
+            int tree_number=id_to_tree_number[node.id];
+            if(tree_table_map.find(tree_number)==tree_table_map.end()){
+                //create correspondiong one
+                //count childs
+                int child_count=(node.left!=0) + (node.right!=0);
+                // childs should be 1 or 2, 0 (i.e. a leaf) is handled above
+                int *v=new int[table_size];
+                if(child_count==1){
+                    Tree* child=node.left;
+                    if(child==0){
+                        child=node.right;
+                    }
+                    int child_tree=id_to_tree_number[child->id];
+                    int* child_table=tree_table_map[child_tree];
+                    one_child_propagate(child_table,path_lengths,v);
+                    tree_table_map[id_to_tree_number[node.id]]=v;
+                }else{ //child_count==2
+                    int* child_table1=tree_table_map[id_to_tree_number[node.left->id]];
+                    int* child_table2=tree_table_map[id_to_tree_number[node.right->id]];
+                    two_child_propagate_direct(child_table1,child_table2,path_lengths,v);
+                }
 
+                tree_table_map[tree_number]=v;
+                if(v[table_size-1]>=0){
+                    cout<<"Alle Pfade können gepackt werden";
+                    break;
+                }
+            }
+            // otherwise done
+        }
+    }
 
 
 }
@@ -141,9 +187,9 @@ void Path_Embedding::generateFullTrees(int depth,Tree& root) {
     if(depth<=1){
         return;
     }
-    Tree left(root.value*2+1); //0->1->3
+    Tree left(root.id*2+1); //0->1->3
     root.add_left(&left);      //>   >4
-    Tree right(root.value*2+2);// 2 > 5
+    Tree right(root.id*2+2);// 2 > 5
     root.add_right(&right);      //  >6
     generateFullTrees(depth-1,left);
     generateFullTrees(depth-1,right);

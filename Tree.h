@@ -12,10 +12,10 @@ public:
     Tree* left;
     Tree* father;
     int childCount;
-    int value;
+    int id;
 
-    Tree(int v):value(v){
-        value=v;
+    Tree(int v):id(v){
+        id=v;
         right=0;
         left=0;
         father=0;
