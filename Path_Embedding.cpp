@@ -8,8 +8,9 @@
 #include <vector>
 #include <algorithm>
 #include "utility.h"
+#include <memory>
 using namespace std;
-void Path_Embedding::embedd(Tree& tree, std::vector<int> path_lengths) {
+void Path_Embedding::embedd(Tree& tree, std::vector<int> &path_lengths) {
     // go thhrough the tree from the bottom to the top
     //remember all results coded with associated tree number
 
@@ -27,8 +28,8 @@ vector<vector <Tree> > get_nodes_by_depth(Tree& tree){
         //next_level.clear();
         for(Tree t:current_level){
            tree_nodes[depth].push_back(t);
-           next_level.push_back(*t.left);
-           next_level.push_back(*t.right);
+           if(t.left )  next_level.push_back(*t.left);
+           if(t.right) next_level.push_back(*t.right);
         }
         depth++;
         current_level.clear();
@@ -37,9 +38,9 @@ vector<vector <Tree> > get_nodes_by_depth(Tree& tree){
 }
 
 //maps each node to the canonical tree number
-unordered_map<int,int> get_value_id_map(vector<vector<Tree> > by_depth){
+unordered_map<int,int> get_value_id_map(vector<vector<Tree> > &by_depth){
     unordered_map<int,int>result;
-    for(int depth=by_depth.size();depth>=0;--depth){
+    for(int depth=by_depth.size()-1;depth>=0;--depth){
         for(Tree t:by_depth[depth]){
             if(!t.left && !t.right){ //in case of leaf
                 result[t.id]=1;
@@ -87,20 +88,23 @@ void two_child_propagate_direct(int* table_l,int* table_r,vector<int> &path_leng
     int v1[table_size];
     int v2[table_size];
 
-    //Create trees v1 and v2
+
+    for(int i=0;i<table_size;++i){
+        table_out[i]=-path_count; //TODO einfach richtiges minus unendlich ,i.e. ein sehr negativer wert
+    }
+
+    //Create tables v1 and v2
     one_child_propagate(table_l,path_lengths,v1);
-    one_child_propagate(table_r,path_lengths,v1);
+    one_child_propagate(table_r,path_lengths,v2);
+
 
     //merge the tables in the "naive"/direct way
-    //checking every subset S of P if L(v_1,S),L(v_2,P\S)>=0 and max of these=r
+    //checking every subset S of P if L(v_1,P),L(v_2,S\P)>=0 and max of these=r
     for(set_t S=0;S<table_size;++S){
         vector<set_t> subsets=get_subsets_it(S);
         for(set_t P_1:subsets){
-            if(v1[S]>=0 and v2[S xor P_1]>=0){
-                if(max(v1[S],v2[S])>0){
-                    table_out[S]=max(table_out[S],max(v1[S],v2[S])); //TODO initizalize table out to -1
-                }
-
+            if(v1[P_1]>=0 and v2[S xor P_1]>=0){
+                    table_out[S]=max(table_out[S],max(v1[P_1],v2[S xor P_1])); //TODO initizalize table out to -1
             }
         }
     }
@@ -125,10 +129,22 @@ void two_child_propagate_direct(int* table_l,int* table_r,vector<int> &path_leng
 
 }
 
+void test_child_propagation(){
+    int in_table[]={0,-1};
+    int* out_table=new int[2];
+    vector<int> path={1};
+    one_child_propagate(in_table,path,out_table);
+    in_table[0]=0;
+    in_table[1]=-1;
+    two_child_propagate_direct(in_table,in_table,path,out_table);
 
-void Path_Embedding::embedd_naive(Tree& tree, std::vector<int> path_lengths) {
+}
+
+
+int Path_Embedding::embedd_naive(Tree& tree, std::vector<int> &path_lengths) {
     // go thhrough the tree from the bottom to the top
     //remember all results coded with associated tree number
+    test_child_propagation();
     int table_size=1<<path_lengths.size();
     unordered_map<int,int*> tree_table_map;
     vector<vector<Tree> > nodes_by_depth=get_nodes_by_depth(tree);
@@ -145,7 +161,7 @@ void Path_Embedding::embedd_naive(Tree& tree, std::vector<int> path_lengths) {
 
 
     //from bottom to top
-    for(int level=depth;--level;level>=0){ //TODO can start from depth-1, in depth only leaves
+    for(int level=depth-1;--level;level>=0){ //TODO can start from depth-1, in depth only leaves
         for(Tree node:nodes_by_depth[level]){
             int tree_number=id_to_tree_number[node.id];
             if(tree_table_map.find(tree_number)==tree_table_map.end()){
@@ -155,7 +171,7 @@ void Path_Embedding::embedd_naive(Tree& tree, std::vector<int> path_lengths) {
                 // childs should be 1 or 2, 0 (i.e. a leaf) is handled above
                 int *v=new int[table_size];
                 if(child_count==1){
-                    Tree* child=node.left;
+                    shared_ptr<Tree> child=node.left;
                     if(child==0){
                         child=node.right;
                     }
@@ -171,27 +187,35 @@ void Path_Embedding::embedd_naive(Tree& tree, std::vector<int> path_lengths) {
 
                 tree_table_map[tree_number]=v;
                 if(v[table_size-1]>=0){
-                    cout<<"Alle Pfade können gepackt werden";
-                    break;
+                    for(auto key_value:tree_table_map){
+                        delete[] key_value.second;
+                    }
+
+                    return 1;
                 }
             }
             // otherwise done
         }
     }
 
-
+    for(auto key_value:tree_table_map){
+        delete[] key_value.second;
+    }
+    return 0;
 }
+
 
 
 void Path_Embedding::generateFullTrees(int depth,Tree& root) {
     if(depth<=1){
         return;
     }
-    Tree left(root.id*2+1); //0->1->3
-    root.add_left(&left);      //>   >4
-    Tree right(root.id*2+2);// 2 > 5
-    root.add_right(&right);      //  >6
-    generateFullTrees(depth-1,left);
-    generateFullTrees(depth-1,right);
+    shared_ptr<Tree> left(new Tree(root.id*2+1)); //0->1->3
+    root.add_left(left);      //>   >4
+    shared_ptr<Tree> right(new Tree(root.id*2+2));// 2 > 5
+    root.add_right(right);      //  >6
+    generateFullTrees(depth-1,*left);
+    generateFullTrees(depth-1,*right);
 }
 
+//todo smart pointer in trees

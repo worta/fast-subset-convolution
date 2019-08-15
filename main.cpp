@@ -12,6 +12,7 @@
 #include "utility.h"
 #include "benchmark_steiner.h"
 #include "benchmark_fsconv.h"
+#include "benchmark_path_embedding.h"
 #include "FastSubsetConvolution.h"
 
 #include "MinSumRingEmbeddBigInt.h"
@@ -260,7 +261,7 @@ int main()
 {
     //ConstFunction<int> f=ConstFunction<int>(1);
 //    test_subset_gen();
-    test_ranked_mobius_and_convolute();
+    //test_ranked_mobius_and_convolute();
    // test_steiner();
 /*
     test_dijkstra();
@@ -272,15 +273,15 @@ int main()
     //myfile<<"n naive mobius\n";
     //myfile.close();
     //test_ring_embedd();
-    test_ring_embedd_big_int();
+    //test_ring_embedd_big_int();
     cout<<"Starting Steiner Benchmark \n";
-    benchmark_steiner::complete_graphs(20);
+    //benchmark_steiner::complete_graphs(20);
     cout<<"Finished Benchmark\n";
 
     cout<<"Starting Fast Subset COnv Benchmark \n";
    // benchmark_fsconv::constant_func(22);
     cout<<"Finished Benchmark\n";
 
-
+    benchmark_path_embedding::embedd_length_1_paths(3);
     return 0;
 }

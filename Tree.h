@@ -5,31 +5,27 @@
 #ifndef FAST_SUBSET_CONVOLUTION_TREE_H
 #define FAST_SUBSET_CONVOLUTION_TREE_H
 
-
+#include <memory>
 class Tree {
 public:
-    Tree* right;
-    Tree* left;
-    Tree* father;
+    std::shared_ptr<Tree> right;
+    std::shared_ptr<Tree> left;
     int childCount;
     int id;
 
     Tree(int v):id(v){
         id=v;
-        right=0;
-        left=0;
-        father=0;
+        right=nullptr;
+        left=nullptr;
         childCount=0;
     }
-    void add_left(Tree *l){
+    void add_left(std::shared_ptr<Tree> l){
         left=l;
         childCount++;
-        l->father=this;
     }
-    void add_right(Tree *r){
+    void add_right(std::shared_ptr<Tree> r){
         right=r;
         childCount++;
-        r->father=this;
     }
 };
 
