@@ -282,6 +282,6 @@ int main()
    // benchmark_fsconv::constant_func(22);
     cout<<"Finished Benchmark\n";
 
-    benchmark_path_embedding::embedd_length_1_paths(3);
+    benchmark_path_embedding::embedd_length_1_paths(12);
     return 0;
 }
