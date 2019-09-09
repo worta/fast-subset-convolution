@@ -9,7 +9,8 @@
 #include <algorithm>
 #include "utility.h"
 #include <memory>
-
+#include "functions.h"
+#include "FastSubsetConvolution.h"
 using namespace std;
 
 void Path_Embedding::embedd(Tree &tree, std::vector<int> &path_lengths) {
@@ -68,7 +69,7 @@ void one_child_propagate(int *table_in, vector<int> &path_lengths, int *table_ou
         if (table_in[path_set] >= 0) { //L(v,P)>=0
             table_out[path_set] = table_in[path_set] + 1;
         } else { //L(v,P)=-inf
-            table_out[path_set] = -path_count; //TODO new higher minus
+            table_out[path_set] = -1000; //TODO new higher minus
             for (int path = 0; path < path_count; ++path) {
                 if ((1 << path) & path_set and table_in[path_set xor (1 << path)] >= path_lengths[path] -
                                                                                      1) //das vll sogar precomputen (1<<path) für alle path, table size ist sehr groß
@@ -82,6 +83,74 @@ void one_child_propagate(int *table_in, vector<int> &path_lengths, int *table_ou
     }
 }
 
+void two_children_propagate_mobius(int *table_l, int *table_r, vector<int> &path_lengths,int depth ,int *table_out){
+    int path_count = path_lengths.size();
+    int table_size = 1 << path_count;
+    int v1[table_size];
+    int v2[table_size];
+
+    //Create tables v1 and v2
+    one_child_propagate(table_l, path_lengths, v1); //TODO das einfach schon vorher machen, in dem aufruf und davor überprüfen ob das schonmal gemacht wurxe
+    one_child_propagate(table_r, path_lengths, v2);
+
+    //merge two children mobius like
+    ThresholdFunction<int> f_1(v1,0);
+    ThresholdFunction<int> f_2(v2,0);
+
+    for(int i=0;i<table_size;++i){
+        table_out[i]=-100;
+    }
+
+    FastSubsetConvolution<int> conv(path_count); //Todo an zentraler stelle initialisieren
+    //neben depth könnte auch noch die summe der untergebrachten pfadlängen - der verfügbaren edges interessant sein
+    int* temp1=new int[table_size];
+    int* temp2=new int[table_size];
+    for(int i=0;i<=depth;++i){
+        ThresholdFunction<int> g_1(v1,i);
+        ThresholdFunction<int> g_2(v2,i);
+
+        conv.advanced_convolute(f_1,g_2,temp1);
+        conv.advanced_convolute(f_1,g_2,temp2);
+
+        for(set_t j=0;j<table_size;++j){
+            if(temp1[j]+temp2[j]>=0){
+                table_out[i]=i;
+            }
+        }
+    }
+    /*for(int i=0;i<table_size;++i){
+        if(table_out[i]<0){ //Todo maybe <=0?
+            //TODO add subset convolution with subsets
+
+        }
+    }*/
+    //second case nto yet done with convolution but naively
+    for (set_t P = 0; P < table_size; ++P) {
+        if (table_out[P] < 0) {
+            for (int i = 0; i < path_count; ++i) {
+                if ((1 << i) & P) {
+                    set_t P_without_i = P xor(1 << i);
+                    vector<set_t> subsets = get_subsets_it(P);
+                    for (set_t P_1:subsets) {
+                        if (v1[P_1] + v2[P xor P_1] >=
+                            path_lengths[i]) { //either one could be -1, so maybe replace -1 by higher -value , i.e. tree depth
+                            table_out[P] = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+
+
+    delete[] temp1;
+    delete[] temp2;
+}
+
+
 //Here it expects the table for each v
 void two_child_propagate_direct(int *table_l, int *table_r, vector<int> &path_lengths, int *table_out) {
     int path_count = path_lengths.size();
@@ -91,11 +160,11 @@ void two_child_propagate_direct(int *table_l, int *table_r, vector<int> &path_le
 
 
     for (int i = 0; i < table_size; ++i) {
-        table_out[i] = -path_count; //TODO einfach richtiges minus unendlich ,i.e. ein sehr negativer wert
+        table_out[i] = -1000;//-path_count; //TODO einfach richtiges minus unendlich ,i.e. ein sehr negativer wert
     }
 
     //Create tables v1 and v2
-    one_child_propagate(table_l, path_lengths, v1);
+    one_child_propagate(table_l, path_lengths, v1); //TODO das einfach schon vorher machen, in dem aufruf und davor überprüfen ob das schonmal gemacht wurxe
     one_child_propagate(table_r, path_lengths, v2);
 
 
@@ -105,13 +174,13 @@ void two_child_propagate_direct(int *table_l, int *table_r, vector<int> &path_le
         vector<set_t> subsets = get_subsets_it(S);
         for (set_t P_1:subsets) {
             if (v1[P_1] >= 0 and v2[S xor P_1] >= 0) {
-                table_out[S] = max(table_out[S], max(v1[P_1], v2[S xor P_1])); //TODO initizalize table out to -1
+                table_out[S] = max(table_out[S], max(v1[P_1], v2[S xor P_1]));
             }
         }
     }
     //check the remaining 0 and impossible ones if it can be packed by using v-u1 and v-u2
     for (set_t P = 0; P < table_size; ++P) {
-        if (table_out[P] <= 0) { //todo think about removing the if in the r check above and just set to -1
+        if (table_out[P] < 0) { //changed to from <=0 to <0, is that correct?
             for (int i = 0; i < path_count; ++i) {
                 if ((1 << i) & P) {
                     set_t P_without_i = P xor(1 << i);

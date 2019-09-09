@@ -39,7 +39,7 @@ void FastSubsetConvolution<T>::advanced_convolute(Function<T> &f, T *result) {
     T* ranked_transform=new T[(n + 1) * set_count];
     for (int i = 0; i <= n; ++i) {
         ranked_mobius(f, i, &ranked_transform[rows[i]]);
-    } //bis hier sieht es korrekt aus
+    }
     T* ranked_convolution= new T[(n+1) * set_count];
     ranked_convolute(ranked_transform, ranked_transform, ranked_convolution);
     ranked_mobius_inversion(ranked_convolution, result); //TODO vll hier in vektor üpberführen und den zurückgeben
@@ -48,8 +48,19 @@ void FastSubsetConvolution<T>::advanced_convolute(Function<T> &f, T *result) {
 }
 
 template<class T>
-void FastSubsetConvolution<T>::advanced_convolute(Function<T> &f, T &g, T *result) {
-
+void FastSubsetConvolution<T>::advanced_convolute(Function<T> &f, Function<T> &g, T *result) {
+    T* ranked_transform1=new T[(n + 1) * set_count];
+    T* ranked_transform2=new T[(n + 1) * set_count];
+    for (int i = 0; i <= n; ++i) {
+        ranked_mobius(f, i, &ranked_transform1[rows[i]]);
+        ranked_mobius(g, i, &ranked_transform2[rows[i]]);
+    }
+    T* ranked_convolution= new T[(n+1) * set_count];
+    ranked_convolute(ranked_transform1, ranked_transform2, ranked_convolution);
+    ranked_mobius_inversion(ranked_convolution, result); //TODO vll hier in vektor üpberführen und den zurückgeben
+    delete[] ranked_convolution;
+    delete[] ranked_transform1;
+    delete[] ranked_transform2;
 }
 
 //uses buffer

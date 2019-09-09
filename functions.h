@@ -50,6 +50,23 @@ public:
 };
 
 template <typename T>
+class ThresholdFunction : public Function<T>
+{
+    T* v;
+    int t;
+public:
+    ThresholdFunction(T* arr,int threshold):
+            v(arr),t(threshold)
+    {
+    };
+    T operator() (set_t s)
+    {
+        return v[s]>=t;
+    }
+};
+
+
+template <typename T>
 class RankedVectFunction : public RankedFunction<T>
 {
     vector<vector<T> > &v;
