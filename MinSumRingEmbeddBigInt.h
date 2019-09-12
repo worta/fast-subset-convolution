@@ -16,7 +16,7 @@ public:
     static void init(unsigned int n,int max_value){
         mpz_t base;
         mpz_init(base);
-        unsigned int base_ui=1<<n+1; //2^n +1
+        unsigned int base_ui=(1<<n)+1; //2^n +1
         mpz_set_ui(base,base_ui);
         max_underlying_value=max_value;
         powers= new mpz_t[max_underlying_value*2+1];
@@ -91,7 +91,7 @@ public:
     }
 
 
-    int max(){
+    int max(){ //TODO
 
         return 0;
     }

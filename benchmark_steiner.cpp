@@ -48,8 +48,8 @@ void benchmark_steiner::complete_graphs(int max_size){
         b.write(duration);
         b.write(max_size);
         b.writeln("");
-        assert(class_result==mob_result);
-        std::cout<<class_result<<":"<<mob_result<<std::endl;
+        std::cout<<"Classic:"<<class_result<<": Mobius "<<mob_result<<std::endl;
+       // assert(class_result==mob_result);
     }
     b.close();
 

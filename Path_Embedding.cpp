@@ -13,11 +13,6 @@
 #include "FastSubsetConvolution.h"
 using namespace std;
 
-void Path_Embedding::embedd(Tree &tree, std::vector<int> &path_lengths) {
-    // go thhrough the tree from the bottom to the top
-    //remember all results coded with associated tree number
-
-}
 
 vector<vector<Tree> > get_nodes_by_depth(Tree &tree) {
     vector<vector<Tree> > tree_nodes; //saves trees by depth
@@ -113,8 +108,8 @@ void two_children_propagate_mobius(int *table_l, int *table_r, vector<int> &path
         conv.advanced_convolute(f_1,g_2,temp2);
 
         for(set_t j=0;j<table_size;++j){
-            if(temp1[j]+temp2[j]>=0){
-                table_out[i]=i;
+            if(temp1[j]+temp2[j]>0){
+                table_out[j]=i;
             }
         }
     }
@@ -294,4 +289,71 @@ void Path_Embedding::generateFullTrees(int depth, Tree &root) {
     generateFullTrees(depth - 1, *right);
 }
 
-//todo smart pointer in trees
+
+int Path_Embedding::embedd(Tree &tree, std::vector<int> &path_lengths) {
+    // go thhrough the tree from the bottom to the top
+    //remember all results coded with associated tree number
+
+    // go thhrough the tree from the bottom to the top
+    //remember all results coded with associated tree number
+    // test_child_propagation();
+    int table_size = 1 << path_lengths.size();
+    unordered_map<int, int *> tree_table_map;
+    vector<vector<Tree> > nodes_by_depth = get_nodes_by_depth(tree);
+    unordered_map<int, int> id_to_tree_number = get_value_id_map(nodes_by_depth);
+    int depth = nodes_by_depth.size();
+    //initialize for leaf, i.e. tree number 1
+    int *leaf_table = new int[table_size];
+    leaf_table[0] = 0; //for the empty set 0
+    for (set_t P = 1; P < table_size; ++P) {
+        leaf_table[P] = -depth; //equivalent to -inf
+    }
+
+    tree_table_map[1] = leaf_table;
+
+
+    //from bottom to top
+    for (int level = depth - 1; level >= 0; --level) { //TODO can start from depth-1, in depth only leaves
+        for (Tree node:nodes_by_depth[level]) {
+            int tree_number = id_to_tree_number[node.id];
+            if (tree_table_map.find(tree_number) == tree_table_map.end()) {
+                //create correspondiong one
+                //count childs
+                int child_count = (node.left != 0) + (node.right != 0);
+                // childs should be 1 or 2, 0 (i.e. a leaf) is handled above
+                int *v = new int[table_size];
+                if (child_count == 1) {
+                    shared_ptr<Tree> child = node.left;
+                    if (child == 0) {
+                        child = node.right;
+                    }
+                    int child_tree = id_to_tree_number[child->id];
+                    int *child_table = tree_table_map[child_tree];
+                    one_child_propagate(child_table, path_lengths, v);
+                    tree_table_map[id_to_tree_number[node.id]] = v;
+                } else { //child_count==2
+                    int *child_table1 = tree_table_map[id_to_tree_number[node.left->id]];
+                    int *child_table2 = tree_table_map[id_to_tree_number[node.right->id]];
+                    two_children_propagate_mobius(child_table1, child_table2, path_lengths,depth-level,v);
+                }
+
+                tree_table_map[tree_number] = v;
+                if (v[table_size - 1] >= 0) {
+                    for (auto key_value:tree_table_map) {
+                        delete[] key_value.second;
+                    }
+
+                    return 1;
+                }
+            }
+            // otherwise done
+        }
+    }
+
+    for (auto key_value:tree_table_map) {
+        delete[] key_value.second;
+    }
+    return 0;
+
+
+}
