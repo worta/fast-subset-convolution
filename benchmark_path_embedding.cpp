@@ -25,29 +25,26 @@ void benchmark_path_embedding::embedd_length_1_paths(int path_count_max) {
     b.writeln("");
     for(int i=1;i<=path_count_max;++i){
         path_lengths.push_back(1); //add path of length one to paths
-       // if(i==7){
-            std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-            int result=p.embedd_naive(*root,path_lengths);
-            std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-            auto duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
-            b.write("Classic");
-            b.write(2);
-            b.write(path_lengths.size());
-            b.write(duration);
-            b.writeln("");
-            std::cout <<"Done "<<i<<"/"<<path_count_max<<" with result:"<<result<<std::endl;
-            t1 = std::chrono::high_resolution_clock::now();
-            result= p.embedd_mobius(*root, path_lengths);
-            t2 = std::chrono::high_resolution_clock::now();
-            duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
-            b.write("Mobius");
-            b.write(2);
-            b.write(path_lengths.size());
-            b.write(duration);
-            b.writeln("");
-            std::cout <<"Done "<<i<<"/"<<path_count_max<<" with result:"<<result<<std::endl;
-  //      }
-
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+        int result=p.embedd_naive(*root,path_lengths);
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        auto duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
+        b.write("Classic");
+        b.write(2);
+        b.write(path_lengths.size());
+        b.write(duration);
+        b.writeln("");
+        std::cout <<"Done "<<i<<"/"<<path_count_max<<" with result:"<<result<<std::endl;
+        t1 = std::chrono::high_resolution_clock::now();
+        result= p.embedd_mobius(*root, path_lengths);
+        t2 = std::chrono::high_resolution_clock::now();
+        duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
+        b.write("Mobius");
+        b.write(2);
+        b.write(path_lengths.size());
+        b.write(duration);
+        b.writeln("");
+        std::cout <<"Done "<<i<<"/"<<path_count_max<<" with result:"<<result<<std::endl;
     }
-
+    b.close();
 }
