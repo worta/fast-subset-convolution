@@ -21,16 +21,20 @@ void Benchmark_writer::close(){
 
 void Benchmark_writer::writeln(std::string line) {
     bfile<<line<<"\n";
+    std::flush(bfile);
 }
 
 void Benchmark_writer::write(std::string word) {
     bfile<<word<<"\t";
+    std::flush(bfile);
 }
 
 void Benchmark_writer::write(int word) {
     bfile<<word<<"\t";
+    std::flush(bfile);
 }
 
 void Benchmark_writer::write(std::chrono::duration<double> word) {
     bfile<<word.count()<<"\t";
+    std::flush(bfile);
 }
