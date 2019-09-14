@@ -21,7 +21,7 @@ void benchmark_path_embedding::embedd_length_1_paths(int path_count_max) {
        // if(i==7){
             int result=p.embedd_naive(*root,path_lengths);
             std::cout <<"Done "<<i<<"/"<<path_count_max<<" with result:"<<result<<std::endl;
-            result=p.embedd(*root,path_lengths);
+            result= p.embedd_mobius(*root, path_lengths);
             std::cout <<"Done "<<i<<"/"<<path_count_max<<" with result:"<<result<<std::endl;
   //      }
 

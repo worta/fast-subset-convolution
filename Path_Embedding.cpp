@@ -290,7 +290,7 @@ void Path_Embedding::generateFullTrees(int depth, Tree &root) {
 }
 
 
-int Path_Embedding::embedd(Tree &tree, std::vector<int> &path_lengths) {
+int Path_Embedding::embedd_mobius(Tree &tree, std::vector<int> &path_lengths) {
     // go thhrough the tree from the bottom to the top
     //remember all results coded with associated tree number
 

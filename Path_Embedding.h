@@ -10,7 +10,7 @@
 class Path_Embedding {
 public:
     //Path_Embedding();
-    int embedd(Tree& tree, std::vector<int> &path_lengths);
+    int embedd_mobius(Tree &tree, std::vector<int> &path_lengths);
     int embedd_naive(Tree& tree, std::vector<int> &path_lengths);
     static void generateFullTrees(int depth,Tree& t);
 };
