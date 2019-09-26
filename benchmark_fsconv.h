@@ -9,7 +9,7 @@
 
 class benchmark_fsconv {
 public:
-    static void constant_func(int max_n);
+    static void random_func(int max_n);
 };
 
 

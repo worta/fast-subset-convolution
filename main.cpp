@@ -260,7 +260,7 @@ void test_ring_embedd_big_int(){
 int main()
 {
     //ConstFunction<int> f=ConstFunction<int>(1);
-//    test_subset_gen();
+    //test_subset_gen();
     //test_ranked_mobius_and_convolute();
    // test_steiner();
 /*
@@ -279,9 +279,9 @@ int main()
     cout<<"Finished Benchmark\n";
 
     cout<<"Starting Fast Subset COnv Benchmark \n";
-   // benchmark_fsconv::constant_func(22);
+    benchmark_fsconv::random_func(19);
     cout<<"Finished Benchmark\n";
 
-    benchmark_path_embedding::embedd_length_1_paths(12);
+ //   benchmark_path_embedding::embedd_length_1_paths(20);
     return 0;
 }
