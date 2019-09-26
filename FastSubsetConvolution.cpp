@@ -9,7 +9,8 @@
 #include "MinSumRingEmbeddBigInt.h"
 #include "SmallMinSumRing64Bit.h"
 template class FastSubsetConvolution<int>; //need this for every type usen in the program
-template class FastSubsetConvolution<MinSumRingEmbedd>;
+template class FastSubsetConvolution<int8_t >;
+//template class FastSubsetConvolution<MinSumRingEmbedd>;
 template class FastSubsetConvolution<MinSumRingEmbeddBigInt>;
 //template class FastSubsetConvolution<SmallMinSumRing64Bit>;
 
@@ -45,7 +46,7 @@ void FastSubsetConvolution<T>::advanced_convolute(Function<T> &f, T *result) {
     }
     T* ranked_convolution= new T[(n+1) * set_count];
     ranked_convolute(ranked_transform, ranked_transform, ranked_convolution);
-    ranked_mobius_inversion(ranked_convolution, result); //TODO vll hier in vektor üpberführen und den zurückgeben
+    ranked_mobius_inversion(ranked_convolution, result); //TODO vll hier in vektor überführen und den zurückgeben
     delete[] ranked_convolution;
     delete[] ranked_transform;
 }
@@ -60,7 +61,7 @@ void FastSubsetConvolution<T>::advanced_convolute(Function<T> &f, Function<T> &g
     }
     T* ranked_convolution= new T[(n+1) * set_count];
     ranked_convolute(ranked_transform1, ranked_transform2, ranked_convolution);
-    ranked_mobius_inversion(ranked_convolution, result); //TODO vll hier in vektor üpberführen und den zurückgeben
+    ranked_mobius_inversion(ranked_convolution, result); //TODO vll hier in vektor überführen und den zurückgeben
     delete[] ranked_convolution;
     delete[] ranked_transform1;
     delete[] ranked_transform2;
@@ -76,19 +77,20 @@ void FastSubsetConvolution<T>::ranked_mobius(Function<T> &f,int rank, T *result)
     }
     vector<set_t> subsets = generate_subsets_of_size_k(0, rank, n); //I suspect this is faster than 2^n popcounts
     for (set_t s:subsets) {
-        buffer[0 + s] = f(s);
+        buffer[s] = f(s); //buffer[0][s]
     }
     //finish initialization
     for (int j = 1; j < n; j++) {
         int index = j - 1;
         int index_set = 1 << index;
-        for (int k = 0; k < set_count; k++) { //TODO theoiretisch kann man k erst bei einem index anfangen lassen
-            //der nur die subsets enthält, die über subset rank liegen
+        int buffer_to_write_level=j*set_count;
+        int buffer_to_read_level=index*set_count;
+        for (int k = 0; k < set_count; k++) {
             if (k & (1 << (index)))   //is j in subset k?
             {
-                buffer[j * set_count + k] = buffer[index * set_count + k] + buffer[index * set_count + k ^ (index_set)];
+                buffer[buffer_to_write_level + k] = buffer[buffer_to_read_level+ k] + buffer[buffer_to_read_level + k ^ (index_set)];
             } else {
-                buffer[j * set_count + k] = buffer[index * set_count + k];
+                buffer[buffer_to_write_level + k] = buffer[buffer_to_read_level + k];
             }
         }
     }
@@ -96,8 +98,9 @@ void FastSubsetConvolution<T>::ranked_mobius(Function<T> &f,int rank, T *result)
     int n_index = n - 1;
     int n_set = 1 << n_index;
     int row = n_index * set_count;
-    for (int k = 0; k < set_count; k++) { //TODO theoiretisch kann man k erst bei einem index anfangen lassen
-        //der nur die subsets enthält, die über subset rank liegen
+
+
+    for (int k = 0; k < set_count; k++) {
         if (k & (1 << (n_index)))   //is n in subset k?
         {
             result[k] = buffer[row + k]+ buffer[row + k ^ (n_set)];
@@ -186,8 +189,8 @@ void FastSubsetConvolution<T>::ranked_convolute(T *f, T *g, T *result) {
 
 template<class T>
 void FastSubsetConvolution<T>::ranked_mobius_inversion(T *f, T *result) {
-    int size=(n+1)*set_count;
-    //T* buffer2=new T[size];
+   // int size=(n+1)*set_count;
+
     for (int k = 0; k < n + 1; ++k) {
         fast_mobius_inversion(&f[rows[k]], &buffer[rows[k]]);
         int subset_count=nChoosek(n,k);
@@ -199,9 +202,7 @@ void FastSubsetConvolution<T>::ranked_mobius_inversion(T *f, T *result) {
         }
         delete[] s;
     }
-
-
- //   delete[] buffer2;
+;
 }
 
 
