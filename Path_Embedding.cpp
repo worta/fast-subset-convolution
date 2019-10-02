@@ -57,14 +57,14 @@ unordered_map<int, int> get_value_id_map(vector<vector<Tree> > &by_depth) {
 }
 
 //Here it expects the table for each v
-void one_child_propagate(int *table_in, vector<int> &path_lengths, int *table_out) {
+void one_child_propagate(int8_t  *table_in, vector<int> &path_lengths, int8_t *table_out) {
     int path_count = path_lengths.size();
     int table_size = 1 << path_count;
     for (int path_set = 0; path_set < table_size; ++path_set) {
         if (table_in[path_set] >= 0) { //L(v,P)>=0
             table_out[path_set] = table_in[path_set] + 1;
         } else { //L(v,P)=-inf
-            table_out[path_set] = -1000; //TODO new higher minus
+            table_out[path_set] = -100; //TODO new higher minus
             for (int path = 0; path < path_count; ++path) {
                 if ((1 << path) & path_set and table_in[path_set xor (1 << path)] >= path_lengths[path] -
                                                                                      1) //das vll sogar precomputen (1<<path) für alle path, table size ist sehr groß
@@ -78,31 +78,30 @@ void one_child_propagate(int *table_in, vector<int> &path_lengths, int *table_ou
     }
 }
 
-void two_children_propagate_mobius(int *table_l, int *table_r, vector<int> &path_lengths,int depth ,int *table_out){
+void two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *table_l,int8_t  *table_r, vector<int> &path_lengths,int depth ,int8_t  *table_out){
     int path_count = path_lengths.size();
     int table_size = 1 << path_count;
-    int v1[table_size];
-    int v2[table_size];
+    int8_t  v1[table_size];
+    int8_t v2[table_size];
 
     //Create tables v1 and v2
-    one_child_propagate(table_l, path_lengths, v1); //TODO das einfach schon vorher machen, in dem aufruf und davor überprüfen ob das schonmal gemacht wurxe
+    one_child_propagate(table_l, path_lengths, v1);
     one_child_propagate(table_r, path_lengths, v2);
 
     //merge two children mobius like
-    ThresholdFunction<int> f_1(v1,0);
-    ThresholdFunction<int> f_2(v2,0);
+    ThresholdFunction<int8_t> f_1(v1,0);
+    ThresholdFunction<int8_t> f_2(v2,0);
 
     for(int i=0;i<table_size;++i){
         table_out[i]=-100;
     }
-
-    FastSubsetConvolution<int> conv(path_count); //Todo an zentraler stelle initialisieren
     //neben depth könnte auch noch die summe der untergebrachten pfadlängen - der verfügbaren edges interessant sein
-    int* temp1=new int[table_size];
-    int* temp2=new int[table_size];
+    int8_t * temp1=new int8_t [table_size];
+    int8_t * temp2=new int8_t [table_size];
     for(int i=0;i<=depth;++i){
-        ThresholdFunction<int> g_1(v1,i);
-        ThresholdFunction<int> g_2(v2,i);
+
+        ThresholdFunction<int8_t> g_1(v1,i);
+        ThresholdFunction<int8_t> g_2(v2,i); //TODO precompute and replace with an array/vec function
 
         conv.advanced_convolute(f_1,g_2,temp1);
         conv.advanced_convolute(f_1,g_2,temp2);
@@ -147,15 +146,15 @@ void two_children_propagate_mobius(int *table_l, int *table_r, vector<int> &path
 
 
 //Here it expects the table for each v
-void two_child_propagate_direct(int *table_l, int *table_r, vector<int> &path_lengths, int *table_out) {
+void two_child_propagate_direct(int8_t  *table_l, int8_t  *table_r, vector<int> &path_lengths, int8_t  *table_out) {
     int path_count = path_lengths.size();
     int table_size = 1 << path_count;
-    int v1[table_size];
-    int v2[table_size];
+    int8_t*  v1=new int8_t[table_size];
+    int8_t*  v2=new int8_t[table_size];
 
 
     for (int i = 0; i < table_size; ++i) {
-        table_out[i] = -1000;//-path_count; //TODO einfach richtiges minus unendlich ,i.e. ein sehr negativer wert
+        table_out[i] = -100;//-path_count; //TODO einfach richtiges minus unendlich ,i.e. ein sehr negativer wert
     }
 
     //Create tables v1 and v2
@@ -196,11 +195,11 @@ void two_child_propagate_direct(int *table_l, int *table_r, vector<int> &path_le
 }
 
 void test_child_propagation() {
-    int in_table[] = {0, -1};
-    int *out_table = new int[2];
+    int8_t  in_table[] = {0, -1};
+    int8_t  *out_table = new int8_t [2];
     vector<int> path = {1};
-    int in_table2a[] = {0, -3, -3, -3}; //p1=4,p2=2, just a leaf
-    int in_table2b[] = {2, 0, 2, -3};//p1=4,p2=2, full tree with depth 2
+    int8_t  in_table2a[] = {0, -3, -3, -3}; //p1=4,p2=2, just a leaf
+    int8_t  in_table2b[] = {2, 0, 2, -3};//p1=4,p2=2, full tree with depth 2
     vector<int> path2 = {4,2};
     one_child_propagate(in_table, path, out_table);
     in_table[0] = 0;
@@ -217,19 +216,17 @@ int Path_Embedding::embedd_naive(Tree &tree, std::vector<int> &path_lengths) {
     //remember all results coded with associated tree number
    // test_child_propagation();
     int table_size = 1 << path_lengths.size();
-    unordered_map<int, int *> tree_table_map;
+    unordered_map<int, int8_t  *> tree_table_map;
     vector<vector<Tree> > nodes_by_depth = get_nodes_by_depth(tree);
     unordered_map<int, int> id_to_tree_number = get_value_id_map(nodes_by_depth);
     int depth = nodes_by_depth.size();
     //initialize for leaf, i.e. tree number 1
-    int *leaf_table = new int[table_size];
+    int8_t  *leaf_table = new int8_t[table_size];
     leaf_table[0] = 0; //for the empty set 0
     for (set_t P = 1; P < table_size; ++P) {
         leaf_table[P] = -depth; //equivalent to -inf
     }
-
     tree_table_map[1] = leaf_table;
-
 
     //from bottom to top
     for (int level = depth - 1; level >= 0; --level) { //TODO can start from depth-1, in depth only leaves
@@ -240,19 +237,19 @@ int Path_Embedding::embedd_naive(Tree &tree, std::vector<int> &path_lengths) {
                 //count childs
                 int child_count = (node.left != 0) + (node.right != 0);
                 // childs should be 1 or 2, 0 (i.e. a leaf) is handled above
-                int *v = new int[table_size];
+                int8_t  *v = new int8_t[table_size];
                 if (child_count == 1) {
                     shared_ptr<Tree> child = node.left;
                     if (child == 0) {
                         child = node.right;
                     }
                     int child_tree = id_to_tree_number[child->id];
-                    int *child_table = tree_table_map[child_tree];
+                    int8_t  *child_table = tree_table_map[child_tree];
                     one_child_propagate(child_table, path_lengths, v);
                     tree_table_map[id_to_tree_number[node.id]] = v;
                 } else { //child_count==2
-                    int *child_table1 = tree_table_map[id_to_tree_number[node.left->id]];
-                    int *child_table2 = tree_table_map[id_to_tree_number[node.right->id]];
+                    int8_t  *child_table1 = tree_table_map[id_to_tree_number[node.left->id]];
+                    int8_t  *child_table2 = tree_table_map[id_to_tree_number[node.right->id]];
                     two_child_propagate_direct(child_table1, child_table2, path_lengths, v);
                 }
 
@@ -298,12 +295,12 @@ int Path_Embedding::embedd_mobius(Tree &tree, std::vector<int> &path_lengths) {
     //remember all results coded with associated tree number
     // test_child_propagation();
     int table_size = 1 << path_lengths.size();
-    unordered_map<int, int *> tree_table_map;
+    unordered_map<int, int8_t  *> tree_table_map;
     vector<vector<Tree> > nodes_by_depth = get_nodes_by_depth(tree);
     unordered_map<int, int> id_to_tree_number = get_value_id_map(nodes_by_depth);
     int depth = nodes_by_depth.size();
     //initialize for leaf, i.e. tree number 1
-    int *leaf_table = new int[table_size];
+    int8_t  *leaf_table = new int8_t [table_size];
     leaf_table[0] = 0; //for the empty set 0
     for (set_t P = 1; P < table_size; ++P) {
         leaf_table[P] = -depth; //equivalent to -inf
@@ -312,6 +309,7 @@ int Path_Embedding::embedd_mobius(Tree &tree, std::vector<int> &path_lengths) {
     tree_table_map[1] = leaf_table;
 
 
+    FastSubsetConvolution<int8_t> conv(path_lengths.size()); //Todo an zentraler stelle initialisieren
     //from bottom to top
     for (int level = depth - 1; level >= 0; --level) { //TODO can start from depth-1, in depth only leaves
         for (Tree node:nodes_by_depth[level]) {
@@ -321,20 +319,20 @@ int Path_Embedding::embedd_mobius(Tree &tree, std::vector<int> &path_lengths) {
                 //count childs
                 int child_count = (node.left != 0) + (node.right != 0);
                 // childs should be 1 or 2, 0 (i.e. a leaf) is handled above
-                int *v = new int[table_size];
+                int8_t  *v = new int8_t [table_size];
                 if (child_count == 1) {
                     shared_ptr<Tree> child = node.left;
                     if (child == 0) {
                         child = node.right;
                     }
                     int child_tree = id_to_tree_number[child->id];
-                    int *child_table = tree_table_map[child_tree];
+                    int8_t  *child_table = tree_table_map[child_tree];
                     one_child_propagate(child_table, path_lengths, v);
                     tree_table_map[id_to_tree_number[node.id]] = v;
                 } else { //child_count==2
-                    int *child_table1 = tree_table_map[id_to_tree_number[node.left->id]];
-                    int *child_table2 = tree_table_map[id_to_tree_number[node.right->id]];
-                    two_children_propagate_mobius(child_table1, child_table2, path_lengths,depth-level,v);
+                    int8_t  *child_table1 = tree_table_map[id_to_tree_number[node.left->id]];
+                    int8_t  *child_table2 = tree_table_map[id_to_tree_number[node.right->id]];
+                    two_children_propagate_mobius(conv,child_table1, child_table2, path_lengths,depth-level,v);
                 }
 
                 tree_table_map[tree_number] = v;
