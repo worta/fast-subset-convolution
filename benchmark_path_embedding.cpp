@@ -11,7 +11,7 @@
 #include "Path_Embedding.h"
 #include <iostream>
 #include <memory>
-void benchmark_path_embedding::embedd_length_1_paths(int path_count_max) {
+void benchmark_path_embedding::embedd_length_1_paths(int path_count_max) { //todo change to random
     std::vector<int> path_lengths=std::vector<int>();
     std::shared_ptr<Tree> root(new Tree(0));
     Path_Embedding::generateFullTrees(2,*root);
@@ -36,7 +36,7 @@ void benchmark_path_embedding::embedd_length_1_paths(int path_count_max) {
         b.writeln("");
         std::cout <<"Done "<<i<<"/"<<path_count_max<<" with result:"<<result<<std::endl;
         t1 = std::chrono::high_resolution_clock::now();
-        result= p.embedd_mobius(*root, path_lengths);
+        int result2= p.embedd_mobius(*root, path_lengths);
         t2 = std::chrono::high_resolution_clock::now();
         duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
         b.write("Mobius");
@@ -45,6 +45,7 @@ void benchmark_path_embedding::embedd_length_1_paths(int path_count_max) {
         b.write(duration);
         b.writeln("");
         std::cout <<"Done "<<i<<"/"<<path_count_max<<" with result:"<<result<<std::endl;
+        assert(result==result2);
     }
     b.close();
 }
