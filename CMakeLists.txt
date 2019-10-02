@@ -35,7 +35,7 @@ add_executable(fast_subset_convolution
         GraphGenerator.h benchmark_steiner.cpp benchmark_steiner.h
         benchmark_writer.cpp benchmark_writer.h benchmark_fsconv.cpp
         benchmark_fsconv.h Path_Embedding.cpp Path_Embedding.h Tree.cpp
-        Tree.h MinSumRingEmbeddBigInt.cpp MinSumRingEmbeddBigInt.h benchmark_path_embedding.cpp benchmark_path_embedding.h MinSumRingEmbeddBigIntFixedSize.cpp MinSumRingEmbeddBigIntFixedSize.h SmallMinSumRing64Bit.cpp SmallMinSumRing64Bit.h)
+        Tree.h MinSumRingEmbeddBigInt.cpp MinSumRingEmbeddBigInt.h benchmark_path_embedding.cpp benchmark_path_embedding.h MinSumRingEmbeddBigIntFixedSize.cpp MinSumRingEmbeddBigIntFixedSize.h SmallMinSumRing64Bit.cpp SmallMinSumRing64Bit.h DominatingSet.cpp DominatingSet.h)
 
 
 target_link_libraries(fast_subset_convolution "/usr/lib/libgmp.so")

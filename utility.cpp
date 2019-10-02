@@ -13,7 +13,7 @@
 #include "common.h"
 #include <array>
 #include "common.h"
-void getSubsets(set_t superset, vector<set_t> &results) {
+/*void getSubsets(set_t superset, vector<set_t> &results) {
     int index = __builtin_ffs(
             superset); //Returns one plus the index of the least significant 1-bit of x, or if x is zero, returns zero.
     if (index == 0) {
@@ -29,13 +29,20 @@ void getSubsets(set_t superset, vector<set_t> &results) {
         }
     }
 
-}
+}*/
 
 vector<set_t> get_subsets_it(set_t superset) {
     int limit = 1<< __builtin_popcount(superset);
     vector<set_t> r;
     r.reserve(limit);
-    std::deque<set_t> d;
+    //Add 0 to the collection of subsets
+    r.push_back(0);
+    for (set_t x = (-superset & superset); x != 0; x = ((x-superset) & superset)){
+        //Add x to the collection of subsets
+        r.push_back(x);
+    }
+
+    /*std::deque<set_t> d;
     while (superset != 0) {
         int index = __builtin_ffs(superset);
         d.push_back(index);
@@ -50,7 +57,7 @@ vector<set_t> get_subsets_it(set_t superset) {
         for (int i = 0; i < currSize; ++i) {
             r.push_back(r[i] xor element); //replace push back bei setting knwon index
         }
-    }
+    }*/
     return r;
 }
 
@@ -123,10 +130,6 @@ vector<set_t> generate_subsets_of_size_k(set_t K, int subset_size, int bitcount)
     }
     // set the first subset_size bits to 1
     current_perm=(1<<subset_size)-1;
-    //for(int i=0;i<subset_size;++i){
-     //   current_perm=current_perm|(1<<i);
-    //}
-
     while(!(current_perm & check)){ //as long as the k+1 bit is not set
         subsets.push_back(current_perm);        //}
         unsigned int t = current_perm | (current_perm - 1); // t gets v's least significant 0 bits set to 1
@@ -159,8 +162,93 @@ void generate_sets_of_size_k(int subset_size, int bitcount,set_t *result){
         // Next set to 1 the most significant bit to change,
         // set to 0 the least significant ones, and add the necessary 1 bits.
         current_perm = (t + 1) | (((~t & -~t) - 1) >> (__builtin_ctz(current_perm) + 1));
-    }
 
+    }
 }
 
+//%TODO change generate sets of size to this
+/*
+   current_perm=(1<<subset_size)-1; //set first k bits
+   last_perm=current_perm<<bitcount-subset_size;
+   set=(1<<bitcount)-1;
+   while(current_perm!=last_perm)
+        current_perm=(current_perm-set)&set;
+ */
+
+//taken from gist.github.com/orlp/3551590 // comment from https://stackoverflow.com/questions/101439/the-most-efficient-way-to-implement-an-integer-based-power-function-powint-int
+int64_t ipow(int64_t base, uint8_t exp) {
+    static const uint8_t highest_bit_set[] = {
+            0, 1, 2, 2, 3, 3, 3, 3,
+            4, 4, 4, 4, 4, 4, 4, 4,
+            5, 5, 5, 5, 5, 5, 5, 5,
+            5, 5, 5, 5, 5, 5, 5, 5,
+            6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 255, // anything past 63 is a guaranteed overflow with base > 1
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+            255, 255, 255, 255, 255, 255, 255, 255,
+    };
+
+    uint64_t result = 1;
+
+    switch (highest_bit_set[exp]) {
+        case 255: // we use 255 as an overflow marker and return 0 on overflow/underflow
+            if (base == 1) {
+                return 1;
+            }
+
+            if (base == -1) {
+                return 1 - 2 * (exp & 1);
+            }
+
+            return 0;
+        case 6:
+            if (exp & 1) result *= base;
+            exp >>= 1;
+            base *= base;
+        case 5:
+            if (exp & 1) result *= base;
+            exp >>= 1;
+            base *= base;
+        case 4:
+            if (exp & 1) result *= base;
+            exp >>= 1;
+            base *= base;
+        case 3:
+            if (exp & 1) result *= base;
+            exp >>= 1;
+            base *= base;
+        case 2:
+            if (exp & 1) result *= base;
+            exp >>= 1;
+            base *= base;
+        case 1:
+            if (exp & 1) result *= base;
+        default:
+            return result;
+    }
+}
 
