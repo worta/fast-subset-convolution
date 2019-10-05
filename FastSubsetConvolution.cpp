@@ -26,8 +26,24 @@ FastSubsetConvolution<T>::FastSubsetConvolution(int _n) {
 }
 
 template<class T>
+FastSubsetConvolution<T>::FastSubsetConvolution(int _n,bool only_covering_product) {
+    set_count = ((set_t) 1) << (n);
+    n = _n;
+    rows = new int[n + 1];
+    if(only_covering_product){
+        buffer = new T[2*set_count ];
+    }
+    else{
+        buffer = new T[set_count * (n+1)];
+    }
+    for (int i = 0; i < n + 1; ++i) {
+        rows[i] = set_count * i;
+    }
+}
+
+template<class T>
 void FastSubsetConvolution<T>::advanced_covering_product(Function<T> &f, T *result) {
-    T hadamard[set_count];
+    T* hadamard=new T[set_count];
     fast_mobius(f,hadamard);
     //element wise product= hadamard product
     for(int i=0;i<set_count;++i){
@@ -83,7 +99,7 @@ void FastSubsetConvolution<T>::ranked_mobius(Function<T> &f,int rank, T *result)
     for (int j = 1; j < n; j++) {
         int index = j - 1;
         int index_set = 1 << index;
-        int buffer_to_write_level=j*set_count;
+        int buffer_to_write_level=j*set_count; //equivalent to rows[j], maybe change?
         int buffer_to_read_level=index*set_count;
         for (int k = 0; k < set_count; k++) {
             if (k & (1 << (index)))   //is j in subset k?
@@ -142,6 +158,7 @@ void FastSubsetConvolution<T>::fast_mobius(Function<T> &f, T *result) {
 //uses buffer
 template<class T>
 void FastSubsetConvolution<T>::fast_mobius_inversion(T *f_mobius, T *result) {
+    //maybe change to 2 level buffer, because only previous level is of interest
     //T* buffer=new T[n*set_count];
    // T* buffer=new T[n*set_count];
     for (int set = 0; set < set_count; ++set) {

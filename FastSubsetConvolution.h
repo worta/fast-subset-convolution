@@ -17,6 +17,7 @@ class FastSubsetConvolution {
 public:
     int set_count;
     FastSubsetConvolution(int _n);
+    FastSubsetConvolution(int _n,bool only_covering_product);
     void advanced_convolute(Function<T> &f,T result[]);
     void advanced_convolute(Function<T> &f,Function<T> &g, T result[]);
     void advanced_covering_product(Function<T> &f,T result[]);
