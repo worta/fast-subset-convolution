@@ -130,7 +130,7 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K){
             }
             for(int j=0;j<size;++j){
                 int u=100000;
-                vector<set_t> Es=get_subsets_it(D);
+                vector<set_t> Es= get_subsets(D);
                 set_t D_1=1<<(__builtin_ffs(D)-1);
                 for(set_t e:Es){
                     if((D_1 bitand e) and (e !=D)){ //is D_1 in e and e real subset of D
@@ -153,7 +153,7 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K){
     int result=100000;
     for(int j=0;j<size;++j){
         int u=10000000;
-        vector<set_t> Es=get_subsets_it(C);
+        vector<set_t> Es= get_subsets(C);
         set_t C_1=1<<(__builtin_ffs(C)-1);
         for(set_t e:Es) {
             if ((C_1 bitand e) and (e != C)) {

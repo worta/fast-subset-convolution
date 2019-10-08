@@ -63,14 +63,14 @@ static void naive_join_node(int8_t *child1, int8_t *child2, int node_count, int8
     for (set_t dom_set = 0; dom_set < (1 << node_count); ++dom_set) {
         set_t valid_not_dom_superset = (~dom_set) & node_mask;
         int one_count = __builtin_popcount(dom_set);
-        vector<set_t> not_dominated_sets = get_subsets_it(valid_not_dom_superset);
+        vector<set_t> not_dominated_sets = get_subsets(valid_not_dom_superset);
         for (set_t not_dominated:not_dominated_sets) {
             Coloring c; //just example so it works
             // c.dominating_set=0;
             //  c.not_dominated=1;
             //loop through colors by looping through dominating set by 0...2^n
             //and not_dominated by generating subsets of ~dominating_set
-            vector<set_t> divide = get_subsets_it(dom_set); //get all sets with c_t=0 and c_t' either 0_0 or 0_1
+            vector<set_t> divide = get_subsets(dom_set); //get all sets with c_t=0 and c_t' either 0_0 or 0_1
             int min = 1000;
             for (set_t not_d_1: divide) {
                 set_t not_d_2 = ((~not_d_1) & node_mask) bitand not_dominated;
@@ -105,7 +105,7 @@ static void mobius_join_node(int8_t *child1, int8_t *child2,int minc_1,int minc_
         set_t valid_not_dom_superset = (~dom_set) & node_mask;
         int zero_count = __builtin_popcount(valid_not_dom_superset);
         int dom_index = calculate_dom_index(dom_set,node_count);
-        vector<set_t> not_dominated_sets = get_subsets_it(valid_not_dom_superset);
+        vector<set_t> not_dominated_sets = get_subsets(valid_not_dom_superset);
         //create tables
         int set_count=not_dominated_sets.size();
         int8_t* t_1=new int8_t[set_count*value_range]; //i.e t1 points to [possuble values][sets]
@@ -134,8 +134,8 @@ static void mobius_join_node(int8_t *child1, int8_t *child2,int minc_1,int minc_
                 //fastr subset convolute t1[i*set_count] and t2[j*set_count]
                 ArrayFunction<int8_t> a(&t_1[i*set_count]);
                 ArrayFunction<int8_t> b(&t_2[j*set_count]);
-                f.advanced_convolute(a,b,temp); //
-                f.advanced_covering_product(a,b,temp);
+                //f.advanced_convolute(a,b,temp); //
+                f.advanced_covering_product(a,b,temp); //this should be faster
                 for(int temp_result_idx=0;temp_result_idx<set_count;++temp_result_idx){
                     if(temp[temp_result_idx]>0){
                         if(result[not_dominated_sets[temp_result_idx]]>i+j){

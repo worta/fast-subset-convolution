@@ -11,7 +11,9 @@
 #include "Path_Embedding.h"
 #include <iostream>
 #include <memory>
-void benchmark_path_embedding::embedd_length_1_paths(int path_count_max) { //todo change to random
+#include <random>
+
+void benchmark_path_embedding::embedd_random_length_paths(int path_count_max) { //todo change to random
     std::vector<int> path_lengths=std::vector<int>();
     std::shared_ptr<Tree> root(new Tree(0));
     Path_Embedding::generateFullTrees(2,*root);
@@ -23,8 +25,10 @@ void benchmark_path_embedding::embedd_length_1_paths(int path_count_max) { //tod
     b.write("Paths");
     b.write("Duration(ms)");
     b.writeln("");
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int8_t> distribution(1,2);
     for(int i=1;i<=path_count_max;++i){
-        path_lengths.push_back(1); //add path of length one to paths
+        path_lengths.push_back(distribution(generator)); //add path of length one to paths
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
         int result=p.embedd_naive(*root,path_lengths);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();

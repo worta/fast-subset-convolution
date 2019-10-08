@@ -63,7 +63,7 @@ void FastSubsetConvolution<T>::advanced_covering_product(Function<T> &f, Functio
     fast_mobius(g,mult);
     //element wise product= hadamard product
     for(int i=0;i<set_count;++i){
-        hadamard[i]*=mult[i]; //the previous value in hadamard is the mobius transform of f, just so that
+        hadamard[i]=hadamard[i]*mult[i]; //the previous value in hadamard is the mobius transform of f, just so that
         //not two buffers are needed
     }
     fast_mobius_inversion(hadamard,result);

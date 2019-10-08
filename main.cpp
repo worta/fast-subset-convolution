@@ -80,7 +80,7 @@ void test_subset_gen()
     vector<set_t > results;
     //results.reserve(2);
     //getSubsets(test_set,results);
-    results= get_subsets_it(test_set);
+    results= get_subsets(test_set);
     if(results.size()==test_vec.size())
     {
         cout<<"Size as expected"<<endl;
@@ -282,6 +282,6 @@ int main()
 //    benchmark_fsconv::random_func(18);
     cout<<"Finished Benchmark\n";
 
-    benchmark_path_embedding::embedd_length_1_paths(20);
+    benchmark_path_embedding::embedd_random_length_paths(16);
     return 0;
 }

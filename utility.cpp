@@ -31,7 +31,7 @@
 
 }*/
 
-vector<set_t> get_subsets_it(set_t superset) {
+vector<set_t> get_subsets(set_t superset) {
     int limit = 1<< __builtin_popcount(superset);
     vector<set_t> r;
     r.reserve(limit);

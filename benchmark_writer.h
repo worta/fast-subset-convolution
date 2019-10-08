@@ -11,6 +11,7 @@
 class Benchmark_writer {
     std::ofstream bfile;
     std::string path="/home/dominik/Studium/Master/fast-subset-convolution/benchmarks/";
+    std::string stdout_str;
 public:
     explicit Benchmark_writer(std::string &filename);
     void close();

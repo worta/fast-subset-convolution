@@ -124,10 +124,10 @@ void two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *t
             for (int i = 0; i < path_count; ++i) {
                 if ((1 << i) & P) {
                     set_t P_without_i = P xor(1 << i);
-                    vector<set_t> subsets = get_subsets_it(P);
+                    vector<set_t> subsets = get_subsets(P);
                     for (set_t P_1:subsets) {
                         if (v1[P_1] + v2[P xor P_1] >=
-                            path_lengths[i]) { //either one could be -1, so maybe replace -1 by higher -value , i.e. tree depth
+                            path_lengths[i]) {
                             table_out[P] = 0;
                             break;
                         }
@@ -165,7 +165,7 @@ void two_child_propagate_direct(int8_t  *table_l, int8_t  *table_r, vector<int> 
     //merge the tables in the "naive"/direct way
     //checking every subset S of P if L(v_1,P),L(v_2,S\P)>=0 and max of these=r
     for (set_t S = 0; S < table_size; ++S) {
-        vector<set_t> subsets = get_subsets_it(S);
+        vector<set_t> subsets = get_subsets(S);
         for (set_t P_1:subsets) {
             if (v1[P_1] >= 0 and v2[S xor P_1] >= 0) {
                 table_out[S] = max(table_out[S], max(v1[P_1], v2[S xor P_1]));
@@ -178,7 +178,7 @@ void two_child_propagate_direct(int8_t  *table_l, int8_t  *table_r, vector<int> 
             for (int i = 0; i < path_count; ++i) {
                 if ((1 << i) & P) {
                     set_t P_without_i = P xor(1 << i);
-                    vector<set_t> subsets = get_subsets_it(P);
+                    vector<set_t> subsets = get_subsets(P);
                     for (set_t P_1:subsets) {
                         if (v1[P_1] + v2[P xor P_1] >=
                             path_lengths[i]) { //either one could be -1, so maybe replace -1 by higher -value , i.e. tree depth
