@@ -21,7 +21,7 @@ public:
     void advanced_convolute(Function<T> &f,T result[]);
     void advanced_convolute(Function<T> &f,Function<T> &g, T result[]);
     void advanced_covering_product(Function<T> &f,T result[]);
-
+    void advanced_covering_product(Function<T> &f,Function<T> &g,T result[]);
 
     void fast_mobius(Function<T> &f,T result[]);
     void fast_mobius_inversion( T f_mobius[], T result[]);

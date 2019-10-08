@@ -51,6 +51,24 @@ void FastSubsetConvolution<T>::advanced_covering_product(Function<T> &f, T *resu
         //not two buffers are needed
     }
     fast_mobius_inversion(hadamard,result);
+    delete[] hadamard;
+}
+
+
+template<class T>
+void FastSubsetConvolution<T>::advanced_covering_product(Function<T> &f, Function<T> &g,T *result) {
+    T* hadamard=new T[set_count];
+    fast_mobius(f,hadamard);
+    T* mult=new T[set_count];
+    fast_mobius(g,mult);
+    //element wise product= hadamard product
+    for(int i=0;i<set_count;++i){
+        hadamard[i]*=mult[i]; //the previous value in hadamard is the mobius transform of f, just so that
+        //not two buffers are needed
+    }
+    fast_mobius_inversion(hadamard,result);
+    delete[] mult;
+    delete[] hadamard;
 }
 
 
@@ -137,10 +155,9 @@ void FastSubsetConvolution<T>::fast_mobius(Function<T> &f, T *result) {
     for (set_t j = 1; j < n; j++) {
         for (set_t k = 0; k < set_count; k++) {
             if (k & (1 << (j - 1))) { //if j is in K
-                //cout <<k << " " <<j <<endl;
-                buffer[j*set_count+k] = buffer[(j - 1)*set_count+k] + buffer[(j - 1)*set_count+k ^ (1 << (j - 1))];
+                buffer[rows[j]+k] = buffer[rows[j-1]+k] + buffer[rows[j-1]+k ^ (1 << (j - 1))];
             } else {
-                buffer[j*set_count+k] = buffer[(j - 1)*set_count+k];
+                buffer[rows[j]+k] = buffer[rows[j-1]+k];
             }
         }
     }
@@ -148,9 +165,9 @@ void FastSubsetConvolution<T>::fast_mobius(Function<T> &f, T *result) {
     for (set_t k = 0; k < set_count; k++) {
         if (k & (1 << (n - 1))) { //if j is in K
             //cout <<k << " " <<j <<endl;
-            result[k] = buffer[(n - 1)*set_count+k] + buffer[(n - 1)*set_count+k ^ (1 << (n - 1))];
+            result[k] = buffer[rows[n-1]+k] + buffer[rows[n-1]+k ^ (1 << (n - 1))];
         } else {
-            result[k] = buffer[(n - 1)*set_count+k];
+            result[k] = buffer[rows[n-1]+k];
         }
     }
 }
@@ -158,7 +175,7 @@ void FastSubsetConvolution<T>::fast_mobius(Function<T> &f, T *result) {
 //uses buffer
 template<class T>
 void FastSubsetConvolution<T>::fast_mobius_inversion(T *f_mobius, T *result) {
-    //maybe change to 2 level buffer, because only previous level is of interest
+    //todo maybe change to 2 level buffer, because only previous level is of interest
     //T* buffer=new T[n*set_count];
    // T* buffer=new T[n*set_count];
     for (int set = 0; set < set_count; ++set) {

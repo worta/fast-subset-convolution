@@ -49,6 +49,23 @@ public:
     }
 };
 
+
+template <typename T>
+class ArrayFunction : public Function<T>
+{
+    T* a;
+public:
+    ArrayFunction(T* _a)
+    {
+        a=_a;
+    };
+    T operator() (set_t s)
+    {
+        return a[s];
+    }
+};
+
+
 template <typename T>
 class ThresholdFunction : public Function<T>
 {
