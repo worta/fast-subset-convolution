@@ -9,6 +9,7 @@
 class benchmark_path_embedding {
 public:
     static void embedd_random_length_paths(int path_count_max);
+    static void two_child_propagate(int path_count_max);
 };
 
 

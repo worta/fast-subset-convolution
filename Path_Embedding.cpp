@@ -78,7 +78,7 @@ void one_child_propagate(int8_t  *table_in, vector<int> &path_lengths, int8_t *t
     }
 }
 
-void two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *table_l,int8_t  *table_r, vector<int> &path_lengths,int depth ,int8_t  *table_out){
+void Path_Embedding::two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *table_l,int8_t  *table_r, vector<int> &path_lengths,int depth ,int8_t  *table_out){
     int path_count = path_lengths.size();
     int table_size = 1 << path_count;
     int8_t  v1[table_size];
@@ -86,7 +86,7 @@ void two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *t
 
     //Create tables v1 and v2
     one_child_propagate(table_l, path_lengths, v1);
-    one_child_propagate(table_r, path_lengths, v2);
+    one_child_propagate(table_r, path_lengths, v2); //todo remvoe here
 
     //merge two children mobius like
     ThresholdFunction<int8_t> f_1(v1,0);
@@ -95,23 +95,68 @@ void two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *t
     for(int i=0;i<table_size;++i){
         table_out[i]=-100;
     }
-    //neben depth könnte auch noch die summe der untergebrachten pfadlängen - der verfügbaren edges interessant sein
+
     int8_t * temp1=new int8_t [table_size];
     int8_t * temp2=new int8_t [table_size];
+    vector<set_t > check_again;
+    check_again.reserve(table_size/5);// guess
     for(int i=0;i<=depth;++i){
 
         ThresholdFunction<int8_t> g_1(v1,i);
         ThresholdFunction<int8_t> g_2(v2,i); //TODO precompute and replace with an array/vec function
 
         conv.advanced_convolute(f_1,g_2,temp1);
-        conv.advanced_convolute(f_1,g_2,temp2);
+        conv.advanced_convolute(f_2,g_1,temp2);
 
-        for(set_t j=0;j<table_size;++j){
-            if(temp1[j]+temp2[j]>0){
-                table_out[j]=i;
+        if(i<depth){
+            for(set_t j=0;j<table_size;++j){
+                if(temp1[j]+temp2[j]>0){
+                    table_out[j]=i;
+                }
+            }
+        }
+        else{
+            for(set_t j=0;j<table_size;++j){
+                if(temp1[j]+temp2[j]>0){
+                    table_out[j]=i;
+                }
+                if(table_out[j]<0){
+                    check_again.push_back(j);
+                }
             }
         }
     }
+    int path_min=100;
+    int path_max=-1;
+    for(int path:path_lengths){
+        if(path<path_min){
+            path_min=path;
+        }
+        if(path>path_max){
+            path_max=path;
+        }
+    }
+    for(int i=1;i<path_max;++i){
+        for(int j=std::max(path_min-i,i+1);j<path_max;++j){
+            ThresholdFunction<int8_t> f_i(v1,i);
+            ThresholdFunction<int8_t> g_j(v2,j);
+            ThresholdFunction<int8_t> f_j(v1,j);
+            ThresholdFunction<int8_t> g_i(v2,i);
+            conv.advanced_convolute(f_i,g_j,temp1);
+            conv.advanced_convolute(f_j,g_i,temp2);
+            for(set_t maybe_need_both_edges:check_again){
+                for(int path:path_lengths){
+                    if(i+j>=path){
+                        if((temp1[maybe_need_both_edges xor path]>=1) or (temp1[maybe_need_both_edges xor path]>=1) ){//xor is fine, worst case the set gets bigger{
+                            table_out[maybe_need_both_edges]=0; //could tryx to remove that afterwards, but might be expensive
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
     /*for(int i=0;i<table_size;++i){
         if(table_out[i]<0){ //Todo maybe <=0?
             //TODO add subset convolution with subsets
@@ -119,7 +164,7 @@ void two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *t
         }
     }*/
     //second case nto yet done with convolution but naively
-    for (set_t P = 0; P < table_size; ++P) {
+   /* for (set_t P = 0; P < table_size; ++P) {
         if (table_out[P] < 0) {
             for (int i = 0; i < path_count; ++i) {
                 if ((1 << i) & P) {
@@ -136,7 +181,9 @@ void two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *t
             }
         }
 
-    }
+    }*/
+
+
 
 
 
@@ -146,7 +193,7 @@ void two_children_propagate_mobius(FastSubsetConvolution<int8_t> &conv,int8_t *t
 
 
 //Here it expects the table for each v
-void two_child_propagate_direct(int8_t  *table_l, int8_t  *table_r, vector<int> &path_lengths, int8_t  *table_out) {
+void Path_Embedding::two_child_propagate_direct(int8_t  *table_l, int8_t  *table_r, vector<int> &path_lengths, int8_t  *table_out) {
     int path_count = path_lengths.size();
     int table_size = 1 << path_count;
     int8_t*  v1=new int8_t[table_size];
@@ -194,7 +241,7 @@ void two_child_propagate_direct(int8_t  *table_l, int8_t  *table_r, vector<int> 
 
 }
 
-void test_child_propagation() {
+/*void test_child_propagation() {
     int8_t  in_table[] = {0, -1};
     int8_t  *out_table = new int8_t [2];
     vector<int> path = {1};
@@ -208,7 +255,7 @@ void test_child_propagation() {
     two_child_propagate_direct(in_table2a, in_table2b, path2, out_table); //result should be {3,1,3,0} and it is
 
 
-}
+}*/
 
 
 int Path_Embedding::embedd_naive(Tree &tree, std::vector<int> &path_lengths) {

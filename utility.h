@@ -6,6 +6,7 @@
 using namespace std;
 //void getSubsets(set_t superset,vector<set_t > &results);
 vector<set_t> get_subsets(set_t superset);
+int get_subsets(set_t superset, set_t* subsets);
 vector<int> get_element_indices(set_t set) ;
 unsigned nChoosek( unsigned n, unsigned k );
 void output_set(set_t setRep, int n);

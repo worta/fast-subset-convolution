@@ -41,25 +41,23 @@ vector<set_t> get_subsets(set_t superset) {
         //Add x to the collection of subsets
         r.push_back(x);
     }
-
-    /*std::deque<set_t> d;
-    while (superset != 0) {
-        int index = __builtin_ffs(superset);
-        d.push_back(index);
-        superset = superset xor (1 << (index - 1));
-    }
-    r.push_back(0); //empty set
-    while (!d.empty()) {
-        int index = d.front();
-        d.pop_front();
-        int currSize = r.size(); //get new size by doubling
-        set_t element = (1 << (index - 1));
-        for (int i = 0; i < currSize; ++i) {
-            r.push_back(r[i] xor element); //replace push back bei setting knwon index
-        }
-    }*/
     return r;
 }
+
+int get_subsets(set_t superset, set_t* subsets) {
+    int limit = 1<< __builtin_popcount(superset);
+    //Add 0 to the collection of subsets
+    subsets[0]=0;
+    int counter=1;
+    for (set_t x = (-superset & superset); x != 0; x = ((x-superset) & superset)){
+        //Add x to the collection of subsets
+        subsets[counter]=x;
+        ++counter;
+    }
+    return limit;
+}
+
+
 
 vector<int> get_element_indices(set_t set) {
     vector<int> d;
