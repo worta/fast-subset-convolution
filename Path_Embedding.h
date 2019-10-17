@@ -25,6 +25,8 @@ public:
 
     static void
     two_child_propagate_direct(int8_t *table_l, int8_t *table_r, vector<int> &path_lengths, int8_t *table_out);
+
+   static void one_child_propagate(int8_t  *table_in, vector<int> &path_lengths, int8_t *table_out);
 };
 
 

@@ -57,7 +57,7 @@ unordered_map<int, int> get_value_id_map(vector<vector<Tree> > &by_depth) {
 }
 
 //Here it expects the table for each v
-void one_child_propagate(int8_t  *table_in, vector<int> &path_lengths, int8_t *table_out) {
+void Path_Embedding::one_child_propagate(int8_t  *table_in, vector<int> &path_lengths, int8_t *table_out) {
     int path_count = path_lengths.size();
     int table_size = 1 << path_count;
     for (int path_set = 0; path_set < table_size; ++path_set) {
@@ -103,10 +103,12 @@ void Path_Embedding::two_children_propagate_mobius(FastSubsetConvolution<int8_t>
     for(int i=0;i<=depth;++i){
 
         ThresholdFunction<int8_t> g_1(v1,i);
-        ThresholdFunction<int8_t> g_2(v2,i); //TODO precompute and replace with an array/vec function
+        ThresholdFunction<int8_t> g_2(v2,i);
 
-        conv.advanced_convolute(f_1,g_2,temp1);
-        conv.advanced_convolute(f_2,g_1,temp2);
+        //conv.advanced_convolute(f_1,g_2,temp1);
+        //conv.advanced_convolute(f_2,g_1,temp2);
+        conv.advanced_covering_product(f_1,g_2,temp1);
+        conv.advanced_covering_product(f_2,g_1,temp2);
 
         if(i<depth){
             for(set_t j=0;j<table_size;++j){
@@ -142,12 +144,14 @@ void Path_Embedding::two_children_propagate_mobius(FastSubsetConvolution<int8_t>
             ThresholdFunction<int8_t> g_j(v2,j);
             ThresholdFunction<int8_t> f_j(v1,j);
             ThresholdFunction<int8_t> g_i(v2,i);
-            conv.advanced_convolute(f_i,g_j,temp1);
-            conv.advanced_convolute(f_j,g_i,temp2);
+            //conv.advanced_convolute(f_i,g_j,temp1);
+            //conv.advanced_convolute(f_j,g_i,temp2); //nees also a bigger buffer in benchmark ath embedding
+            conv.advanced_covering_product(f_i,g_j,temp1);
+            conv.advanced_covering_product(f_j,g_i,temp2);
             for(set_t maybe_need_both_edges:check_again){
-                for(int path:path_lengths){
-                    if(i+j>=path){
-                        if((temp1[maybe_need_both_edges xor path]>=1) or (temp1[maybe_need_both_edges xor path]>=1) ){//xor is fine, worst case the set gets bigger{
+                for(int path_nr=0;path_nr<path_lengths.size();++path_nr){
+                    if(i+j>=path_lengths[path_nr]){
+                        if((temp1[maybe_need_both_edges xor (1<<path_nr)]>=1) or (temp2[maybe_need_both_edges xor (1<<path_nr)]>=1) ){//xor is fine, worst case the set gets bigger{
                             table_out[maybe_need_both_edges]=0; //could tryx to remove that afterwards, but might be expensive
                         }
                     }
@@ -156,35 +160,6 @@ void Path_Embedding::two_children_propagate_mobius(FastSubsetConvolution<int8_t>
 
         }
     }
-
-    /*for(int i=0;i<table_size;++i){
-        if(table_out[i]<0){ //Todo maybe <=0?
-            //TODO add subset convolution with subsets
-
-        }
-    }*/
-    //second case nto yet done with convolution but naively
-   /* for (set_t P = 0; P < table_size; ++P) {
-        if (table_out[P] < 0) {
-            for (int i = 0; i < path_count; ++i) {
-                if ((1 << i) & P) {
-                    set_t P_without_i = P xor(1 << i);
-                    vector<set_t> subsets = get_subsets(P);
-                    for (set_t P_1:subsets) {
-                        if (v1[P_1] + v2[P xor P_1] >=
-                            path_lengths[i]) {
-                            table_out[P] = 0;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-    }*/
-
-
-
 
 
     delete[] temp1;
@@ -219,16 +194,16 @@ void Path_Embedding::two_child_propagate_direct(int8_t  *table_l, int8_t  *table
             }
         }
     }
-    //check the remaining 0 and impossible ones if it can be packed by using v-u1 and v-u2
+    //check the remaining impossible ones if it can be packed by using v-u1 and v-u2
     for (set_t P = 0; P < table_size; ++P) {
-        if (table_out[P] < 0) { //changed to from <=0 to <0, is that correct?
+        if (table_out[P] < 0) {
             for (int i = 0; i < path_count; ++i) {
                 if ((1 << i) & P) {
                     set_t P_without_i = P xor(1 << i);
-                    vector<set_t> subsets = get_subsets(P);
+                    vector<set_t> subsets = get_subsets(P_without_i);
                     for (set_t P_1:subsets) {
-                        if (v1[P_1] + v2[P xor P_1] >=
-                            path_lengths[i]) { //either one could be -1, so maybe replace -1 by higher -value , i.e. tree depth
+                        if (v1[P_1] + v2[P_without_i xor P_1] >=
+                                path_lengths[i]) {
                             table_out[P] = 0;
                             break;
                         }
@@ -238,24 +213,10 @@ void Path_Embedding::two_child_propagate_direct(int8_t  *table_l, int8_t  *table
         }
 
     }
-
+    delete[] v1;
+    delete[] v2;
 }
 
-/*void test_child_propagation() {
-    int8_t  in_table[] = {0, -1};
-    int8_t  *out_table = new int8_t [2];
-    vector<int> path = {1};
-    int8_t  in_table2a[] = {0, -3, -3, -3}; //p1=4,p2=2, just a leaf
-    int8_t  in_table2b[] = {2, 0, 2, -3};//p1=4,p2=2, full tree with depth 2
-    vector<int> path2 = {4,2};
-    one_child_propagate(in_table, path, out_table);
-    in_table[0] = 0;
-    in_table[1] = -1;
-    two_child_propagate_direct(in_table, in_table, path, out_table);
-    two_child_propagate_direct(in_table2a, in_table2b, path2, out_table); //result should be {3,1,3,0} and it is
-
-
-}*/
 
 
 int Path_Embedding::embedd_naive(Tree &tree, std::vector<int> &path_lengths) {
