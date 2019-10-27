@@ -27,8 +27,8 @@ FastSubsetConvolution<T>::FastSubsetConvolution(int _n) {
 
 template<class T>
 FastSubsetConvolution<T>::FastSubsetConvolution(int _n,bool only_covering_product) {
-    set_count = ((set_t) 1) << (n);
     n = _n;
+    set_count = ((set_t) 1) << (n);
     rows = new int[n + 1];
     if(only_covering_product){
         buffer = new T[2*set_count ];
@@ -153,21 +153,24 @@ void FastSubsetConvolution<T>::fast_mobius(Function<T> &f, T *result) {
         buffer[subset]=f(subset); //initialize buffer[0][subsez] with function value
     }
     for (set_t j = 1; j < n; j++) {
+        int previous_row=(j-1)%2;
+        int current_row=j%2;
         for (set_t k = 0; k < set_count; k++) {
             if (k & (1 << (j - 1))) { //if j is in K
-                buffer[rows[j]+k] = buffer[rows[j-1]+k] + buffer[rows[j-1]+k ^ (1 << (j - 1))];
+                buffer[rows[current_row]+k] = buffer[rows[previous_row]+k] + buffer[rows[previous_row]+k ^ (1 << (j - 1))];
             } else {
-                buffer[rows[j]+k] = buffer[rows[j-1]+k];
+                buffer[rows[current_row]+k] = buffer[rows[previous_row]+k];
             }
         }
     }
     //same as above, just with with j=n
+    int previous_row=(n-1)%2;
     for (set_t k = 0; k < set_count; k++) {
         if (k & (1 << (n - 1))) { //if j is in K
             //cout <<k << " " <<j <<endl;
-            result[k] = buffer[rows[n-1]+k] + buffer[rows[n-1]+k ^ (1 << (n - 1))];
+            result[k] = buffer[rows[previous_row]+k] + buffer[rows[previous_row]+k ^ (1 << (n - 1))];
         } else {
-            result[k] = buffer[rows[n-1]+k];
+            result[k] = buffer[rows[previous_row]+k];
         }
     }
 }
@@ -183,8 +186,8 @@ void FastSubsetConvolution<T>::fast_mobius_inversion(T *f_mobius, T *result) {
     }
 
     for (set_t j = 1; j < n; j++) {
-        int row = j * set_count;
-        int index = j - 1;
+        int row = (j%2) * set_count ;
+        int index = (j - 1)%2;
         int previous_row = index * set_count;
         set_t index_set = 1 << index;
         for (set_t k = 0; k < set_count; k++) {
@@ -196,7 +199,7 @@ void FastSubsetConvolution<T>::fast_mobius_inversion(T *f_mobius, T *result) {
         }
     }
     //basically the same as the inner loop with j=n, and the final result saved i nresult
-    int previous_row = (n - 1) * set_count;
+    int previous_row = ((n - 1)%2) * set_count;
     set_t index_set = 1 << (n - 1);
     for (set_t k = 0; k < set_count; k++) {
         if (k & (1 << (n - 1))) { //if j is in K
