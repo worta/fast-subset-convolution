@@ -7,6 +7,7 @@
 
 
 class benchmark_dominating_set {
+public:
     static void two_child_propagate(int treewidth);
 };
 

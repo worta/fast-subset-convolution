@@ -36,13 +36,15 @@ void benchmark_dominating_set::two_child_propagate(int treewidth) {
     b.writeln("");
 
 
-
-    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+    t1 = std::chrono::high_resolution_clock::now();
     DominatingSet::mobius_join_node(previous_table1,previous_table2,previous_min,previous_min,treewidth,previous_table1);
-    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    t2 = std::chrono::high_resolution_clock::now();
     duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
-    b.write("Classic");
+    b.write("Mobius");
     b.write(treewidth);
     b.write(duration);
     b.writeln("");
+
+    delete[] previous_table1;
+    delete[] previous_table2;
 }

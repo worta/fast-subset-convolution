@@ -13,6 +13,7 @@
 #include "benchmark_steiner.h"
 #include "benchmark_fsconv.h"
 #include "benchmark_path_embedding.h"
+#include "benchmark_dominating_set.h"
 #include "FastSubsetConvolution.h"
 
 #include "MinSumRingEmbeddBigInt.h"
@@ -281,8 +282,10 @@ int main()
     cout<<"Starting Fast Subset COnv Benchmark \n";
 //    benchmark_fsconv::random_func(18);
     cout<<"Finished Benchmark\n";
-    benchmark_path_embedding::test_child_propagation();
+    //benchmark_path_embedding::test_child_propagation();
    // benchmark_path_embedding::two_child_propagate(20);
     //benchmark_path_embedding::embedd_random_length_paths(16);
+
+    benchmark_dominating_set::two_child_propagate(5);
     return 0;
 }

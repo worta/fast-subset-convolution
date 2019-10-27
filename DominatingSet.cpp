@@ -25,6 +25,7 @@ static int calculate_index(uint32_t dom_set, uint32_t not_dom, int node_count) {
         not_dom = not_dom >> 2;
         level = level * 9;
     }
+
     return index;
 }
 //calculate only the index part for dom set
@@ -56,7 +57,7 @@ static int calculate_not_dom_index(uint32_t dom_set,uint32_t not_dom,int node_co
     return index;
 }
 
-static void naive_join_node(int8_t *child1, int8_t *child2, int node_count, int8_t* result) {
+void DominatingSet::naive_join_node(int8_t *child1, int8_t *child2, int node_count, int8_t* result) {
     //input two tables with 3 ^n values
     set_t node_mask = (1 << node_count) - 1;
     //int n = ipow(3, node_count);
@@ -64,6 +65,8 @@ static void naive_join_node(int8_t *child1, int8_t *child2, int node_count, int8
         set_t valid_not_dom_superset = (~dom_set) & node_mask;
         int one_count = __builtin_popcount(dom_set);
         vector<set_t> not_dominated_sets = get_subsets(valid_not_dom_superset);
+        int ind1dom=calculate_dom_index(dom_set,node_count);
+        int ind2dom=calculate_dom_index(dom_set,node_count);
         for (set_t not_dominated:not_dominated_sets) {
             Coloring c; //just example so it works
             // c.dominating_set=0;
@@ -72,15 +75,18 @@ static void naive_join_node(int8_t *child1, int8_t *child2, int node_count, int8
             //and not_dominated by generating subsets of ~dominating_set
             vector<set_t> divide = get_subsets(dom_set); //get all sets with c_t=0 and c_t' either 0_0 or 0_1
             int min = 1000;
+
             for (set_t not_d_1: divide) {
                 set_t not_d_2 = ((~not_d_1) & node_mask) bitand not_dominated;
                 //((~not_d_1)&node_mask) results in all bits flipped up to the ith bit, where i is the node count
                 //xor c.not_dominated prevents any bit with state "dominated" being set to 1, i.e. being set to nto dominated
                 //find min in table with c'=(c.dominating_set, not_d_1) and c'' correspondingly
                 //probably calculate the positon (0,0)=0; (1,0)=2, (0,1)=1;
-                int index1 = calculate_index(dom_set, not_d_1,
-                                             node_count); //can be made faster by calculating dominating set und not_d2 part separatly
-                int index2 = calculate_index(dom_set, not_d_2, node_count);
+               // int index1 = calculate_index(dom_set, not_d_1,
+              //                               node_count); //can be made faster by calculating dominating set und not_d2 part separatly
+               // int index2 = calculate_index(dom_set, not_d_2, node_count);
+                int index1= ind1dom+calculate_not_dom_index(dom_set,not_d_1,node_count);
+                int index2= ind2dom+calculate_not_dom_index(dom_set,not_d_2,node_count);
                 if (min > child1[index1] + child2[index2] - one_count) {
                     min = child1[index1] + child2[index2] - one_count;
                 }
@@ -94,7 +100,7 @@ static void naive_join_node(int8_t *child1, int8_t *child2, int node_count, int8
 }
 
 
-static void mobius_join_node(int8_t *child1, int8_t *child2,int minc_1,int minc_2, int node_count,int8_t* result) {
+void DominatingSet::mobius_join_node(int8_t *child1, int8_t *child2,int minc_1,int minc_2, int node_count,int8_t* result) {
     //input two tables with 3 ^n values
     set_t node_mask = (1 << node_count) - 1;
     int n = ipow(3, node_count);
@@ -129,8 +135,8 @@ static void mobius_join_node(int8_t *child1, int8_t *child2,int minc_1,int minc_
             ++set_counter;
             subset_buffer[set_idx]=index; //replace set by set index, the bit representation is not needed anymore
         }
-        FastSubsetConvolution<int8_t> f(zero_count); //node_count-one_count equals the amount of 0s
-        int8_t* temp=new int8_t(set_count);
+        FastSubsetConvolution<int8_t> f(zero_count,true); //node_count-one_count equals the amount of 0s
+        int8_t* temp=new int8_t[set_count];
         for(int i=0;i<value_range;++i){
             for(int j=0;j<value_range;++j){
                 //fastr subset convolute t1[i*set_count] and t2[j*set_count]
@@ -147,10 +153,10 @@ static void mobius_join_node(int8_t *child1, int8_t *child2,int minc_1,int minc_
                 }
             }
         }
-        delete[] subset_buffer;
         delete[] temp; //todo maybe just allocate max memory and delte at the end
         delete[] t_1;
         delete[] t_2;
 
     }
+    delete[] subset_buffer;
 }
