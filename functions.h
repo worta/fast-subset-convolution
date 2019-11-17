@@ -72,7 +72,7 @@ class ThresholdFunction : public Function<T>
     T* v;
     int t;
 public:
-    ThresholdFunction(T* arr,int threshold):
+    ThresholdFunction(T* arr,T threshold):
             v(arr),t(threshold)
     {
     };
@@ -82,6 +82,21 @@ public:
     }
 };
 
+template <typename T>
+class EqualFunction : public Function<T>
+{
+    T* v;
+    int t;
+public:
+    EqualFunction(T* arr,T value):
+            v(arr),t(value)
+    {
+    };
+    T operator() (set_t s)
+    {
+        return v[s]==t;
+    }
+};
 
 template <typename T>
 class RankedVectFunction : public RankedFunction<T>

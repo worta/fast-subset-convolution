@@ -285,7 +285,8 @@ int main()
     //benchmark_path_embedding::test_child_propagation();
    // benchmark_path_embedding::two_child_propagate(20);
     //benchmark_path_embedding::embedd_random_length_paths(16);
-
-    benchmark_dominating_set::two_child_propagate(5);
+    cout<<"Starting Dominating Set Benchmark \n";
+    benchmark_dominating_set::two_child_propagate(15);
+    cout<<"Finished Benchmark\n";
     return 0;
 }

@@ -155,9 +155,10 @@ void FastSubsetConvolution<T>::fast_mobius(Function<T> &f, T *result) {
     for (set_t j = 1; j < n; j++) {
         int previous_row=(j-1)%2;
         int current_row=j%2;
+        set_t singleton_j=(1 << (j - 1));
         for (set_t k = 0; k < set_count; k++) {
-            if (k & (1 << (j - 1))) { //if j is in K
-                buffer[rows[current_row]+k] = buffer[rows[previous_row]+k] + buffer[rows[previous_row]+k ^ (1 << (j - 1))];
+            if (k & singleton_j) { //if j is in K
+                buffer[rows[current_row]+k] = buffer[rows[previous_row]+k] + buffer[rows[previous_row]+k ^ singleton_j]; //k ^ singleton_j == set k without j
             } else {
                 buffer[rows[current_row]+k] = buffer[rows[previous_row]+k];
             }
@@ -165,10 +166,11 @@ void FastSubsetConvolution<T>::fast_mobius(Function<T> &f, T *result) {
     }
     //same as above, just with with j=n
     int previous_row=(n-1)%2;
+    set_t singleton_n=(1 << (n - 1));
     for (set_t k = 0; k < set_count; k++) {
-        if (k & (1 << (n - 1))) { //if j is in K
+        if (k & singleton_n) { //if j is in K
             //cout <<k << " " <<j <<endl;
-            result[k] = buffer[rows[previous_row]+k] + buffer[rows[previous_row]+k ^ (1 << (n - 1))];
+            result[k] = buffer[rows[previous_row]+k] + buffer[rows[previous_row]+k ^ singleton_n];
         } else {
             result[k] = buffer[rows[previous_row]+k];
         }
