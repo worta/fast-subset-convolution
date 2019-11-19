@@ -108,8 +108,8 @@ void DominatingSet::mobius_join_node(int8_t *child1, int8_t *child2, int minc_1,
     //input two tables with 3 ^n values
     set_t node_mask = (1 << node_count) - 1; //has the form 00111..1 with #1= #nodes
     int n = ipow(3, node_count);
-    int min_possible = min(minc_1 + minc_2 - (node_count + 1),
-                           0); //see de fluiter property, has to be in range (e_x+e_y-(k+1))
+    int min_possible = min(minc_1 + minc_2 - (node_count ),0); //can be less than minc1+minc2, because nodes might be counted double
+    //see de fluiter property, has to be in range (e_x+e_y-(k+1))
     int max_possible = minc_1 + minc_2 + node_count + 1; //((e_x+e_y+k+
     int value_range = max_possible - min_possible;
     int subset_count = 1 << node_count;
