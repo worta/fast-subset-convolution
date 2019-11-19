@@ -275,18 +275,18 @@ int main()
     //myfile.close();
     //test_ring_embedd();
     //test_ring_embedd_big_int();
-    cout<<"Starting Steiner Benchmark \n";
+   // cout<<"Starting Steiner Benchmark \n";
     //benchmark_steiner::complete_graphs(20);
-    cout<<"Finished Benchmark\n";
+   // cout<<"Finished Benchmark\n";
 
-    cout<<"Starting Fast Subset COnv Benchmark \n";
+   // cout<<"Starting Fast Subset COnv Benchmark \n";
 //    benchmark_fsconv::random_func(18);
-    cout<<"Finished Benchmark\n";
+   // cout<<"Finished Benchmark\n";
     //benchmark_path_embedding::test_child_propagation();
    // benchmark_path_embedding::two_child_propagate(20);
     //benchmark_path_embedding::embedd_random_length_paths(16);
     cout<<"Starting Dominating Set Benchmark \n";
-    benchmark_dominating_set::two_child_propagate(15);
+    benchmark_dominating_set::two_child_propagate(20);
     cout<<"Finished Benchmark\n";
     return 0;
 }
