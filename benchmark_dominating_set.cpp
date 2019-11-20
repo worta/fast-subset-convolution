@@ -26,9 +26,9 @@ void benchmark_dominating_set::two_child_propagate(int treewidth) {
         std::uniform_int_distribution<int8_t> distribution(1,10);
         int8_t* previous_table1=new int8_t[table_size];
         int8_t* previous_table2=new int8_t[table_size];
-        for(int i=0;i<table_size;++i){
-            previous_table1[i]=distribution(generator);
-            previous_table2[i]=distribution(generator);
+        for(int j=0;j<table_size;++j){
+            previous_table1[j]=distribution(generator);
+            previous_table2[j]=distribution(generator);
         }
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
         DominatingSet::naive_join_node(previous_table1,previous_table2,i,previous_table1);
