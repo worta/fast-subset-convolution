@@ -21,54 +21,6 @@
 using namespace std;
 
 
-/*class int_max
-{
-public:
-    int value;
-    int_max ()
-    {
-        value=0;
-    }
-    int_max (int x)
-    {
-        value=x;
-    }
-    int_max& operator= (const int& x)
-    {
-        value=pow(2,x)+1;
-        return *this;
-    }
-    int_max& operator= (const int_max& x)
-    {
-        value=x.value;
-        return *this;
-    }
-    int_max operator*(const int_max& rhs)
-    {
-        return int_max(value + rhs.value);
-    }
-    int_max operator+(const int_max& rhs)
-    {
-        return int_max();
-    }
-    int_max operator-(const int_max& rhs) //thats just wrong
-    {
-        return int_max(value-rhs.value);
-    }
-
-} ;*/
-
-
-
-/*inline int bitCount(int i) { //counts bit set to 1 for 32 bit number
-    i = i - ((i >> 1) & 0x55555555);
-    i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
-    i = (i + (i >> 4)) & 0x0f0f0f0f;
-    i = i + (i >> 8);
-    i = i + (i >> 16);
-    return i & 0x3f;
-}*/
-
 
 void test_subset_gen()
 {
@@ -286,7 +238,7 @@ int main()
    // benchmark_path_embedding::two_child_propagate(20);
     //benchmark_path_embedding::embedd_random_length_paths(16);
     cout<<"Starting Dominating Set Benchmark \n";
-    benchmark_dominating_set::two_child_propagate(18);
+    benchmark_dominating_set::two_child_propagate(19);
     cout<<"Finished Benchmark\n";
     return 0;
 }
