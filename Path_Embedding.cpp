@@ -146,7 +146,7 @@ void Path_Embedding::two_children_propagate_mobius(FastSubsetConvolution<int8_t>
             ThresholdFunction<int8_t> g_i(v2,i);
             //conv.advanced_convolute(f_i,g_j,temp1);
             //conv.advanced_convolute(f_j,g_i,temp2); //nees also a bigger buffer in benchmark ath embedding
-            conv.advanced_covering_product(f_i,g_j,temp1);
+            conv.advanced_covering_product(f_i,g_j,temp1); //f_i * g_j mit f_i= (v_i>i)
             conv.advanced_covering_product(f_j,g_i,temp2);
             for(set_t maybe_need_both_edges:check_again){
                 for(int path_nr=0;path_nr<path_lengths.size();++path_nr){

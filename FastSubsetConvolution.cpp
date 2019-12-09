@@ -80,7 +80,7 @@ void FastSubsetConvolution<T>::advanced_convolute(Function<T> &f, T *result) {
     }
     T* ranked_convolution= new T[(n+1) * set_count];
     ranked_convolute(ranked_transform, ranked_transform, ranked_convolution);
-    ranked_mobius_inversion(ranked_convolution, result); //TODO vll hier in vektor überführen und den zurückgeben
+    ranked_mobius_inversion(ranked_convolution, result);
     delete[] ranked_convolution;
     delete[] ranked_transform;
 }
@@ -95,7 +95,7 @@ void FastSubsetConvolution<T>::advanced_convolute(Function<T> &f, Function<T> &g
     }
     T* ranked_convolution= new T[(n+1) * set_count];
     ranked_convolute(ranked_transform1, ranked_transform2, ranked_convolution);
-    ranked_mobius_inversion(ranked_convolution, result); //TODO vll hier in vektor überführen und den zurückgeben
+    ranked_mobius_inversion(ranked_convolution, result);
     delete[] ranked_convolution;
     delete[] ranked_transform1;
     delete[] ranked_transform2;
