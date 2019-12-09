@@ -30,15 +30,18 @@ void benchmark_dominating_set::two_child_propagate(int treewidth) {
             previous_table1[j]=distribution(generator);
             previous_table2[j]=distribution(generator);
         }
+
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        DominatingSet::naive_join_node(previous_table1,previous_table2,i,previous_table1);
+        //DominatingSet::naive_join_node(previous_table1,previous_table2,i,previous_table1);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+
         auto duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
+        /*
         b.write("Classic");
         b.write(i);
         b.write(duration);
         b.writeln("");
-
+        */
 
         t1 = std::chrono::high_resolution_clock::now();
         DominatingSet::mobius_join_node(previous_table1,previous_table2,previous_min,previous_min,i,previous_table1);

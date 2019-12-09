@@ -157,7 +157,7 @@ void DominatingSet::mobius_join_node(int8_t *child1, int8_t *child2, int minc_1,
             t_2[set_idx]= child2[index];
             subset_and_idx_buffer[set_idx] = index; //replace set by set index, the bit representation is not needed anymore
         }
-        FastSubsetConvolution<int8_t> f(zero_count, true); //node_count-one_count equals the amount of 0s
+        FastSubsetConvolution<int8_t> f(zero_count, false); //node_count-one_count equals the amount of 0s
 
         for (int i = min_possible; i < max_possible; ++i) {
             for (int j = min_possible; j < max_possible; ++j) {
@@ -166,8 +166,8 @@ void DominatingSet::mobius_join_node(int8_t *child1, int8_t *child2, int minc_1,
                 ArrayFunction<int8_t> b(&t_2[j * set_count]); */
                 EqualFunction<int8_t> a(t_1,i);
                 EqualFunction<int8_t> b(t_2,j);
-                //f.advanced_convolute(a,b,temp_result_buffer); //needs f to be constructed with only covering=false
-                f.advanced_covering_product(a, b, temp_result_buffer); //this should be faster
+                f.advanced_convolute(a,b,temp_result_buffer); //needs f to be constructed with only covering=false
+                //f.advanced_covering_product(a, b, temp_result_buffer); //doing it via covering product, covering=true recommended
                 for (int temp_result_idx = 0; temp_result_idx < set_count; ++temp_result_idx) {
                     if (temp_result_buffer[temp_result_idx] > 0) {
                         if (result[subset_and_idx_buffer[temp_result_idx]] > i + j) {
