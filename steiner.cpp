@@ -20,7 +20,7 @@ typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
 
-
+#define INT_MAX_SELF 2147483647
 struct Node {
     int idx;
     int dist;
@@ -223,7 +223,7 @@ public:
 
     int operator()(set_t s) {
         int value = f(s);
-        if (value == INT_MAX) return INT_MAX; //reicht immer noch nicht ,hiermit wird bei convolution ja noch gferechent
+        if (value == INT_MAX_SELF) return INT_MAX_SELF; //reicht immer noch nicht ,hiermit wird bei convolution ja noch gferechent
         return (int) pow(base, value);
     }
 
@@ -291,7 +291,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int n
         for (unsigned int q = 0; q < k; ++q) { //todo think about if you could calculate less here
             for (set_t X:Xs) {
                 if ((X bitand (1 << q)) == 0) { //for all X with q not in X
-                    int min_value = INT_MAX;
+                    int min_value = INT_MAX_SELF;
                     for (int p = 0; p < n; ++p) {
                         int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
                         //int value = W[p][1<<q]+g[p][X].min();
@@ -312,7 +312,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int n
          cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
      }
      cout << endl;*/
-    int result=INT_MAX;
+    int result=INT_MAX_SELF;
     for(int q=0;q<k;++q){
         int value=W[q][relabeld_K xor (1<<q)];
         if(value<result){
@@ -345,7 +345,7 @@ void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector
     if (X == 0) {
         return;
     }
-    int min = INT_MAX;
+    int min = INT_MAX_SELF;
     int corresponding_p = n + 1;
     for (int p = 0; p < n; ++p) {
         int value = W[p][1 << q] + g[p][X].min();
@@ -362,7 +362,7 @@ void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector
         return;
     }
     set_t min_set = 0;
-    min = INT_MAX;
+    min = INT_MAX_SELF;
     for (set_t s:sets) {
         if ((s != 0) and (s != X)) {
             int value = W[corresponding_p][s] + W[corresponding_p][X xor s];
@@ -456,7 +456,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
             for (int i = input_range * 2; i >= 0; --i) {
                 int coeff = pow(base, i); //careful that this term does not exceed int
                 for (int j = 0; j < g[p].size(); ++j) {
-                    if(g[p][j]==INT_MAX){
+                    if(g[p][j]==INT_MAX_SELF){
 
                     }
                     if (g[p][j] > coeff) {
@@ -474,7 +474,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
             {
                 if(q bitand subsets[set_ind]==0){ //consider only q not in X
                     set_t new_set=subsets[set_ind] bitor q;
-                    int min=INT_MAX;
+                    int min=INT_MAX_SELF;
                     int value;
                     for(int p=0;p<size;++q) {
                        value=pair_wise_dist[q][p]+g[p][subsets[set_ind]];
