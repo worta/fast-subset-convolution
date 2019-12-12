@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <queue>
 #include "boost/multi_array.hpp"
+#include <limits>
 #include <iostream>
 #include "steiner.h"
 #include "utility.h"
@@ -14,16 +15,11 @@
 #include <set>
 #include <array>
 #include "MinSumRingEmbedd.h"
-#include "MinSumRingEmbeddBigInt.h"
 #include <cassert>
-#include "FastSubsetConvolution.h"
-//#include <limits>
 typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
 
-#define INT_MAX_SELF 4294967295
-//self defined int_max because otherwise icc at the cluster complains
 
 struct Node {
     int idx;
@@ -93,7 +89,7 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K){
     vector<int> indices=get_element_indices(K);
     int k=__builtin_popcount(K);
     if(k==2){ //return the shortest path
-            return pair_wise_dist[indices[0] - 1][indices[1] - 1];
+        return pair_wise_dist[indices[0] - 1][indices[1] - 1];
     }
     vector<unordered_map<set_t,int> >  s(size,unordered_map<set_t,int>());
 
@@ -132,7 +128,7 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K){
             }
             for(int j=0;j<size;++j){
                 int u=100000;
-                vector<set_t> Es= get_subsets(D);
+                vector<set_t> Es=get_subsets(D);
                 set_t D_1=1<<(__builtin_ffs(D)-1);
                 for(set_t e:Es){
                     if((D_1 bitand e) and (e !=D)){ //is D_1 in e and e real subset of D
@@ -155,7 +151,7 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K){
     int result=100000;
     for(int j=0;j<size;++j){
         int u=10000000;
-        vector<set_t> Es= get_subsets(C);
+        vector<set_t> Es=get_subsets(C);
         set_t C_1=1<<(__builtin_ffs(C)-1);
         for(set_t e:Es) {
             if ((C_1 bitand e) and (e != C)) {
@@ -197,7 +193,7 @@ public:
 
 };
 
-class Function_Embedd : public Function<MinSumRingEmbeddBigInt> {
+class Function_Embedd : public Function<MinSumRingEmbedd> {
     Function_p &f_p;
 public:
     explicit Function_Embedd(Function_p &f) :
@@ -205,8 +201,8 @@ public:
     }
 
 
-    MinSumRingEmbeddBigInt operator()(set_t s) override {
-        return MinSumRingEmbeddBigInt(f_p(s));
+    MinSumRingEmbedd operator()(set_t s) override {
+        return MinSumRingEmbedd(f_p(s));
     }
 };
 
@@ -223,12 +219,13 @@ public:
 
     int operator()(set_t s) {
         int value = f(s);
-        if (value == INT_MAX_SELF) return INT_MAX_SELF; //reicht immer noch nicht ,hiermit wird bei convolution ja noch gferechent
+        if (value == INT_MAX) return INT_MAX; //reicht immer noch nicht ,hiermit wird bei convolution ja noch gferechent
         return (int) pow(base, value);
     }
 
 };
 #endif
+
 
 int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
@@ -239,6 +236,8 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         return pair_wise_dist[indices[0] - 1][indices[1] - 1];
     }
     int max_value = (n - 1) * input_range + 1;
+    vector<vector<int> > W(n, vector<int>((int) pow(2, k), max_value)); //,(n-1)*input_range+1) in the second brackes
+    vector<vector<MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>((int) pow(2, k)));
     //relabel
     int relabel[n];
     for (int i = 0; i < indices.size(); ++i) {
@@ -258,11 +257,6 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
         relabeld_K = relabeld_K | (1 << i);
     }
 
-    //1<<k =pow(2,k)
-    vector<vector<int> > W(n, vector<int>(1<<k, max_value)); //,(n-1)*input_range+1) in the second brackes
-    vector<vector<MinSumRingEmbeddBigInt> > g(n, vector<MinSumRingEmbeddBigInt>(1<<k));
-    //MinSumRingEmbedd[]
-
     //init for W for l=2
     for (int q = 0; q < n; ++q) {
         for (int p = 0; p < k; p++) {
@@ -276,31 +270,28 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     }
 
     //levelwise computation
-    //int max_value = (n - 1) * input_range + 1;
-    MinSumRingEmbeddBigInt::init(k,max_value);
-    FastSubsetConvolution<MinSumRingEmbeddBigInt> FastSubsetConv(k);
+//    int max_value = (n - 1) * input_range + 1;
     for (int l = 2; l < k; ++l) {
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
         for (int p = 0; p < n; ++p) {
-            Function_p f_p(W, l, p, max_value); //change it here for new mapping to int
+            Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
             //if(l>10){ //TODO fine tune
-                //g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
-                FastSubsetConv.advanced_convolute(f,g[p].data());
+            g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
             //}
-           // else{
-           //     g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
-          //  }
+            // else{
+            //     g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
+            //  }
         }
 
         for (unsigned int q = 0; q < k; ++q) { //todo think about if you could calculate less here
             for (set_t X:Xs) {
                 if ((X bitand (1 << q)) == 0) { //for all X with q not in X
-                    int min_value = INT_MAX_SELF;
+                    int min_value = INT_MAX;
                     for (int p = 0; p < n; ++p) {
-                       int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min(); //and here
-                       //int value = W[p][1<<q]+g[p][X].min();
+                        int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
+                        //int value = W[p][1<<q]+g[p][X].min();
                         if (value < min_value) {
                             min_value = value;
                         }
@@ -314,11 +305,11 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     }
 
 
-   /* for (int test = 0; test < k; test++) {
-        cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
-    }
-    cout << endl;*/ //TODO think about this below
-    int result=INT_MAX_SELF;
+    /* for (int test = 0; test < k; test++) {
+         cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
+     }
+     cout << endl;*/ //TODO think about this below
+    int result=INT_MAX;
     for(int q=0;q<k;++q){
         int value=W[q][relabeld_K xor (1<<q)];
         if(value<result){
@@ -345,7 +336,7 @@ void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector
     if (X == 0) {
         return;
     }
-    int min = INT_MAX_SELF;
+    int min = INT_MAX;
     int corresponding_p = n + 1;
     for (int p = 0; p < n; ++p) {
         int value = W[p][1 << q] + g[p][X].min();
@@ -362,7 +353,7 @@ void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector
         return;
     }
     set_t min_set = 0;
-    min = INT_MAX_SELF;
+    min = INT_MAX;
     for (set_t s:sets) {
         if ((s != 0) and (s != X)) {
             int value = W[corresponding_p][s] + W[corresponding_p][X xor s];
@@ -456,7 +447,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
             for (int i = input_range * 2; i >= 0; --i) {
                 int coeff = pow(base, i); //careful that this term does not exceed int
                 for (int j = 0; j < g[p].size(); ++j) {
-                    if(g[p][j]==INT_MAX_SELF){
+                    if(g[p][j]==INT_MAX){
 
                     }
                     if (g[p][j] > coeff) {
@@ -474,7 +465,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
             {
                 if(q bitand subsets[set_ind]==0){ //consider only q not in X
                     set_t new_set=subsets[set_ind] bitor q;
-                    int min=INT_MAX_SELF;
+                    int min=INT_MAX;
                     int value;
                     for(int p=0;p<size;++q) {
                        value=pair_wise_dist[q][p]+g[p][subsets[set_ind]];

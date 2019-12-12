@@ -23,7 +23,7 @@ void benchmark_steiner::complete_graphs(int max_size){
     b.writeln("");
 
     adjancy_matrix graph=GraphGenerator::generate_complete_graph_with_uniform_weights(max_size,1);
-    for(int k=2;k<11;++k){
+    for(int k=2;k<max_size;++k){
        // if(k%5==0){
             std::cout<<"Finished "<<k <<"\\"<<max_size<<"\n";
        // }

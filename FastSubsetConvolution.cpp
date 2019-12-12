@@ -10,8 +10,8 @@
 #include "SmallMinSumRing64Bit.h"
 template class FastSubsetConvolution<int>; //need this for every type usen in the program
 template class FastSubsetConvolution<int8_t >;
-//template class FastSubsetConvolution<MinSumRingEmbedd>;
-template class FastSubsetConvolution<MinSumRingEmbeddBigInt>;
+template class FastSubsetConvolution<MinSumRingEmbedd>;
+//template class FastSubsetConvolution<MinSumRingEmbeddBigInt>;
 //template class FastSubsetConvolution<SmallMinSumRing64Bit>;
 
 template<class T>
