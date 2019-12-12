@@ -228,7 +228,7 @@ int main()
     //test_ring_embedd();
     //test_ring_embedd_big_int();
     cout<<"Starting Steiner Benchmark \n";
-    benchmark_steiner::complete_graphs(15,50);
+    benchmark_steiner::complete_graphs(20,50);
     cout<<"Finished Benchmark\n";
 
    // cout<<"Starting Fast Subset COnv Benchmark \n";
