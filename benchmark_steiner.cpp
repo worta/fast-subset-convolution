@@ -12,8 +12,7 @@
 
 //Test with complete graphs of increasing size
 //maybe return time
-void benchmark_steiner::complete_graphs(int max_size){
-    int k=8;
+void benchmark_steiner::complete_graphs(int y_max,int max_size){
     std::string name="steiner_benchmark";
     Benchmark_writer b=Benchmark_writer(name);
     b.write("Type");
@@ -22,15 +21,13 @@ void benchmark_steiner::complete_graphs(int max_size){
     b.write("Nodes");
     b.writeln("");
 
-    adjancy_matrix graph=GraphGenerator::generate_complete_graph_with_uniform_weights(max_size,1);
-    for(int k=2;k<max_size;++k){
-       // if(k%5==0){
-            std::cout<<"Finished "<<k <<"\\"<<max_size<<"\n";
-       // }
+    adjancy_matrix graph= GraphGenerator::generate_complete_graph_with_random_weights(max_size);
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph,max_size);
+    for(int k=5;k<y_max;++k){
         int test_set=((int)pow(2,k))-1;
         //Test naive
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        int class_result= classic_dreyfuss_wagner(graph, max_size, test_set);
+        classic_dreyfuss_wagner(graph,pair_wise_dist, max_size, test_set);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         b.write("Classic");
         b.write(k);
@@ -40,7 +37,7 @@ void benchmark_steiner::complete_graphs(int max_size){
         b.writeln("");
         //test mobius
         t1 = std::chrono::high_resolution_clock::now();
-        int mob_result=mobius_dreyfuss(graph,max_size,test_set,1);
+        mobius_dreyfuss(graph,pair_wise_dist,max_size,test_set,1);
         t2 = std::chrono::high_resolution_clock::now();
         b.write("Mobius");
         b.write(k);
@@ -48,8 +45,6 @@ void benchmark_steiner::complete_graphs(int max_size){
         b.write(duration);
         b.write(max_size);
         b.writeln("");
-        std::cout<<"Classic:"<<class_result<<": Mobius "<<mob_result<<std::endl;
-       // assert(class_result==mob_result);
     }
     b.close();
 

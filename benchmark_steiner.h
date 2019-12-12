@@ -8,7 +8,7 @@
 
 class benchmark_steiner {
 public:
-    static void complete_graphs(int max_size);
+    static void complete_graphs(int y_max,int max_size);
 };
 
 

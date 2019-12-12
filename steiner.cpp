@@ -83,9 +83,13 @@ inline set_t to_byte_repr(vector<int> &indices) {
     return set_repr;
 }
 
-
-int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K){
+int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
+    return  classic_dreyfuss_wagner(graph_adj,size,K);
+}
+
+int classic_dreyfuss_wagner(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int size, set_t K){
+    //weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
     vector<int> indices=get_element_indices(K);
     int k=__builtin_popcount(K);
     if(k==2){ //return the shortest path
@@ -166,7 +170,7 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K){
             result=value;
         }
     }
-    cout<<result<<endl;
+    //cout<<result<<endl;
     return result;
 }
 
@@ -226,9 +230,8 @@ public:
 };
 #endif
 
-
-int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
-    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
+int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int n, set_t K, int input_range) {
+    //weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
     int k = __builtin_popcount(K);
     vector<int> indices = get_element_indices(K);
 
@@ -308,7 +311,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     /* for (int test = 0; test < k; test++) {
          cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
      }
-     cout << endl;*/ //TODO think about this below
+     cout << endl;*/
     int result=INT_MAX;
     for(int q=0;q<k;++q){
         int value=W[q][relabeld_K xor (1<<q)];
@@ -320,6 +323,12 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
     //output_tree(0,relabeld_K xor (1),n,W,g,relabel);
 
     return result;
+}
+
+
+int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
+    return mobius_dreyfuss(graph_adj,pair_wise_dist,n,K,input_range);
 }
 
 #if 0

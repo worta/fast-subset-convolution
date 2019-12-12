@@ -215,7 +215,7 @@ int main()
     //ConstFunction<int> f=ConstFunction<int>(1);
     //test_subset_gen();
     //test_ranked_mobius_and_convolute();
-    test_steiner();
+    //test_steiner();
 /*
     test_dijkstra();
     test_ring_embedd();
@@ -228,7 +228,7 @@ int main()
     //test_ring_embedd();
     //test_ring_embedd_big_int();
     cout<<"Starting Steiner Benchmark \n";
-    benchmark_steiner::complete_graphs(10);
+    benchmark_steiner::complete_graphs(15,50);
     cout<<"Finished Benchmark\n";
 
    // cout<<"Starting Fast Subset COnv Benchmark \n";

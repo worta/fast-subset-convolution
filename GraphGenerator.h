@@ -8,7 +8,7 @@
 
 class GraphGenerator {
 public:
-  static adjancy_matrix generate_complete_graph_with_uniform_weights(int n, int weight);
+  static adjancy_matrix generate_complete_graph_with_random_weights(int n);
 };
 
 
