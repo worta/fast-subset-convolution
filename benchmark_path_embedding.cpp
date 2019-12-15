@@ -82,14 +82,14 @@ void benchmark_path_embedding::two_child_propagate(int path_count_max) { //todo 
     for(int i=1;i<=path_count_max;++i){
         path_lengths.push_back(distribution_path(generator));
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-        p.two_child_propagate_direct(first_child,second_child,path_lengths,result_table);
+        //p.two_child_propagate_direct(first_child,second_child,path_lengths,result_table);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
         auto duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
-        b.write("Classic");
+        /*b.write("Classic");
         b.write(2);
         b.write(path_lengths.size());
         b.write(duration);
-        b.writeln("");
+        b.writeln("");*/
         //std::cout <<"Done "<<i<<"/"<<path_count_max<<std::endl;
         FastSubsetConvolution<int8_t> f(path_lengths.size(),true); //need only covering product
         t1 = std::chrono::high_resolution_clock::now();
