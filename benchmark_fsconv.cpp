@@ -36,6 +36,7 @@ void benchmark_fsconv::random_func(int max_n) {
         int n=i;
         //naive
         high_resolution_clock::time_point t1 = high_resolution_clock::now();
+        //int8_t* result1=new int8_t[1<<n];
         vector<int8_t> d=naive_convolute(f,f,n);
         high_resolution_clock::time_point t2 = high_resolution_clock::now();
         auto duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
@@ -57,8 +58,9 @@ void benchmark_fsconv::random_func(int max_n) {
         b.writeln("");
         //myfile<<" "<<duration<<"\n";
         cout<<"Finished "<<i<<"\\"<<max_n<<endl;
-//        cout<<result[0];
+        //cout<<result[0];
         delete[] result;
+        //delete[] result1;
     }
     b.close();
 

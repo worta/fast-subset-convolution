@@ -10,7 +10,7 @@
 #include <ctime>
 class Benchmark_writer {
     std::ofstream bfile;
-    std::string path="~/Benchmarks/";
+    std::string path="./Benchmarks/";
     std::string stdout_str;
 public:
     explicit Benchmark_writer(std::string &filename);

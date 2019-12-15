@@ -10,6 +10,8 @@ vector<T> rankedMobius(Function<T> &f,int n,int subsetRank);
 template <typename T>
 vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n);
 template <typename T>
+void naive_convolute2(Function<T> &f, Function<T> &g, int n, int8_t * result);
+template <typename T>
 vector<vector<T> > ranked_convolute(RankedFunction<T> &f, RankedFunction <T> &g, int n);
 template <typename T>
 vector<T> ranked_Mobius_inversion(RankedFunction<T> &f,int n);

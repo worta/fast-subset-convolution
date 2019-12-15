@@ -16,7 +16,7 @@
 void benchmark_path_embedding::embedd_random_length_paths(int path_count_max) { //todo change to random
     std::vector<int> path_lengths=std::vector<int>();
     std::shared_ptr<Tree> root(new Tree(0));
-    Path_Embedding::generateFullTrees(2,*root);
+    Path_Embedding::generateFullTrees(5,*root);
     Path_Embedding p;
     std::string name="path_emb_full_tree";
     Benchmark_writer b=Benchmark_writer(name);
@@ -68,7 +68,8 @@ void benchmark_path_embedding::two_child_propagate(int path_count_max) { //todo 
     b.write("Duration(ms)");
     b.writeln("");
     std::default_random_engine generator;
-    std::uniform_int_distribution<int8_t> distribution(1,5);
+    std::uniform_int_distribution<int8_t> distribution_path(1,10);
+    std::uniform_int_distribution<int8_t> distribution(-1,5);
     int8_t* first_child=new int8_t[1<<path_count_max];
     int8_t* second_child=new int8_t[1<<path_count_max];
     int8_t* result_table=new int8_t[1<<path_count_max];
@@ -79,8 +80,7 @@ void benchmark_path_embedding::two_child_propagate(int path_count_max) { //todo 
 
 
     for(int i=1;i<=path_count_max;++i){
-        path_lengths.push_back(distribution(generator));
-
+        path_lengths.push_back(distribution_path(generator));
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
         p.two_child_propagate_direct(first_child,second_child,path_lengths,result_table);
         std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
