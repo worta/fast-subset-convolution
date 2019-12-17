@@ -227,16 +227,16 @@ int main()
     //myfile.close();
     //test_ring_embedd();
     //test_ring_embedd_big_int();
-    cout<<"Starting Steiner Benchmark \n";
-    benchmark_steiner::complete_graphs(17,50);
-    cout<<"Finished Benchmark\n";
+   // cout<<"Starting Steiner Benchmark \n";
+    //benchmark_steiner::complete_graphs(17,50);
+   // cout<<"Finished Benchmark\n";
 
     //cout<<"Starting Fast Subset COnv Benchmark \n";
     //benchmark_fsconv::random_func(18);
     //cout<<"Finished Benchmark\n";
     //benchmark_path_embedding::test_child_propagation();
     cout<<"Starting Path Embedding Benchmark with Path from 1 to 10\n";
-    benchmark_path_embedding::two_child_propagate(24); //draw from 10
+    benchmark_path_embedding::two_child_propagate(25); //draw from 10
     cout<<"Finished Benchmark\n";
     //benchmark_path_embedding::embedd_random_length_paths(16);
    // cout<<"Starting Dominating Set Benchmark \n";

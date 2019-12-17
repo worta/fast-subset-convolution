@@ -55,7 +55,7 @@ void benchmark_path_embedding::embedd_random_length_paths(int path_count_max) { 
 }
 
 
-void benchmark_path_embedding::two_child_propagate(int path_count_max) { //todo change to random
+void benchmark_path_embedding::two_child_propagate(int path_count_max) {
     std::vector<int> path_lengths=std::vector<int>();
     std::shared_ptr<Tree> root(new Tree(0));
     Path_Embedding::generateFullTrees(2,*root);
@@ -91,16 +91,18 @@ void benchmark_path_embedding::two_child_propagate(int path_count_max) { //todo 
         b.write(duration);
         b.writeln("");*/
         //std::cout <<"Done "<<i<<"/"<<path_count_max<<std::endl;
-        FastSubsetConvolution<int8_t> f(path_lengths.size(),true); //need only covering product
-        t1 = std::chrono::high_resolution_clock::now();
-        p.two_children_propagate_mobius(f,first_child,second_child,path_lengths,10,result_table);
-        t2 = std::chrono::high_resolution_clock::now();
-        duration=std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
-        b.write("Mobius");
-        b.write(2);
-        b.write(path_lengths.size());
-        b.write(duration);
-        b.writeln("");
+        if(i==25) {
+            FastSubsetConvolution<int8_t> f(path_lengths.size(), true); //need only covering product
+            t1 = std::chrono::high_resolution_clock::now();
+            p.two_children_propagate_mobius(f, first_child, second_child, path_lengths, 10, result_table);
+            t2 = std::chrono::high_resolution_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+            b.write("Mobius");
+            b.write(2);
+            b.write(path_lengths.size());
+            b.write(duration);
+            b.writeln("");
+        }
        // std::cout <<"Done "<<i<<"/"<<path_count_max<<std::endl;
     }
     b.close();
