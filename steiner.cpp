@@ -16,6 +16,7 @@
 #include <array>
 #include "MinSumRingEmbedd.h"
 #include <cassert>
+#include "FastSubsetConvolution.h"
 typedef boost::multi_array<int, 2> weight_matrix;
 typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
@@ -274,18 +275,15 @@ int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int n
 
     //levelwise computation
 //    int max_value = (n - 1) * input_range + 1;
+    FastSubsetConvolution<MinSumRingEmbedd> fastConv=FastSubsetConvolution<MinSumRingEmbedd>(k,true);
     for (int l = 2; l < k; ++l) {
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, l, p, max_value);
             Function_Embedd f(f_p);
-            //if(l>10){ //TODO fine tune
-            g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
-            //}
-            // else{
-            //     g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
-            //  }
+            fastConv.advanced_covering_product(f,g[p].data());
+            //g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
         }
 
         for (unsigned int q = 0; q < k; ++q) { //todo think about if you could calculate less here
@@ -434,7 +432,7 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
         set_repr = set_repr xor (1 << ele1); //remove first element
         int ele2 = __builtin_ffs(set_repr) - 1;
         cout<<set_repr<<endl;
-        W[subsets[i]] = pair_wise_dist[ele1][ele2]; //TODO: change when relabeling is done
+        W[subsets[i]] = pair_wise_dist[ele1][ele2];
     }
 
 //#if 0
@@ -449,16 +447,13 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range
             EmbeddIntoIntProduct f=EmbeddIntoIntProduct(f,size);
             //should add a version which expects size ob subset and a vector containing all previous results
             g[p] = advanced_convolute<int>(f, f, size);
-            /*TODO: super inefficient, probably need a convolute which only calculates for subsets of size |x|
-              TODO: this also goes back to implementing bankers code*/
+
+
             //transform g[p] back
             int base = (int) pow(2, size) + 1;
             for (int i = input_range * 2; i >= 0; --i) {
                 int coeff = pow(base, i); //careful that this term does not exceed int
                 for (int j = 0; j < g[p].size(); ++j) {
-                    if(g[p][j]==INT_MAX_SELF){
-
-                    }
                     if (g[p][j] > coeff) {
                         g_transformed[p][j] = i;//at the end the minimal i will be in here
                         g[p][j] = g[p][j] % coeff; //TODO: funktioniert das mit max

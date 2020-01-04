@@ -23,7 +23,7 @@ void benchmark_steiner::complete_graphs(int y_max,int max_size){
 
     adjancy_matrix graph= GraphGenerator::generate_complete_graph_with_random_weights(max_size);
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph,max_size);
-    for(int k=15;k<y_max;++k){
+    for(int k=5;k<=y_max;++k){
         int test_set=((int)pow(2,k))-1;
         //Test naive
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
