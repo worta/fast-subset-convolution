@@ -37,7 +37,7 @@ void benchmark_steiner::complete_graphs(int y_max,int max_size){
         b.writeln("");
         //test mobius
         t1 = std::chrono::high_resolution_clock::now();
-        mobius_dreyfuss(graph,pair_wise_dist,max_size,test_set,1);
+        mobius_dreyfuss(graph,pair_wise_dist,max_size,test_set,10);
         t2 = std::chrono::high_resolution_clock::now();
         b.write("Mobius");
         b.write(k);

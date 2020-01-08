@@ -108,7 +108,8 @@ void DominatingSet::mobius_join_node(int8_t *child1, int8_t *child2, int minc_1,
     //input two tables with 3 ^n values
     set_t node_mask = (1 << node_count) - 1; //has the form 00111..1 with #1= #nodes
     int n = ipow(3, node_count);
-    int min_possible = min(minc_1 + minc_2 - (node_count ),0); //can be less than minc1+minc2, because nodes might be counted double
+    int min_possible = min(minc_1 + minc_2 - (node_count),
+                           0); //can be less than minc1+minc2, because nodes might be counted double
     //see de fluiter property, has to be in range (e_x+e_y-(k+1))
     int max_possible = minc_1 + minc_2 + node_count + 1; //((e_x+e_y+k+
     int value_range = max_possible - min_possible;
@@ -126,62 +127,45 @@ void DominatingSet::mobius_join_node(int8_t *child1, int8_t *child2, int minc_1,
         int dom_index = calculate_dom_index(dom_set, node_count);
         //vector<set_t> not_dominated_sets = get_subsets(valid_not_dom_superset);
         int set_count = get_subsets(valid_not_dom_superset, subset_and_idx_buffer);
-#if 0
-        //create tables
-        // int set_count=not_dominated_sets.size();
-        /*int8_t *t_1 = new int8_t[set_count * value_range]; //i.e t1 points to [possuble values][sets]
-        int8_t *t_2 = new int8_t[set_count * value_range];
-        int set_counter = 0;
-        for (int set_idx = 0; set_idx < set_count; ++set_idx) {
-            int not_dom_index = calculate_not_dom_index(dom_set, subset_and_idx_buffer[set_idx], node_count);
-            int index = not_dom_index + dom_index;
-            for (int i = 0; i < value_range; ++i) {
-                t_1[i * set_count + set_counter] = 0;
-                t_2[i * set_count + set_counter] = 0;
-                if (child1[index] == i + min_possible) {
-                    t_1[i * set_count + set_counter] = 1;
-                }
-                if (child2[index] == i + min_possible) {
-                    t_2[i * set_count + set_counter] = 1;
-                }
-            }
-            ++set_counter;
-            subset_and_idx_buffer[set_idx] = index; //replace set by set index, the bit representation is not needed anymore
-        }*/
-#endif
         //int set_counter = 0;
         for (int set_idx = 0; set_idx < set_count; ++set_idx) {
             int not_dom_index = calculate_not_dom_index(dom_set, subset_and_idx_buffer[set_idx], node_count);
             int index = not_dom_index + dom_index;
-            t_1[set_idx]= child1[index];
-            t_2[set_idx]= child2[index];
+            t_1[set_idx] = child1[index];
+            t_2[set_idx] = child2[index];
             subset_and_idx_buffer[set_idx] = index; //replace set by set index, the bit representation is not needed anymore
         }
         FastSubsetConvolution<int8_t> f(zero_count, false); //node_count-one_count equals the amount of 0s
 
-        for (int i = min_possible; i < max_possible; ++i) {
-            for (int j = min_possible; j < max_possible; ++j) {
+        for (int value = min_possible; value <= max_possible; value++) {
+            for (int i = 0; i < value; ++i) {
                 //fastr subset convolute t1[i*set_count] and t2[j*set_count]
-               /* ArrayFunction<int8_t> a(&t_1[i * set_count]);
-                ArrayFunction<int8_t> b(&t_2[j * set_count]); */
-                EqualFunction<int8_t> a(t_1,i);
-                EqualFunction<int8_t> b(t_2,j);
-                f.advanced_convolute(a,b,temp_result_buffer); //needs f to be constructed with only covering=false
+                /* ArrayFunction<int8_t> a(&t_1[i * set_count]);
+                 ArrayFunction<int8_t> b(&t_2[j * set_count]); */
+                EqualFunction<int8_t> a(t_1, i);
+                EqualFunction<int8_t> b(t_2, value-i);
+                f.advanced_convolute(a, b, temp_result_buffer); //needs f to be constructed with only covering=false
                 //f.advanced_covering_product(a, b, temp_result_buffer); //doing it via covering product, covering=true recommended
                 for (int temp_result_idx = 0; temp_result_idx < set_count; ++temp_result_idx) {
                     if (temp_result_buffer[temp_result_idx] > 0) {
-                        if (result[subset_and_idx_buffer[temp_result_idx]] > i + j) {
-                            result[subset_and_idx_buffer[temp_result_idx]] = i + j;
+                        if (result[subset_and_idx_buffer[temp_result_idx]] > value) {
+                            result[subset_and_idx_buffer[temp_result_idx]] = value;
                         }
                     }
                 }
             }
+
         }
 
 
     }
-    delete[] temp_result_buffer; //todo maybe just allocate max memory and delte at the end
-    delete[] t_1;
-    delete[] t_2;
-    delete[] subset_and_idx_buffer;
+
+    delete[]
+            temp_result_buffer; //todo maybe just allocate max memory and delete at the end
+    delete[]
+            t_1;
+    delete[]
+            t_2;
+    delete[]
+            subset_and_idx_buffer;
 }

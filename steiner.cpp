@@ -16,12 +16,12 @@
 #include <array>
 #include "MinSumRingEmbedd.h"
 #include <cassert>
-#include "FastSubsetConvolution.h"
+
 typedef boost::multi_array<int, 2> weight_matrix;
-typedef boost::multi_array<int, 2> intd2_arr;
 typedef weight_matrix::index index;
 
 #define INT_MAX_SELF 2147483647
+
 struct Node {
     int idx;
     int dist;
@@ -86,17 +86,17 @@ inline set_t to_byte_repr(vector<int> &indices) {
 
 int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K) {
     weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    return  classic_dreyfuss_wagner(graph_adj,size,K);
+    return classic_dreyfuss_wagner(graph_adj,pair_wise_dist, size, K);
 }
 
-int classic_dreyfuss_wagner(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int size, set_t K){
+int classic_dreyfuss_wagner(weight_matrix &graph_adj, weight_matrix &pair_wise_dist, int size, set_t K) {
     //weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    vector<int> indices=get_element_indices(K);
-    int k=__builtin_popcount(K);
-    if(k==2){ //return the shortest path
+    vector<int> indices = get_element_indices(K);
+    int k = __builtin_popcount(K);
+    if (k == 2) { //return the shortest path
         return pair_wise_dist[indices[0] - 1][indices[1] - 1];
     }
-    vector<unordered_map<set_t,int> >  s(size,unordered_map<set_t,int>());
+    vector <unordered_map<set_t, int>> s(size, unordered_map<set_t, int>());
 
     //relabel
     int relabel[size];
@@ -105,7 +105,7 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj,weight_matrix pair_wise_dis
     }
     int new_index = indices.size();
     for (int i = 0; i < size; ++i) {
-        if(std::find(indices.begin(), indices.end(), i+1) == indices.end()){ //works for n>32 if k is below 32
+        if (std::find(indices.begin(), indices.end(), i + 1) == indices.end()) { //works for n>32 if k is below 32
             relabel[new_index] = i;
             new_index++;
         }
@@ -115,60 +115,60 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj,weight_matrix pair_wise_dis
         relabeld_K = relabeld_K | (1 << i);
     }
     //choose q:
-    int original_q=indices[indices.size()-1]-1;  //this is the q that corresponds to the highest bit in the relabeld k
-    int q=1<<(k-1);
-    set_t C=relabeld_K xor q;
+    int original_q =
+            indices[indices.size() - 1] - 1;  //this is the q that corresponds to the highest bit in the relabeld k
+    int q = 1 << (k - 1);
+    set_t C = relabeld_K xor q;
     vector<int> new_indices = get_element_indices(C);
-    for(int i=0;i<size;++i){
-        for(int p=0;p<k;++p){
-            s[i][1<<p]=pair_wise_dist[relabel[i]][relabel[p]];
+    for (int i = 0; i < size; ++i) {
+        for (int p = 0; p < k; ++p) {
+            s[i][1 << p] = pair_wise_dist[relabel[i]][relabel[p]];
         }
     }
 
-    for(int m=2;m<k-1;++m){ //|K|-1 is equal to |C|
-        vector<set_t> Ds = generate_subsets_of_size_k(C,m,k-1);
-        for(set_t D:Ds){
-            for(int i=0;i<size;++i){
-                s[i][D]=100000;//TODO max finden
+    for (int m = 2; m < k - 1; ++m) { //|K|-1 is equal to |C|
+        vector <set_t> Ds = generate_subsets_of_size_k(C, m, k - 1);
+        for (set_t D:Ds) {
+            for (int i = 0; i < size; ++i) {
+                s[i][D] = 100000;//TODO max finden
             }
-            for(int j=0;j<size;++j){
-                int u=100000;
-                vector<set_t> Es=get_subsets(D);
-                set_t D_1=1<<(__builtin_ffs(D)-1);
-                for(set_t e:Es){
-                    if((D_1 bitand e) and (e !=D)){ //is D_1 in e and e real subset of D
-                        int val=s[j][e]+s[j][D xor e]; //D xor e is D-e (D\e) if e is subset of D
-                        if(val<u){
-                            u=val;
+            for (int j = 0; j < size; ++j) {
+                int u = 100000;
+                vector <set_t> Es = get_subsets(D);
+                set_t D_1 = 1 << (__builtin_ffs(D) - 1);
+                for (set_t e:Es) {
+                    if ((D_1 bitand e) and (e != D)) { //is D_1 in e and e real subset of D
+                        int val = s[j][e] + s[j][D xor e]; //D xor e is D-e (D\e) if e is subset of D
+                        if (val < u) {
+                            u = val;
                         }
                     }
                 }
-                for(int i=0;i<size;++i){
-                    int val=pair_wise_dist[relabel[i]][relabel[j]]+u;
-                    if ((s[i].find(D) == s[i].end()) or (val<s[i][D]))
-                    {
-                        s[i][D]=val;
+                for (int i = 0; i < size; ++i) {
+                    int val = pair_wise_dist[relabel[i]][relabel[j]] + u;
+                    if ((s[i].find(D) == s[i].end()) or (val < s[i][D])) {
+                        s[i][D] = val;
                     }
                 }
             }
         }
     }
-    int result=100000;
-    for(int j=0;j<size;++j){
-        int u=10000000;
-        vector<set_t> Es=get_subsets(C);
-        set_t C_1=1<<(__builtin_ffs(C)-1);
-        for(set_t e:Es) {
+    int result = 100000;
+    for (int j = 0; j < size; ++j) {
+        int u = 10000000;
+        vector <set_t> Es = get_subsets(C);
+        set_t C_1 = 1 << (__builtin_ffs(C) - 1);
+        for (set_t e:Es) {
             if ((C_1 bitand e) and (e != C)) {
-                int val=s[j][e]+s[j][C xor e]; //D xor e is D-e (D\e) if e is subset of D
-                if(val<u){
-                    u=val;
+                int val = s[j][e] + s[j][C xor e]; //D xor e is D-e (D\e) if e is subset of D
+                if (val < u) {
+                    u = val;
                 }
             }
         }
-        int value=pair_wise_dist[relabel[j]][original_q]+u;
-        if(value<result){
-            result=value;
+        int value = pair_wise_dist[relabel[j]][original_q] + u;
+        if (value < result) {
+            result = value;
         }
     }
     //cout<<result<<endl;
@@ -176,23 +176,19 @@ int classic_dreyfuss_wagner(weight_matrix &graph_adj,weight_matrix pair_wise_dis
 }
 
 
-bool cmp_setsize(set_t i, set_t j) { return (__builtin_popcount(i) < __builtin_popcount(j)); }
-
-
 class Function_p
         : public Function<int> {
 
 private:
     int level;
-    vector<vector<int> > W;
+    vector <vector<int>> W;
     int p;
-    int max_value;
 public:
-    Function_p(vector<vector<int> > &W_, int level_, int p_, int max_value_) : //TODO level and max value unimprotant
-            W(W_), level(level_), p(p_), max_value(max_value_) {
+    Function_p(vector <vector<int>> &W_, int p_) :
+            W(W_), p(p_) {
     };
 
-    int operator()(set_t s)  override{
+    int operator()(set_t s) override {
         return W[p][s];
     }
 
@@ -212,26 +208,13 @@ public:
 };
 
 
-#if 0
-class EmbeddIntoIntProduct : public Function<int> {
-    Function<int> &f;
-    int base;
-public:
-    EmbeddIntoIntProduct(Function<int> &func, int n) : f(
-            func) { //because f is a reference it has to be in a initializer list
-        this->base = pow(2, n) + 1;
-    }
+int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K,int input_range) {
+    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
+    return mobius_dreyfuss(graph_adj, pair_wise_dist, n,K,input_range);
+}
 
-    int operator()(set_t s) {
-        int value = f(s);
-        if (value == INT_MAX_SELF) return INT_MAX_SELF; //reicht immer noch nicht ,hiermit wird bei convolution ja noch gferechent
-        return (int) pow(base, value);
-    }
 
-};
-#endif
-
-int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int n, set_t K, int input_range) {
+int mobius_dreyfuss(weight_matrix &graph_adj, weight_matrix &pair_wise_dist, int n, set_t K, int input_range) {
     //weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
     int k = __builtin_popcount(K);
     vector<int> indices = get_element_indices(K);
@@ -275,15 +258,18 @@ int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int n
 
     //levelwise computation
 //    int max_value = (n - 1) * input_range + 1;
-    FastSubsetConvolution<MinSumRingEmbedd> fastConv=FastSubsetConvolution<MinSumRingEmbedd>(k,true);
     for (int l = 2; l < k; ++l) {
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
                                                       k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
         for (int p = 0; p < n; ++p) {
-            Function_p f_p(W, l, p, max_value);
+            Function_p f_p(W, p);
             Function_Embedd f(f_p);
-            fastConv.advanced_covering_product(f,g[p].data());
-            //g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
+            //if(l>10){ //TODO fine tune
+            g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
+            //}
+            // else{
+            //     g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
+            //  }
         }
 
         for (unsigned int q = 0; q < k; ++q) { //todo think about if you could calculate less here
@@ -321,363 +307,4 @@ int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int n
     //output_tree(0,relabeld_K xor (1),n,W,g,relabel);
 
     return result;
-}
-
-
-int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K, int input_range) {
-    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
-    return mobius_dreyfuss(graph_adj,pair_wise_dist,n,K,input_range);
-}
-
-#if 0
-void output_tree(int q, set_t relabeld_K, int n, vector<vector<int> > &W, vector<vector<MinSumRingEmbedd> > &g,
-                 int relabeling[]) {
-    if (__builtin_popcount(relabeld_K) == 1) {
-        cout << relabeling[__builtin_ffs(relabeld_K) - 1];
-        return;
-    }
-    if (relabeld_K == 0) {
-        return;
-    }
-    set_t X = relabeld_K;
-    if (X == 0) {
-        return;
-    }
-    int min = INT_MAX_SELF;
-    int corresponding_p = n + 1;
-    for (int p = 0; p < n; ++p) {
-        int value = W[p][1 << q] + g[p][X].min();
-        if (value < min) {
-            min = value;
-            corresponding_p = p;
-        }
-    }
-    cout << "path(" << relabeling[q] << "," << relabeling[corresponding_p] << ") " << endl;
-
-    vector<set_t> sets = get_subsets_it(X);
-    if (sets.size() == 2) {
-        cout << "p:" << relabeling[__builtin_ffs(X) - 1];
-        return;
-    }
-    set_t min_set = 0;
-    min = INT_MAX_SELF;
-    for (set_t s:sets) {
-        if ((s != 0) and (s != X)) {
-            int value = W[corresponding_p][s] + W[corresponding_p][X xor s];
-            if (value < min) {
-                min = value;
-                min_set = s;
-            }
-        }
-    }
-    set_t D = min_set;
-    set_t X_wo_D = X xor D;
-    vector<int> d = get_element_indices(D);
-    cout << "H2:";
-    for (int el:d) {
-        cout << relabeling[el - 1] << " ";
-    }
-    cout << endl;
-    cout << "H2 connects:" << relabeling[corresponding_p] << " ";
-    //cout<<endl;
-    output_tree(corresponding_p, D, n, W, g, relabeling);
-    d = get_element_indices(X_wo_D);
-    cout << "H3:";
-    for (int el:d) {
-        cout << relabeling[el - 1] << " ";
-    }
-    cout << "H3 connects:" << relabeling[corresponding_p] << " ";
-    //cout<<endl;
-    output_tree(corresponding_p, X_wo_D, n, W, g, relabeling);
-
-}
-#endif
-
-#if 0
-int mobius_dreyfuss(weight_matrix &graph_adj, int size, set_t K, int input_range) {
-    weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, size);
-    int k = __builtin_popcount(K);
-    int subset_count = (int) pow(2, k);
-
-    //TODO: ALle subsets bis größe x von allen Knoten
-
-
-    vector<set_t> subsets = get_subsets_it(K); //das sind auch nicht alle subsets die wir brauchen, es fehlt für jedes
-    //X, Xu{p} mit p element von V\K
-
-
-    std::sort(subsets.begin(), subsets.end(), cmp_setsize); //TODO: generate subsets in order->bankers code
-    // subsets of size 0=1, subsets of size 1=n, subsets of size 2=n*(n-1)/2, size 3=n*(n-1)*(n-2)/6 so (n over size)
-    //intd2_arr g(boost::extents[size][subset_count]);
-
-    vector<vector<int> > g(size,vector<int>(pow(2,size)));
-
-    //@TODO relabeling
-    vector<int> indices = get_element_indices(K);
-
-
-
-    //init W
-    vector<int> W((int)pow(2,size));
-    for (set_t i = 0; i < k + 1; ++i) { //subsets of size 0 and 1
-        W[i] = 0;
-        cout<<subsets[i]<<" ";
-    }
-    cout<<endl;
-
-    for (int i = k + 1; i < k + 1 + (k * (k - 1) / 2); ++i) { //subsets of size 2
-        set_t set_repr = subsets[i];
-        cout<<subsets[i]<<" ";
-        int ele1 = __builtin_ffs(i) - 1;
-        set_repr = set_repr xor (1 << ele1); //remove first element
-        int ele2 = __builtin_ffs(set_repr) - 1;
-        cout<<set_repr<<endl;
-        W[subsets[i]] = pair_wise_dist[ele1][ele2];
-    }
-
-//#if 0
-    int last_index = k + 1 + (k * (k - 1) /
-                                 2); //determines the end index of subsets of size x, here set to the last index of subsets of size 2
-    vector<vector<int> > g_transformed;
-    for (int l = 2; l < k; ++l) {
-
-        //compute gp for |X|<l
-        for (int p = 0; p < size; ++p) {
-            Function_p fbase = Function_p(W, l, p);
-            EmbeddIntoIntProduct f=EmbeddIntoIntProduct(f,size);
-            //should add a version which expects size ob subset and a vector containing all previous results
-            g[p] = advanced_convolute<int>(f, f, size);
-
-
-            //transform g[p] back
-            int base = (int) pow(2, size) + 1;
-            for (int i = input_range * 2; i >= 0; --i) {
-                int coeff = pow(base, i); //careful that this term does not exceed int
-                for (int j = 0; j < g[p].size(); ++j) {
-                    if (g[p][j] > coeff) {
-                        g_transformed[p][j] = i;//at the end the minimal i will be in here
-                        g[p][j] = g[p][j] % coeff; //TODO: funktioniert das mit max
-                    }
-                }
-            }
-        }
-        //compute W with set=|X|=l U {q} :\q in V
-
-        unsigned int new_index = last_index + nChoosek(k, l);
-        for (unsigned int set_ind = last_index; set_ind < new_index; ++set_ind) { //go trhough all subsets of size l
-            for (int q = 0; q < size; ++q)  //go troguh all v
-            {
-                if(q bitand subsets[set_ind]==0){ //consider only q not in X
-                    set_t new_set=subsets[set_ind] bitor q;
-                    int min=INT_MAX_SELF;
-                    int value;
-                    for(int p=0;p<size;++q) {
-                       value=pair_wise_dist[q][p]+g[p][subsets[set_ind]];
-                       if(min>value){
-                           value=min;
-                       }
-                    }
-                    W[new_set]=min;
-                }
-            }
-
-        }
-        last_index = new_index;
-
-    }
-
-    return W[K];
-//#endif
-    return 0;
-}
-#endif
-
-void test_steiner() {
-
-    //GRAPH 1
-
-    /*  a --  1 --  b -- 1 --   d
-     *     --2      |2
-     *         --   c
-     */
-    std::cout << "------------------" << endl;
-    std::cout << "Test Steiner: ";
-    std::cout << "Graph 1: \n";
-    weight_matrix graph(boost::extents[4][4]);
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            graph[i][j] = -1;
-            if (i == j) {
-                graph[i][i] = 0;
-            }
-        }
-    }
-    graph[0][1] = 1;
-    graph[1][0] = 1;
-    graph[0][2] = 2;
-    graph[2][0] = 2;
-    graph[1][2] = 2;
-    graph[2][1] = 2;
-    graph[1][3] = 1;
-    graph[3][1] = 1;
-
-    int resultc = 0;
-    int resultm =1;
-    cout << "Testing {b,d,a}, expected result:2\n";
-    resultc = classic_dreyfuss_wagner(graph, 4, 0b1011);
-    resultm = mobius_dreyfuss(graph, 4, 0b1011, 3);
-    assert(resultm==2);
-    assert(resultc==resultm);
-    cout<<"Classic: " <<resultc<<endl;
-    cout << "ADVANCED RESULT:" << resultm << endl;
-
-
-    /*  a --  5 --  b -- 1 --   d
-    *     --2      |2
-    *         --   c-----1------e
-    *                -1-    -3-
-    *                    f
-    */
-    std::cout << "Test Steiner: ";
-    std::cout << "Graph 2: \n";
-    weight_matrix graph2(boost::extents[6][6]);
-    for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j) {
-            graph2[i][j] = -1;
-            if (i == j) {
-                graph2[i][i] = 0;
-            }
-        }
-    }
-    graph2[0][1] = 5;
-    graph2[1][0] = 5;
-    graph2[0][2] = 2;
-    graph2[2][0] = 2;
-    graph2[1][2] = 2;
-    graph2[2][1] = 2;
-    graph2[1][3] = 1;
-    graph2[3][1] = 1;
-    graph2[2][4] = 1;
-    graph2[4][2] = 1;
-    graph2[2][5] = 1;
-    graph2[5][2] = 1;
-    graph2[4][5] = 3;
-    graph2[5][4] = 3;
-
-
-    cout << "Test with: {d,e,f},Expected Value: 5\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111000);
-    cout << "Classic RESULT:" << resultc << endl;
-    resultm = mobius_dreyfuss(graph2, 6, 0b111000, 5);
-    cout << "ADVANCED RESULT:" << resultm << endl;
-    assert(resultm==5);
-    assert(resultc==resultm);
-
-    cout << "Test with: {a,b,c,f},Expected Value: 5\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b100111);
-    cout << "Classic RESULT:" << resultc << endl;
-    resultm = mobius_dreyfuss(graph2, 6, 0b100111, 5);
-    cout << "ADVANCED RESULT:" << resultm << endl;
-    assert(resultm==5);
-    assert(resultc==resultm);
-
-    cout << "Test with: {a,b,d,f},Expected Value: 6\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b101011);
-    cout << "Classic RESULT:" << resultc << endl;
-    resultm = mobius_dreyfuss(graph2, 6, 0b101011, 5);
-    cout << "ADVANCED RESULT:" << resultm << endl;
-    assert(resultm==6);
-    assert(resultc==resultm);
-
-    cout << "Test with: {a,b},Expected Value: 4\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b000011);
-    cout << "Classic RESULT:" << resultc << endl;
-    resultm = mobius_dreyfuss(graph2, 6, 0b000011, 5);
-    cout << "ADVANCED RESULT:" << resultm << endl;
-    assert(resultm==4);
-    assert(resultc==resultm);
-
-    cout << "Test with: {b,c,d,e,f},Expected Value: 5\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111110);
-    cout << "Classic RESULT:" << resultc << endl;
-    resultm = mobius_dreyfuss(graph2, 6, 0b111110, 5);
-    cout << "ADVANCED RESULT:" << resultm << endl;
-    assert(resultm==5);
-    assert(resultc==resultm);
-
-
-    cout << "Test with: {a,b,c,d,e,f},Expected Value: 7\n";
-    resultc = classic_dreyfuss_wagner(graph2, 6, 0b111111);
-    cout << "Classic RESULT:" << resultc << endl;
-    resultm = mobius_dreyfuss(graph2, 6, 0b111111, 5);
-    cout << "ADVANCED RESULT:" << resultm << endl;
-    assert(resultm==7);
-    assert(resultc==resultm);
-}
-
-
-void test_ring_embedd() {
-    MinSumRingEmbedd a = MinSumRingEmbedd(0) + MinSumRingEmbedd(3) - (MinSumRingEmbedd(1));
-    MinSumRingEmbedd b = MinSumRingEmbedd(1) + MinSumRingEmbedd(0) - MinSumRingEmbedd(3);
-    MinSumRingEmbedd c = MinSumRingEmbedd(3) + MinSumRingEmbedd(3) - MinSumRingEmbedd(4);
-
-    MinSumRingEmbedd dist1 = a * (b + c);
-    MinSumRingEmbedd dist2 = a * b + a * c;
-
-
-    cout << "-------------" << endl;
-    cout << "Test: Ring Embedding \n";
-    cout << "Example 1\n";
-    //check equal
-    if (dist1.mset == dist2.mset) {
-        cout << "a*(b+c)=ab+ac : Valid\n";
-    } else {
-        cout << "ERROR:a*(b+c)!=ab+ac\n";
-    }
-    dist1 = (a + b) * c;
-    dist2 = a * c + b * c;
-
-    //check equal
-    if (dist1.mset == dist2.mset) {
-        cout << "(a+b)*c=ac+bc : Valid\n";
-    } else {
-        cout << "ERROR:(a+b)*c!=ac+bc\n";
-    }
-
-}
-
-
-void test_dijkstra() {
-    /*  a --  1 --  b -- 1 --   d
-     *     --2      |2
-     *         --   c
-     */
-    std::cout << "Test Dijkstra: \n";
-    weight_matrix graph(boost::extents[4][4]);
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            graph[i][j] = -1;
-            if (i == j) {
-                graph[i][i] = 0;
-            }
-        }
-    }
-    graph[0][1] = 1;
-    graph[1][0] = 1;
-    graph[0][2] = 2;
-    graph[2][0] = 2;
-    graph[1][2] = 2;
-    graph[2][1] = 2;
-    graph[1][3] = 1;
-    graph[3][1] = 1;
-    weight_matrix distances = compute_ap_shortest_path(graph, 4);
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            std::cout << distances[i][j] << " ";
-        }
-        std::cout << "\n";
-    }
-    std::cout << "should be\n";
-    std::cout << "0 1 2 2\n1 0 2 1\n2 2 0 3\n2 1 3 0\n";
-
 }

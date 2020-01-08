@@ -10,10 +10,9 @@
 
 
 weight_matrix compute_ap_shortest_path(weight_matrix adjancy, int size);
-void test_dijkstra();
-int classic_dreyfuss_wagner(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int size, set_t K);
-int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix pair_wise_dist, int size, set_t K, int input_range);
-void test_steiner();
-void test_ring_embedd();
-void output_tree(int q,set_t relabeld_K,int n,std::vector<std::vector <int> > &W, std::vector< std::vector <MinSumRingEmbedd> > &g,int relabeling[]);
+int classic_dreyfuss_wagner(weight_matrix &graph_adj, int size, set_t K);
+int classic_dreyfuss_wagner(weight_matrix &graph_adj,weight_matrix &pair_wise_dist, int size, set_t K);
+int mobius_dreyfuss(weight_matrix &graph_adj,weight_matrix &pair_wise_dist, int size, set_t K,int input_range);
+int mobius_dreyfuss(weight_matrix &graph_adj,int size, set_t K,int input_range);
+
 #endif // STEINER_H_INCLUDED
