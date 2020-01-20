@@ -168,17 +168,6 @@ vector<T> naive_convolute(Function<T> &f, Function<T> &g, int n) {
     return conv;
 }
 
-template<typename T>
-void naive_convolute2(Function<T> &f, Function<T> &g, int n, int8_t* result) {
-    //set_t N = ((set_t) 1 << n) - 1;
-    for (int subset = 0; subset < (1<<n); ++subset) {
-        result[subset] = 0;
-        vector<set_t> subsets= get_subsets(subset);
-        for(set_t i:subsets){
-            result[subset] = result[subset] + f(i) * g(subset xor i);
-        }
-    }
-}
 
 
 

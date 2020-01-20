@@ -16,11 +16,13 @@
 #include <array>
 #include "MinSumRingEmbedd.h"
 #include <cassert>
+#include "FastSubsetConvolution.h"
 
 typedef boost::multi_array<int, 2> weight_matrix;
 typedef weight_matrix::index index;
 
-#define INT_MAX_SELF 2147483647
+#define STEINER_SET_MAX_SIZE 10000
+//more than enough for maximal steiner size
 
 struct Node {
     int idx;
@@ -213,18 +215,16 @@ int mobius_dreyfuss(weight_matrix &graph_adj, int n, set_t K,int input_range) {
     return mobius_dreyfuss(graph_adj, pair_wise_dist, n,K,input_range);
 }
 
-
 int mobius_dreyfuss(weight_matrix &graph_adj, weight_matrix &pair_wise_dist, int n, set_t K, int input_range) {
-    //weight_matrix pair_wise_dist = compute_ap_shortest_path(graph_adj, n);
     int k = __builtin_popcount(K);
     vector<int> indices = get_element_indices(K);
-
     if (k == 2) { //just shortest path
         return pair_wise_dist[indices[0] - 1][indices[1] - 1];
     }
     int max_value = (n - 1) * input_range + 1;
-    vector<vector<int> > W(n, vector<int>((int) pow(2, k), max_value)); //,(n-1)*input_range+1) in the second brackes
+    vector<vector<int> > W(n, vector<int>((int) pow(2, k), max_value));
     vector<vector<MinSumRingEmbedd> > g(n, vector<MinSumRingEmbedd>((int) pow(2, k)));
+
     //relabel
     int relabel[n];
     for (int i = 0; i < indices.size(); ++i) {
@@ -257,28 +257,20 @@ int mobius_dreyfuss(weight_matrix &graph_adj, weight_matrix &pair_wise_dist, int
     }
 
     //levelwise computation
-//    int max_value = (n - 1) * input_range + 1;
     for (int l = 2; l < k; ++l) {
         vector<set_t> Xs = generate_subsets_of_size_k(relabeld_K, l,
-                                                      k); //can skip this for l=k-1 and only do for one set as done in the comments below at compute result
+                                                      k);
         for (int p = 0; p < n; ++p) {
             Function_p f_p(W, p);
             Function_Embedd f(f_p);
-            //if(l>10){ //TODO fine tune
-            g[p] = advanced_convolute<MinSumRingEmbedd>(f,k); //only convolute for Xs generated below
-            //}
-            // else{
-            //     g[p] = naive_convolute<MinSumRingEmbedd>(f,f,k);
-            //  }
+            g[p] = advanced_convolute<MinSumRingEmbedd>(f,k);
         }
-
-        for (unsigned int q = 0; q < k; ++q) { //todo think about if you could calculate less here
+        for (unsigned int q = 0; q < k; ++q) {
             for (set_t X:Xs) {
                 if ((X bitand (1 << q)) == 0) { //for all X with q not in X
-                    int min_value = INT_MAX_SELF;
+                    int min_value = STEINER_SET_MAX_SIZE;
                     for (int p = 0; p < n; ++p) {
                         int value = pair_wise_dist[relabel[q]][relabel[p]] + g[p][X].min();
-                        //int value = W[p][1<<q]+g[p][X].min();
                         if (value < min_value) {
                             min_value = value;
                         }
@@ -290,21 +282,14 @@ int mobius_dreyfuss(weight_matrix &graph_adj, weight_matrix &pair_wise_dist, int
         }
 
     }
-
-
-    /* for (int test = 0; test < k; test++) {
-         cout << " Result: " << W[test][relabeld_K xor (1 << test)]; //should be the same everywhere
-     }
-     cout << endl;*/
-    int result=INT_MAX_SELF;
+    
+    int result=STEINER_SET_MAX_SIZE;
     for(int q=0;q<k;++q){
         int value=W[q][relabeld_K xor (1<<q)];
         if(value<result){
             result=value;
         }
     }
-    //int result = W[1][relabeld_K xor 2];
-    //output_tree(0,relabeld_K xor (1),n,W,g,relabel);
 
     return result;
 }
